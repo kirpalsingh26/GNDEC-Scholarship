@@ -1,0 +1,27 @@
+{
+  "name": "scholarsphere",
+  "version": "1.0.0",
+  "description": "ScholarSphere - Smart Scholarship, Attendance, Documents & Student Success Platform",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "scholarship",
+    "gndec",
+    "attendance",
+    "student-success",
+    "document-verification",
+    "college-erp"
+  ],
+  "author": "ScholarSphere Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
