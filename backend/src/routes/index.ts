@@ -5,6 +5,7 @@ import {
   updateMyProfile,
   getMyAttendanceAnalytics,
   getMyAcademicRecords,
+  getStudentDashboardData,
 } from '../controllers/studentController.js';
 import {
   listScholarships,
@@ -73,6 +74,7 @@ router.get('/auth/me', authenticate, getMe);
 // ==========================================
 // 2. STUDENT PROFILE & ACADEMIC ROUTES
 // ==========================================
+router.get('/students/dashboard', authenticate, authorize(ROLES.STUDENT), getStudentDashboardData);
 router.get('/students/me', authenticate, authorize(ROLES.STUDENT), getMyProfile);
 router.put('/students/me', authenticate, authorize(ROLES.STUDENT), updateMyProfile);
 router.get(

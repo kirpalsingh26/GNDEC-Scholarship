@@ -4,7 +4,6 @@ import { Department, Course, Subject } from '../models/Department.js';
 import { Scholarship } from '../models/Scholarship.js';
 import { ScholarshipApplication } from '../models/ScholarshipApplication.js';
 import { StudentDocument } from '../models/Document.js';
-import { AttendanceRecord } from '../models/AttendanceRecord.js';
 import { AcademicRecord } from '../models/AcademicRecord.js';
 import { SupportTicket } from '../models/SupportTicket.js';
 import { Notification } from '../models/Notification.js';
@@ -74,22 +73,22 @@ export const seedDatabase = async () => {
     phone: '9816003344',
   });
 
-  // 3. Create Scholarships
+  // 3. Create Scholarships (Only PMS Scholarship)
   const scholarshipsData = [
     {
-      title: 'Punjab Post-Matric Scholarship Scheme (SC/ST)',
-      code: 'PB-PMSS-SC',
-      provider: 'Department of Social Justice, Govt. of Punjab',
+      title: 'Dr. B.R. Ambedkar Post-Matric Scholarship Scheme for SC Students (Punjab)',
+      code: 'PB-PMS-SC',
+      provider: 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab',
       type: 'RESERVATION',
       description:
-        'Complete tuition fee waiver and annual maintenance allowance for scheduled caste students pursuing engineering degrees.',
+        'Centrally sponsored and Punjab State Government implemented Post Matric Scholarship Scheme for Scheduled Caste (SC) students pursuing technical and engineering education at GNDEC Ludhiana. Provides 100% tuition and institutional fee waiver along with annual Direct Benefit Transfer (DBT) maintenance allowance.',
       amount: 75000,
       frequency: 'ANNUAL',
       academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), // 25 days left
+      deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
       isRenewable: true,
-      totalSeats: 250,
-      availableSeats: 184,
+      totalSeats: 300,
+      availableSeats: 215,
       status: 'ACTIVE',
       requiredDocuments: [
         DOCUMENT_TYPES.INCOME_CERTIFICATE,
@@ -100,125 +99,15 @@ export const seedDatabase = async () => {
         DOCUMENT_TYPES.FEE_RECEIPT,
       ],
       rules: {
-        minCgpa: 6.0,
-        minAttendance: 75,
+        minCgpa: 0,
         maxFamilyIncome: 250000,
-        allowedCategories: ['SC', 'ST'],
-        maxBacklogs: 2,
-        genderRestriction: 'ALL',
-      },
-    },
-    {
-      title: 'GNDEC Alumni Merit-cum-Means Excellence Award',
-      code: 'GNDEC-ALUMNI-MCM',
-      provider: 'GNDEC Global Alumni Association & Trust',
-      type: 'MERIT_CUM_MEANS',
-      description:
-        'Endowed scholarship honoring high-achieving undergraduate engineering students from low-income families.',
-      amount: 50000,
-      frequency: 'ANNUAL',
-      academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
-      isRenewable: true,
-      totalSeats: 50,
-      availableSeats: 32,
-      status: 'ACTIVE',
-      requiredDocuments: [
-        DOCUMENT_TYPES.INCOME_CERTIFICATE,
-        DOCUMENT_TYPES.ACADEMIC_MARKSHEET,
-        DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
-        DOCUMENT_TYPES.BANK_PROOF,
-      ],
-      rules: {
-        minCgpa: 8.0,
-        minAttendance: 80,
-        maxFamilyIncome: 450000,
-        allowedCategories: ['GENERAL', 'OBC', 'SC', 'ST', 'EWS', 'MINORITY'],
-        maxBacklogs: 0,
-        genderRestriction: 'ALL',
-      },
-    },
-    {
-      title: 'AICTE Pragati Scholarship for Girl Students',
-      code: 'AICTE-PRAGATI-GIRLS',
-      provider: 'All India Council for Technical Education (AICTE)',
-      type: 'SPECIAL_SCHEME',
-      description:
-        'Government initiative to advance girl child technical education with ₹50,000 contingency fund per annum.',
-      amount: 50000,
-      frequency: 'ANNUAL',
-      academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
-      isRenewable: true,
-      totalSeats: 100,
-      availableSeats: 70,
-      status: 'ACTIVE',
-      requiredDocuments: [
-        DOCUMENT_TYPES.INCOME_CERTIFICATE,
-        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
-        DOCUMENT_TYPES.ACADEMIC_MARKSHEET,
-        DOCUMENT_TYPES.BANK_PROOF,
-      ],
-      rules: {
-        minCgpa: 6.5,
-        minAttendance: 75,
-        maxFamilyIncome: 800000,
-        allowedCategories: ['GENERAL', 'SC', 'ST', 'OBC', 'EWS', 'MINORITY'],
-        maxBacklogs: 1,
-        genderRestriction: 'FEMALE_ONLY',
-      },
-    },
-    {
-      title: 'Chief Minister Scholarship Scheme for Higher Education',
-      code: 'PB-CM-MERIT',
-      provider: 'Punjab Higher Education Department',
-      type: 'MERIT',
-      description:
-        'Tiered tuition reimbursement based on university entrance rank and top 10% academic performance.',
-      amount: 35000,
-      frequency: 'ANNUAL',
-      academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
-      isRenewable: true,
-      totalSeats: 120,
-      availableSeats: 95,
-      status: 'ACTIVE',
-      requiredDocuments: [
-        DOCUMENT_TYPES.ACADEMIC_MARKSHEET,
-        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
-        DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
-      ],
-      rules: {
-        minCgpa: 8.5,
-        minAttendance: 75,
-        maxFamilyIncome: 0,
-        maxBacklogs: 0,
-        genderRestriction: 'ALL',
-      },
-    },
-    {
-      title: 'S. Nanak Singh Need-Based Student Support Fund',
-      code: 'GNDEC-NANAK-FUND',
-      provider: 'Guru Nanak Dev Engineering College Welfare Board',
-      type: 'MEANS',
-      description:
-        'Immediate institutional grant covering semester examination fees and hostel living expenses for economically distressed students.',
-      amount: 25000,
-      frequency: 'SEMESTER',
-      academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      isRenewable: false,
-      totalSeats: 30,
-      availableSeats: 12,
-      status: 'ACTIVE',
-      requiredDocuments: [DOCUMENT_TYPES.INCOME_CERTIFICATE, DOCUMENT_TYPES.FEE_RECEIPT],
-      rules: {
-        minCgpa: 5.5,
-        minAttendance: 70,
-        maxFamilyIncome: 180000,
+        allowedCategories: ['SC'],
         maxBacklogs: 3,
         genderRestriction: 'ALL',
       },
+      instructions:
+        'Must possess a valid Freeship Card issued via Dr. Ambedkar Scholarship Portal (scholarships.punjab.gov.in). Family income certificate from SDM/Tehsildar (<= Rs. 2.50 Lakh) and valid SC Caste Certificate mandatory.',
+      contactEmail: 'scholarship@gndec.ac.in',
     },
   ];
 
@@ -228,39 +117,39 @@ export const seedDatabase = async () => {
     schMap[s.code] = s;
   });
 
-  // 4. Create 30+ Realistic Punjabi & Indian Student Profiles
+  // 4. Create 30+ Realistic Punjabi & Indian Student Profiles (All SC category under PMS)
   const studentNames = [
-    { first: 'Harpreet', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'OBC', income: 180000, cgpa: 8.65, att: 84 },
-    { first: 'Simran', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'GENERAL', income: 320000, cgpa: 9.12, att: 92 },
-    { first: 'Gursewak', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 140000, cgpa: 7.45, att: 68 }, // Low attendance demo!
-    { first: 'Manpreet', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'SC', income: 190000, cgpa: 8.2, att: 88 },
-    { first: 'Jaspreet', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'GENERAL', income: 260000, cgpa: 7.8, att: 76 },
-    { first: 'Amanpreet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'EWS', income: 150000, cgpa: 8.9, att: 94 },
-    { first: 'Navjot', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'OBC', income: 210000, cgpa: 6.9, att: 59 }, // Critical attendance demo!
-    { first: 'Lovepreet', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 120000, cgpa: 8.05, att: 81 },
-    { first: 'Taranpreet', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'GENERAL', income: 380000, cgpa: 8.75, att: 89 },
-    { first: 'Sukhman', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'GENERAL', income: 420000, cgpa: 7.1, att: 78 },
-    { first: 'Harleen', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'MINORITY', income: 240000, cgpa: 8.4, att: 85 },
-    { first: 'Gagandeep', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 160000, cgpa: 7.3, att: 64 }, // Low attendance
-    { first: 'Ravneet', last: 'Kaur', gender: 'FEMALE', dept: 'CE', cat: 'OBC', income: 220000, cgpa: 8.15, att: 86 },
-    { first: 'Gurkirat', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'GENERAL', income: 350000, cgpa: 9.35, att: 96 },
-    { first: 'Prabhjot', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'SC', income: 130000, cgpa: 6.8, att: 77 },
-    { first: 'Komalpreet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'EWS', income: 175000, cgpa: 8.6, att: 90 },
-    { first: 'Jagjit', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'GENERAL', income: 490000, cgpa: 7.5, att: 79 },
-    { first: 'Jashanpreet', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'OBC', income: 210000, cgpa: 8.8, att: 87 },
-    { first: 'Arshdeep', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'SC', income: 110000, cgpa: 7.2, att: 82 },
-    { first: 'Ishmeet', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'GENERAL', income: 310000, cgpa: 8.3, att: 84 },
-    { first: 'Rajveer', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'GENERAL', income: 270000, cgpa: 8.95, att: 93 },
-    { first: 'Balraj', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'OBC', income: 195000, cgpa: 6.7, att: 62 }, // Critical attendance
-    { first: 'Simerpreet', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 145000, cgpa: 8.5, att: 88 },
-    { first: 'Amritpal', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'GENERAL', income: 390000, cgpa: 7.9, att: 80 },
-    { first: 'Kirandeep', last: 'Kaur', gender: 'FEMALE', dept: 'CE', cat: 'EWS', income: 165000, cgpa: 8.35, att: 89 },
-    { first: 'Daljit', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'SC', income: 135000, cgpa: 7.6, att: 75 },
-    { first: 'Sandeep', last: 'Kaur', gender: 'FEMALE', dept: 'ME', cat: 'OBC', income: 230000, cgpa: 8.25, att: 86 },
-    { first: 'Gurinder', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'GENERAL', income: 340000, cgpa: 8.7, att: 91 },
-    { first: 'Bhavneet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'SC', income: 125000, cgpa: 8.1, att: 83 },
-    { first: 'Jasmeet', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'GENERAL', income: 280000, cgpa: 7.7, att: 79 },
-    { first: 'Fateh', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'OBC', income: 205000, cgpa: 8.0, att: 85 },
+    { first: 'Harpreet', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 180000, cgpa: 8.65 },
+    { first: 'Simran', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 195000, cgpa: 9.12 },
+    { first: 'Gursewak', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 140000, cgpa: 7.45 },
+    { first: 'Manpreet', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'SC', income: 190000, cgpa: 8.2 },
+    { first: 'Jaspreet', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'SC', income: 210000, cgpa: 7.8 },
+    { first: 'Amanpreet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'SC', income: 150000, cgpa: 8.9 },
+    { first: 'Navjot', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'SC', income: 205000, cgpa: 6.9 },
+    { first: 'Lovepreet', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 120000, cgpa: 8.05 },
+    { first: 'Taranpreet', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'SC', income: 220000, cgpa: 8.75 },
+    { first: 'Sukhman', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'SC', income: 190000, cgpa: 7.1 },
+    { first: 'Harleen', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 240000, cgpa: 8.4 },
+    { first: 'Gagandeep', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 160000, cgpa: 7.3 },
+    { first: 'Ravneet', last: 'Kaur', gender: 'FEMALE', dept: 'CE', cat: 'SC', income: 220000, cgpa: 8.15 },
+    { first: 'Gurkirat', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 235000, cgpa: 9.35 },
+    { first: 'Prabhjot', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'SC', income: 130000, cgpa: 6.8 },
+    { first: 'Komalpreet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'SC', income: 175000, cgpa: 8.6 },
+    { first: 'Jagjit', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'SC', income: 240000, cgpa: 7.5 },
+    { first: 'Jashanpreet', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 210000, cgpa: 8.8 },
+    { first: 'Arshdeep', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'SC', income: 110000, cgpa: 7.2 },
+    { first: 'Ishmeet', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 215000, cgpa: 8.3 },
+    { first: 'Rajveer', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'SC', income: 225000, cgpa: 8.95 },
+    { first: 'Balraj', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'SC', income: 195000, cgpa: 6.7 },
+    { first: 'Simerpreet', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 145000, cgpa: 8.5 },
+    { first: 'Amritpal', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 230000, cgpa: 7.9 },
+    { first: 'Kirandeep', last: 'Kaur', gender: 'FEMALE', dept: 'CE', cat: 'SC', income: 165000, cgpa: 8.35 },
+    { first: 'Daljit', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'SC', income: 135000, cgpa: 7.6 },
+    { first: 'Sandeep', last: 'Kaur', gender: 'FEMALE', dept: 'ME', cat: 'SC', income: 230000, cgpa: 8.25 },
+    { first: 'Gurinder', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 240000, cgpa: 8.7 },
+    { first: 'Bhavneet', last: 'Kaur', gender: 'FEMALE', dept: 'IT', cat: 'SC', income: 125000, cgpa: 8.1 },
+    { first: 'Jasmeet', last: 'Singh', gender: 'MALE', dept: 'CE', cat: 'SC', income: 215000, cgpa: 7.7 },
+    { first: 'Fateh', last: 'Singh', gender: 'MALE', dept: 'ECE', cat: 'SC', income: 205000, cgpa: 8.0 },
   ];
 
   let studentCount = 0;
@@ -316,29 +205,6 @@ export const seedDatabase = async () => {
       isProfileComplete: true,
     });
 
-    // Create 5 Attendance records per student
-    const totalClassesForRec = 40;
-    const attendedForRec = Math.round((st.att / 100) * totalClassesForRec);
-
-    for (let sIdx = 0; sIdx < subjectsData.length; sIdx++) {
-      const sub = subjectsData[sIdx];
-      const variance = (sIdx - 2) * 2;
-      const subAttended = Math.min(totalClassesForRec, Math.max(15, attendedForRec + variance));
-
-      await AttendanceRecord.create({
-        studentId: profile._id,
-        userId: user._id,
-        department: st.dept,
-        semester: 5,
-        academicYear: '2025-2026',
-        subjectCode: sub.code,
-        subjectName: sub.name,
-        totalClasses: totalClassesForRec,
-        attendedClasses: subAttended,
-        percentage: Math.round((subAttended / totalClassesForRec) * 1000) / 10,
-      });
-    }
-
     // Create Academic Record for Semesters 1 to 4
     await AcademicRecord.create({
       studentId: profile._id,
@@ -364,12 +230,14 @@ export const seedDatabase = async () => {
       })),
     });
 
-    // Create sample documents for the student
+    // Create sample documents for the student (all SC students under PMS)
     const docTypesToCreate = [
       DOCUMENT_TYPES.INCOME_CERTIFICATE,
+      DOCUMENT_TYPES.CASTE_CERTIFICATE,
+      DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
       DOCUMENT_TYPES.ACADEMIC_MARKSHEET,
       DOCUMENT_TYPES.BANK_PROOF,
-      ...(st.cat === 'SC' || st.cat === 'ST' || st.cat === 'OBC' ? [DOCUMENT_TYPES.CASTE_CERTIFICATE] : []),
+      DOCUMENT_TYPES.FEE_RECEIPT,
     ];
 
     for (const dType of docTypesToCreate) {
@@ -422,14 +290,9 @@ export const seedDatabase = async () => {
       });
     }
 
-    // Create Sample Applications
+    // Create Sample Applications (All for PMS SC)
     if (studentCount <= 15) {
-      const targetSch =
-        st.cat === 'SC' || st.cat === 'ST'
-          ? schMap['PB-PMSS-SC']
-          : st.gender === 'FEMALE'
-          ? schMap['AICTE-PRAGATI-GIRLS']
-          : schMap['GNDEC-ALUMNI-MCM'];
+      const targetSch = schMap['PB-PMS-SC'];
 
       if (targetSch) {
         let appStatus: any = APPLICATION_STATUS.SUBMITTED;
@@ -438,7 +301,7 @@ export const seedDatabase = async () => {
         else if (studentCount <= 11) appStatus = APPLICATION_STATUS.ELIGIBILITY_REVIEW;
         else if (studentCount === 12) appStatus = APPLICATION_STATUS.ADDITIONAL_DOCUMENTS_REQUIRED;
 
-        const appNo = `GNDEC-${targetSch.code}-${rollNo}-2025`;
+        const appNo = `GNDEC-PMS-${rollNo}-2025`;
 
         await ScholarshipApplication.create({
           applicationNumber: appNo,
@@ -452,13 +315,13 @@ export const seedDatabase = async () => {
           reviewedBy: appStatus === APPLICATION_STATUS.APPROVED ? officer1._id : undefined,
           reviewerNotes:
             appStatus === APPLICATION_STATUS.APPROVED
-              ? 'Candidate meets all academic and financial criteria. Document bundle certified.'
+              ? 'Candidate meets all Dr. Ambedkar PMS SC criteria. SC Caste & Income Certificate (<= 2.50L) certified.'
               : undefined,
           snapshot: {
             cgpa: st.cgpa,
-            attendancePercentage: st.att,
+            attendancePercentage: 100,
             familyIncome: st.income,
-            category: st.cat,
+            category: 'SC',
             department: st.dept,
             course: 'B.Tech',
             year: 3,
@@ -468,9 +331,10 @@ export const seedDatabase = async () => {
           eligibilitySummary: {
             isEligible: true,
             breakdown: [
-              { criterion: 'Minimum CGPA', satisfied: true, required: '≥ 6.5', actual: `${st.cgpa}` },
-              { criterion: 'Attendance Threshold', satisfied: true, required: '≥ 75%', actual: `${st.att}%` },
-              { criterion: 'Family Income', satisfied: true, required: '≤ ₹4.5 Lakh', actual: `₹${st.income}` },
+              { criterion: 'Social Reservation Category', satisfied: true, required: 'SC (Scheduled Caste)', actual: 'SC' },
+              { criterion: 'Annual Family Income Limit', satisfied: true, required: '≤ ₹2,50,000', actual: `₹${st.income.toLocaleString('en-IN')}` },
+              { criterion: 'Punjab Domicile Status', satisfied: true, required: 'Bonafide Resident of Punjab', actual: 'Verified' },
+              { criterion: 'Academic Standing', satisfied: true, required: 'Regular Enrolled Student', actual: `CGPA ${st.cgpa}` },
             ],
           },
           timeline: [
@@ -543,15 +407,15 @@ export const seedDatabase = async () => {
     if (studentCount === 1) {
       await Notification.create({
         recipientId: user._id,
-        title: 'Scholarship Applications Open (2025-26)',
-        message: 'Applications for Punjab Post-Matric & GNDEC Alumni MCM schemes are now active.',
+        title: 'PMS Scholarship Applications Open (2025-26)',
+        message: 'Applications for Dr. B.R. Ambedkar Post-Matric Scholarship Scheme for SC Students are now active.',
         type: 'ANNOUNCEMENT',
         link: '/student/scholarships',
       });
       await Notification.create({
         recipientId: user._id,
-        title: 'Smart Eligibility Check Available',
-        message: 'Your profile has been evaluated: you are eligible for 3 scholarship grants!',
+        title: 'Post-Matric SC Eligibility Verified',
+        message: 'Your profile has been evaluated: you are eligible for 100% tuition waiver under the Punjab PMS Scheme!',
         type: 'ELIGIBILITY',
         link: '/student/scholarships',
       });

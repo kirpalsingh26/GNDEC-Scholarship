@@ -11,15 +11,19 @@ import {
   Upload,
   Building2,
   FileText,
+  Sparkles,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.js';
+import { useToast } from '../../context/ToastContext.js';
 import { Scholarship } from '../../types/index.js';
 
 export const ApplyScholarshipPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { toast } = useToast();
 
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +50,7 @@ export const ApplyScholarshipPage: React.FC = () => {
   const handleSubmitApplication = async () => {
     if (!agreeTerms) {
       setError('You must certify the declaration before submitting.');
+      toast.warning('Please agree to the certification declaration first.');
       return;
     }
 
@@ -54,10 +59,26 @@ export const ApplyScholarshipPage: React.FC = () => {
     try {
       const res = await api.post('/applications', { scholarshipId: id });
       if (res.data.success) {
-        navigate(`/student/applications/${res.data.data._id}`);
+        // Trigger celebratory confetti
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+
+        toast.success(
+          `Application ${res.data.data.applicationNumber} submitted successfully!`,
+          'Scholarship Application Logged'
+        );
+
+        setTimeout(() => {
+          navigate(`/student/applications/${res.data.data._id}`);
+        }, 1200);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to submit application.');
+      const msg = err.response?.data?.message || 'Failed to submit application.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -66,15 +87,21 @@ export const ApplyScholarshipPage: React.FC = () => {
   if (loading) {
     return (
       <div className="py-20 text-center text-xs text-slate-400 animate-pulse">
-        Loading application workspace...
+        Loading scholarship application workspace...
       </div>
     );
   }
 
   if (!scholarship) {
     return (
-      <div className="rounded-3xl bg-white border border-slate-200 p-8 text-center">
-        <p className="text-xs text-slate-500">Scholarship scheme not found.</p>
+      <div className="rounded-3xl bg-white border border-slate-200 p-8 text-center max-w-lg mx-auto">
+        <p className="text-xs text-slate-500">Scholarship scheme not found or expired.</p>
+        <button
+          onClick={() => navigate('/student/scholarships')}
+          className="mt-4 px-4 py-2 bg-indigo-600 text-white font-bold text-xs rounded-xl"
+        >
+          Return to Catalog
+        </button>
       </div>
     );
   }
@@ -101,7 +128,7 @@ export const ApplyScholarshipPage: React.FC = () => {
         <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
           <span>Award Amount: <strong className="text-slate-900">₹{scholarship.amount.toLocaleString('en-IN')}</strong></span>
           <span>•</span>
-          <span>Cycle: <strong className="text-slate-900">{scholarship.academicYear}</strong></span>
+          <span>Academic Cycle: <strong className="text-slate-900">{scholarship.academicYear}</strong></span>
           <span>•</span>
           <span>Deadline: <strong className="text-indigo-600">{new Date(scholarship.deadline).toLocaleDateString('en-IN')}</strong></span>
         </div>
@@ -118,7 +145,7 @@ export const ApplyScholarshipPage: React.FC = () => {
       <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
         <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-indigo-600" />
-          Candidate Profile Snapshot (To Be Submitted)
+          Candidate Profile Snapshot (To Be Verified)
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -138,7 +165,7 @@ export const ApplyScholarshipPage: React.FC = () => {
           </div>
 
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">Category & Income</span>
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Category & Family Income</span>
             <span className="font-semibold text-slate-800">
               {profile?.category} • ₹{(profile?.familyIncome || 0).toLocaleString('en-IN')}/yr
             </span>
@@ -149,7 +176,7 @@ export const ApplyScholarshipPage: React.FC = () => {
         <div className="pt-2">
           <h4 className="text-xs font-bold text-slate-800 mb-2">Required Certificates for this Scheme:</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {scholarship.requiredDocuments.map((doc, idx) => (
+            {(scholarship.requiredDocuments || []).map((doc, idx) => (
               <div
                 key={idx}
                 className="p-2.5 rounded-xl bg-indigo-50/50 border border-indigo-100 flex items-center gap-2 text-xs font-semibold text-slate-800"
@@ -169,17 +196,17 @@ export const ApplyScholarshipPage: React.FC = () => {
             type="checkbox"
             checked={agreeTerms}
             onChange={(e) => setAgreeTerms(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            className="mt-0.5 h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
           />
           <span className="text-xs text-slate-600 leading-relaxed">
-            I hereby declare that all information provided in this application is genuine and accurate. I authorize Guru Nanak Dev Engineering College and the respective scholarship authority to verify my attendance, academic records, and certificates.
+            I hereby declare that all information provided in this application is genuine and accurate. I certify that I belong to the Scheduled Caste (SC) category of Punjab and our total family annual income from all sources does not exceed ₹2,50,000/-. I authorize Guru Nanak Dev Engineering College and the Punjab Department of Social Justice to verify my certificates and academic records.
           </span>
         </label>
 
         <button
           onClick={handleSubmitApplication}
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-200 transition-all hover:scale-[1.01]"
+          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-200 transition-all hover:scale-[1.01] cursor-pointer"
         >
           {submitting ? 'Submitting Application...' : 'Confirm & Submit Application'}
           <ArrowRight className="h-4 w-4" />

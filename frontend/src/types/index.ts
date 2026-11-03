@@ -63,6 +63,8 @@ export interface ScholarshipRule {
   genderRestriction?: 'ALL' | 'FEMALE_ONLY' | 'MALE_ONLY';
 }
 
+export const CATEGORIES = ['SC'] as const;
+
 export interface Scholarship {
   _id: string;
   title: string;
@@ -119,7 +121,7 @@ export interface ScholarshipApplication {
   rejectionReason?: string;
   snapshot: {
     cgpa: number;
-    attendancePercentage: number;
+    attendancePercentage?: number;
     familyIncome: number;
     category: string;
     department: string;

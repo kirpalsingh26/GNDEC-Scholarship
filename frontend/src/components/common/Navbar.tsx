@@ -13,9 +13,11 @@ import {
   Clock,
   AlertTriangle,
   Menu,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import { QRModal } from './QRModal.js';
+import { CommandPalette } from './CommandPalette.js';
 import api from '../../services/api.js';
 
 export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSidebar }) => {
@@ -25,6 +27,7 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleSwitchRole = async (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => {
     try {
@@ -74,12 +77,26 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
 
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 text-xs font-semibold text-slate-700">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>GNDEC Session 2025-26</span>
+              <span>GNDEC Ludhiana • Post Matric Scholarship (PMS) Portal</span>
             </div>
           </div>
 
-          {/* Center / Right: Quick Demo Persona Switcher Pill */}
+          {/* Center & Right Controls */}
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Quick Spotlight Search Trigger */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-500 hover:text-slate-800 text-xs font-semibold transition-all group"
+              title="Quick Search & Shortcuts (Cmd+K)"
+            >
+              <Search className="h-3.5 w-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+              <span className="hidden xl:inline">Search portal...</span>
+              <kbd className="hidden sm:inline-block px-1.5 py-0.2 text-[10px] font-mono font-bold bg-white text-slate-400 rounded-md border border-slate-200 shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Quick Demo Persona Switcher Pill */}
             <div className="hidden md:flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100/90 border border-slate-200 text-xs">
               <span className="px-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                 Demo Switch:
@@ -220,6 +237,12 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
           profile={profile}
         />
       )}
+
+      {/* Global Spotlight Quick Command Search */}
+      <CommandPalette
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 };

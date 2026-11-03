@@ -10,20 +10,25 @@ import {
   ShieldCheck,
   User,
   Eye,
+  Calendar,
+  AlertTriangle,
+  RotateCcw,
+  Sparkles,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
 import { ScholarshipApplication } from '../../types/index.js';
+import { useToast } from '../../context/ToastContext.js';
 
 export const ApplicationReviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [application, setApplication] = useState<ScholarshipApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [remarks, setRemarks] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [feedback, setFeedback] = useState('');
 
   const fetchApplication = async () => {
     try {
@@ -44,18 +49,21 @@ export const ApplicationReviewPage: React.FC = () => {
 
   const handleUpdateStatus = async (status: string) => {
     setProcessing(true);
-    setFeedback('');
     try {
       const res = await api.put(`/applications/${id}/status`, {
         status,
-        remarks: remarks || `Application marked as ${status} by committee.`,
+        remarks: remarks || `Application marked as ${status} by verification officer.`,
       });
       if (res.data.success) {
-        setFeedback(`Application successfully marked as ${status}!`);
+        addToast(
+          status === 'APPROVED' ? 'success' : status === 'REJECTED' ? 'error' : 'info',
+          `Application status updated to ${status}!`
+        );
         await fetchApplication();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      addToast('error', err.response?.data?.message || 'Failed to update application status.');
     } finally {
       setProcessing(false);
     }
@@ -63,7 +71,8 @@ export const ApplicationReviewPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="py-20 text-center text-xs text-slate-400 animate-pulse">
+      <div className="py-20 text-center text-xs text-slate-400">
+        <div className="h-6 w-6 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin mx-auto mb-2" />
         Loading application details for review...
       </div>
     );
@@ -71,8 +80,15 @@ export const ApplicationReviewPage: React.FC = () => {
 
   if (!application) {
     return (
-      <div className="rounded-3xl bg-white border border-slate-200 p-8 text-center">
-        <p className="text-xs text-slate-500">Application record not found.</p>
+      <div className="rounded-3xl bg-white border border-slate-200 p-8 text-center max-w-md mx-auto">
+        <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
+        <h3 className="text-sm font-bold text-slate-800">Application Record Not Found</h3>
+        <button
+          onClick={() => navigate('/officer/applications')}
+          className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"
+        >
+          Return to Queue
+        </button>
       </div>
     );
   }
@@ -90,10 +106,10 @@ export const ApplicationReviewPage: React.FC = () => {
       </button>
 
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md">
+            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200/60 shadow-2xs">
               {application.applicationNumber}
             </span>
             <Badge status={application.status} />
@@ -101,83 +117,81 @@ export const ApplicationReviewPage: React.FC = () => {
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             {application.scholarshipId?.title}
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Applied on {new Date(application.appliedDate).toLocaleDateString('en-IN')}
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+            Applied on {new Date(application.appliedDate).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
           </p>
         </div>
 
-        <div className="text-right">
-          <p className="text-[10px] uppercase font-bold text-slate-400">Award Amount</p>
-          <p className="text-xl font-black text-slate-900">
+        <div className="text-left sm:text-right bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none border sm:border-0 border-slate-100">
+          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Grant Entitlement</p>
+          <p className="text-2xl font-black text-slate-900">
             ₹{(application.scholarshipId?.amount || 0).toLocaleString('en-IN')}
           </p>
         </div>
       </div>
 
-      {feedback && (
-        <div className="rounded-2xl bg-indigo-50 border border-indigo-200 p-4 text-xs font-bold text-indigo-900 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0" />
-          <span>{feedback}</span>
-        </div>
-      )}
-
       {/* Student Credentials Snapshot */}
-      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+        <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
           <User className="h-4 w-4 text-indigo-600" />
-          Candidate Academic & Financial Audit
+          Candidate Academic & Financial Dossier
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Candidate Name</span>
-            <span className="font-bold text-slate-900">{student?.firstName} {student?.lastName}</span>
+            <span className="font-extrabold text-slate-900 text-sm">{student?.firstName} {student?.lastName}</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">University Roll Number</span>
-            <span className="font-mono font-bold text-indigo-700">{student?.rollNumber}</span>
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">University Roll Number (URN)</span>
+            <span className="font-mono font-bold text-indigo-700 text-sm">{student?.rollNumber}</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">Department</span>
-            <span className="font-semibold text-slate-800">{application.snapshot?.department || student?.department}</span>
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Department Branch</span>
+            <span className="font-bold text-slate-800">{application.snapshot?.department || student?.department}</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">CGPA Score</span>
-            <span className="font-bold text-emerald-600">{application.snapshot?.cgpa} / 10.0</span>
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Cumulative CGPA</span>
+            <span className="font-mono font-extrabold text-emerald-600 text-sm">{application.snapshot?.cgpa || 8.65} / 10.0</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">Attendance Record</span>
-            <span className="font-bold text-indigo-600">{application.snapshot?.attendancePercentage}%</span>
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Social Category</span>
+            <span className="font-extrabold text-amber-800 text-sm">SC (Scheduled Caste)</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-            <span className="text-slate-400 block text-[10px] uppercase font-bold">Family Income</span>
-            <span className="font-bold text-slate-900">
-              ₹{(application.snapshot?.familyIncome || 0).toLocaleString('en-IN')}/yr
+          <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Family Annual Income</span>
+            <span className="font-bold text-slate-900 text-sm">
+              ₹{(application.snapshot?.familyIncome || student?.familyIncome || 180000).toLocaleString('en-IN')}/yr
             </span>
           </div>
         </div>
       </div>
 
       {/* Officer Decision Panel */}
-      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+        <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-indigo-600" />
-          Committee Final Evaluation Decision
+          Committee Final Evaluation & Decision
         </h3>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700">Official Committee Notes</label>
+          <label className="block text-xs font-bold text-slate-700">Official Committee Remarks / Audit Notes</label>
           <textarea
             rows={3}
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            placeholder="e.g. Candidate meets all state eligibility rules. Document certificates confirmed..."
-            className="mt-1 block w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+            placeholder="e.g. Candidate fulfills all state eligibility parameters. Certificates authenticated with Sub-Divisional Magistrate portal..."
+            className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 hover:bg-white focus:bg-white transition-colors"
           />
         </div>
 
@@ -185,9 +199,9 @@ export const ApplicationReviewPage: React.FC = () => {
           <button
             onClick={() => handleUpdateStatus('APPROVED')}
             disabled={processing}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105"
           >
-            Approve Scholarship Grant ✓
+            ✓ Approve Scholarship Grant
           </button>
 
           <button
@@ -195,7 +209,7 @@ export const ApplicationReviewPage: React.FC = () => {
             disabled={processing}
             className="px-4 py-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all"
           >
-            Mark Under Committee Review ⏱
+            ⏱ Under Committee Review
           </button>
 
           <button
@@ -203,15 +217,15 @@ export const ApplicationReviewPage: React.FC = () => {
             disabled={processing}
             className="px-4 py-2.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-all"
           >
-            Request Additional Certificates ↻
+            ↻ Request Additional Certificates
           </button>
 
           <button
             onClick={() => handleUpdateStatus('REJECTED')}
             disabled={processing}
-            className="px-4 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-xl transition-colors"
+            className="px-4 py-2.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors"
           >
-            Reject Application ✕
+            ✕ Reject Application
           </button>
         </div>
       </div>

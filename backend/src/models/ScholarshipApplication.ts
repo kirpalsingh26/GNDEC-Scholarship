@@ -25,7 +25,7 @@ export interface IScholarshipApplication extends Document {
   // Snapshot of student credentials at the time of application
   snapshot: {
     cgpa: number;
-    attendancePercentage: number;
+    attendancePercentage?: number;
     familyIncome: number;
     category: string;
     department: string;
@@ -90,7 +90,7 @@ const ScholarshipApplicationSchema = new Schema<IScholarshipApplication>(
       cgpa: { type: Number, default: 0 },
       attendancePercentage: { type: Number, default: 0 },
       familyIncome: { type: Number, default: 0 },
-      category: { type: String, default: 'GENERAL' },
+      category: { type: String, default: 'SC' },
       department: { type: String, default: 'CSE' },
       course: { type: String, default: 'B.Tech' },
       year: { type: Number, default: 1 },

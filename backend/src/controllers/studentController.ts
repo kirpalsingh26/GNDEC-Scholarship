@@ -2,6 +2,8 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 import { StudentProfile } from '../models/StudentProfile.js';
 import { AcademicRecord } from '../models/AcademicRecord.js';
+import { ScholarshipApplication } from '../models/ScholarshipApplication.js';
+import { StudentDocument } from '../models/Document.js';
 import { AttendanceService } from '../services/attendanceService.js';
 import { logAudit } from '../utils/auditLogger.js';
 
@@ -85,6 +87,41 @@ export const getMyAcademicRecords = async (
 
     const records = await AcademicRecord.find({ studentId: profile._id }).sort({ semester: 1 });
     return res.status(200).json({ success: true, data: records });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getStudentDashboardData = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const profile = await StudentProfile.findOne({ userId: req.user?._id });
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Student profile not found.' });
+    }
+
+    const applications = await ScholarshipApplication.find({ studentId: profile._id })
+      .populate('scholarshipId')
+      .sort({ appliedDate: -1 });
+
+    const documents = await StudentDocument.find({ studentId: profile._id });
+    const verifiedDocuments = documents.filter((d) => d.status === 'VERIFIED').length;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        profile,
+        applications,
+        kpis: {
+          activeApplications: applications.filter((a) => a.status !== 'REJECTED').length,
+          verifiedDocuments,
+          totalDocuments: documents.length || 5,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

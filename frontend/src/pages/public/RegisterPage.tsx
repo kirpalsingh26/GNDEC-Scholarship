@@ -36,8 +36,8 @@ export const RegisterPage: React.FC = () => {
     confirmPassword: '',
     rollNumber: '',
     department: 'Computer Science and Engineering',
-    category: 'GENERAL',
-    familyIncome: 250000,
+    category: 'SC',
+    familyIncome: 180000,
     phone: '',
     course: 'B.Tech',
     year: 3,
@@ -118,27 +118,27 @@ export const RegisterPage: React.FC = () => {
               onClick={() => navigate('/')}
               className="flex items-center gap-3 cursor-pointer group"
             >
-              <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+              <div className="h-11 w-11 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-md group-hover:scale-105 transition-transform">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="font-black text-lg tracking-tight text-white flex items-center gap-2">
-                  ScholarSphere
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-300 border border-indigo-500/30">
-                    GNDEC
+                  GNDEC Ludhiana
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-500/30">
+                    PMS SC
                   </span>
                 </h1>
-                <p className="text-[10px] text-indigo-200">Candidate Enrollment Desk</p>
+                <p className="text-[10px] text-amber-200">Post-Matric SC Registration</p>
               </div>
             </div>
 
             {/* Registration Perks */}
             <div className="mt-8 space-y-4">
               <h2 className="text-xl font-black tracking-tight text-white">
-                Unlock 100% Fee Grants & Financial Endowments
+                100% Tuition Fee Exemption & DBT Maintenance
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Register with your official GNDEC roll number to automatically evaluate eligibility across state, central, and alumni scholarship schemes.
+                Register with your official GNDEC University Roll Number to submit your Freeship Card and claim complete fee exemption under the Punjab Post-Matric Scholarship Scheme.
               </p>
             </div>
 
@@ -451,33 +451,35 @@ export const RegisterPage: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-700">
                     Social Reservation Category
                   </label>
-                  <p className="text-[11px] text-slate-400 mb-2">
-                    Used to automatically match state Post-Matric & AICTE schemes
+                  <p className="text-[11px] text-amber-700 font-semibold mb-2">
+                    Notice: This portal is exclusively dedicated to the Dr. B.R. Ambedkar Post-Matric Scholarship (PMS) Scheme for Scheduled Caste (SC) Students of Punjab.
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {['GENERAL', 'SC', 'ST', 'OBC', 'EWS', 'MINORITY', 'PWD'].map((cat) => (
-                      <button
-                        type="button"
-                        key={cat}
-                        onClick={() => setFormData({ ...formData, category: cat })}
-                        className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all ${
-                          formData.category === cat
-                            ? 'bg-indigo-50 border-indigo-600 text-indigo-700 shadow-2xs'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-1 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, category: 'SC' })}
+                      className="py-3 px-4 text-xs font-bold rounded-xl border border-amber-500 bg-amber-50/80 text-amber-900 shadow-xs flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-amber-600" />
+                        <span>SC — Scheduled Caste (Punjab State PMS Scheme Eligible)</span>
+                      </span>
+                      <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-extrabold">
+                        Verified Scheme
+                      </span>
+                    </button>
                   </div>
+                  <p className="text-[10px] text-slate-400 mt-1.5">
+                    *Non-SC candidates and other caste categories are not eligible under the Post-Matric SC Scholarship Scheme.
+                  </p>
                 </div>
 
                 <div className="pt-2">
                   <label className="block text-xs font-bold text-slate-700">
                     Annual Gross Family Income (₹)
                   </label>
-                  <p className="text-[11px] text-slate-400 mb-1">
-                    State scholarships (e.g. Punjab PMSS) require income $\le$ ₹2,50,000/yr
+                  <p className="text-[11px] text-slate-500 mb-1">
+                    Punjab Post-Matric (PMS) requires total annual income ≤ ₹2,50,000/yr (certified by Tehsildar/SDM).
                   </p>
                   <div className="mt-1 relative rounded-xl shadow-2xs">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
@@ -526,7 +528,7 @@ export const RegisterPage: React.FC = () => {
 
           {/* Login Navigation Footer */}
           <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Already registered on ScholarSphere?</span>
+            <span className="text-slate-500">Already registered on GNDEC PMS Portal?</span>
             <Link
               to="/login"
               className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"

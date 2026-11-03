@@ -48,7 +48,7 @@ export const DepartmentCoursePage: React.FC = () => {
             Departments, Programs & Curriculum
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            GNDEC institutional hierarchy for branch eligibility routing and subject-wise attendance aggregation.
+            GNDEC institutional hierarchy for branch eligibility routing and scholarship allocations.
           </p>
         </div>
 

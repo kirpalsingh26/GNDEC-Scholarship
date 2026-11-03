@@ -3,7 +3,6 @@ import { CATEGORIES, DocumentType, DOCUMENT_TYPES } from '../config/constants.js
 
 export interface IScholarshipRule {
   minCgpa?: number;
-  minAttendance?: number;
   maxFamilyIncome?: number;
   allowedCategories?: string[];
   allowedDepartments?: string[];
@@ -65,7 +64,6 @@ const ScholarshipSchema = new Schema<IScholarship>(
     ],
     rules: {
       minCgpa: { type: Number, default: 0 },
-      minAttendance: { type: Number, default: 75 },
       maxFamilyIncome: { type: Number, default: 0 }, // 0 means no income cap
       allowedCategories: [{ type: String, enum: CATEGORIES }],
       allowedDepartments: [{ type: String }],

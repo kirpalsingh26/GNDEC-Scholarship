@@ -7,7 +7,6 @@ import { StudentDocument } from '../models/Document.js';
 import { Department, Course, Subject } from '../models/Department.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { SystemSetting } from '../models/AuditLog.js';
-import { AttendanceRecord } from '../models/AttendanceRecord.js';
 import { APPLICATION_STATUS, DOCUMENT_STATUS } from '../config/constants.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { logAudit } from '../utils/auditLogger.js';
@@ -69,20 +68,7 @@ export const getAdminDashboardStats = async (
       students: d.count,
     }));
 
-    // Calculate low attendance count
-    const studentProfiles = await StudentProfile.find();
-    let lowAttendanceCount = 0;
-    for (const st of studentProfiles) {
-      const records = await AttendanceRecord.find({ studentId: st._id });
-      let tot = 0;
-      let att = 0;
-      records.forEach((r) => {
-        tot += r.totalClasses;
-        att += r.attendedClasses;
-      });
-      const pct = tot > 0 ? (att / tot) * 100 : 100;
-      if (pct < 75) lowAttendanceCount += 1;
-    }
+    const lowAttendanceCount = 0;
 
     return res.status(200).json({
       success: true,

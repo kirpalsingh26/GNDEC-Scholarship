@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/common/Sidebar.js';
 import { Navbar } from '../components/common/Navbar.js';
+import { HelpAssistantWidget } from '../components/common/HelpAssistantWidget.js';
 
 export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,6 +16,8 @@ export const DashboardLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+      <HelpAssistantWidget />
     </div>
   );
 };
+

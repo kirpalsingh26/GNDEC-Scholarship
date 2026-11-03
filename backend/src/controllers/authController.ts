@@ -25,7 +25,7 @@ export const registerStudent = async (req: Request, res: Response, next: NextFun
       year = 1,
       semester = 1,
       phone,
-      category = 'GENERAL',
+      category = 'SC',
       familyIncome = 250000,
     } = req.body;
 

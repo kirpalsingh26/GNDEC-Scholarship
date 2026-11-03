@@ -61,7 +61,6 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       appliedDate: new Date(),
       snapshot: {
         cgpa: profile.cgpa,
-        attendancePercentage: 84.5,
         familyIncome: profile.familyIncome,
         category: profile.category,
         department: profile.department,

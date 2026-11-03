@@ -106,7 +106,7 @@ export const DocumentVerificationPage: React.FC = () => {
           Staff Document Verification Workspace
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Dedicated 3-column verification console with side-by-side student summary, interactive preview, and AI OCR assistance.
+          Dedicated 3-column verification console with side-by-side student record, certificate preview, and optical validation summary.
         </p>
       </div>
 
@@ -239,13 +239,13 @@ export const DocumentVerificationPage: React.FC = () => {
             </div>
           </div>
 
-          {/* AI OCR Optical Assistant Box (Requirement #31) */}
+          {/* Automated Optical Validation Box */}
           {ocr && (
             <div className="rounded-2xl bg-indigo-50/70 border border-indigo-100 p-4 space-y-2 text-xs">
               <div className="flex items-center justify-between font-bold text-indigo-950">
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="h-4 w-4 text-amber-500" />
-                  AI OCR Verification Assistant
+                  <ShieldCheck className="h-4 w-4 text-indigo-700" />
+                  Automated Certificate OCR Validation
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-white text-indigo-700 font-bold text-[10px] shadow-2xs">
                   {ocr.nameMatchConfidence}% Name Match

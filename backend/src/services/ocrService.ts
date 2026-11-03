@@ -57,7 +57,7 @@ export class OcrService {
     let issueDate = '15/04/2025';
     let expiryDate = '31/03/2026';
     let extractedIncome = student.familyIncome || 180000;
-    let extractedCaste = student.category || 'OBC';
+    let extractedCaste = student.category || 'SC';
 
     if (documentType === 'INCOME_CERTIFICATE') {
       certificateNo = `INC/PB/LDH/2025/${randomSuffix}`;

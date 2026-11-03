@@ -32,9 +32,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
-    { name: 'Scholarships', path: '/student/scholarships', icon: GraduationCap },
+    { name: 'PMS Scholarship', path: '/student/scholarships', icon: GraduationCap },
+    { name: 'My Applications', path: '/student/applications', icon: FileCheck2 },
     { name: 'Document Vault', path: '/student/documents', icon: FolderLock },
-    { name: 'Attendance & Recovery', path: '/student/attendance', icon: Activity },
     { name: 'Academic Records', path: '/student/academics', icon: Award },
     { name: 'Grant Renewal', path: '/student/renewals', icon: RefreshCw },
     { name: 'Inquiry Helpdesk', path: '/student/tickets', icon: HelpCircle },
@@ -45,7 +45,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: 'Command Dashboard', path: '/officer/dashboard', icon: LayoutDashboard },
     { name: 'Applications Queue', path: '/officer/applications', icon: FileCheck2 },
     { name: 'Verification Workspace', path: '/officer/documents', icon: CheckSquare },
-    { name: 'Attendance Shortages', path: '/officer/attendance', icon: Activity },
     { name: 'Student Directory', path: '/officer/students', icon: Users },
     { name: 'Student Inquiries', path: '/officer/tickets', icon: HelpCircle },
     { name: 'Reports & Exports', path: '/officer/reports', icon: FileSpreadsheet },
@@ -54,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const adminLinks = [
     { name: 'Admin Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'User & Role Mgmt', path: '/admin/users', icon: Users },
-    { name: 'Scholarship Schemes', path: '/admin/scholarships', icon: GraduationCap },
+    { name: 'PMS Scheme Rules', path: '/admin/scholarships', icon: GraduationCap },
     { name: 'Departments & Branch', path: '/admin/departments', icon: Layers },
     { name: 'Security Audit Trail', path: '/admin/audit-logs', icon: ShieldCheck },
     { name: 'Institutional Reports', path: '/admin/reports', icon: FileSpreadsheet },
@@ -69,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       : adminLinks;
 
   const sidebarContent = (
-    <aside className="w-64 h-full bg-slate-900 text-slate-300 flex flex-col justify-between p-4 select-none border-r border-slate-800">
+    <aside className="w-64 h-full bg-[#0b1f3a] text-slate-300 flex flex-col justify-between p-4 select-none border-r border-slate-800">
       <div>
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 py-3 mb-6">
@@ -77,13 +76,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             onClick={() => navigate('/')}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-md group-hover:scale-105 transition-transform">
               <GraduationCap className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-base font-black text-white tracking-tight">ScholarSphere</h2>
-              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
-                GNDEC Ludhiana
+              <h2 className="text-sm font-black text-white tracking-tight leading-tight">GNDEC Ludhiana</h2>
+              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                PMS SC Portal
               </p>
             </div>
           </div>

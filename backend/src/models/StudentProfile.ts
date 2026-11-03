@@ -22,7 +22,7 @@ export interface IStudentProfile extends Document {
   course: string; // e.g. B.Tech, M.Tech, MCA
   year: number; // 1, 2, 3, 4
   semester: number; // 1 to 8
-  category: string; // GENERAL, SC, ST, OBC, EWS, MINORITY, PWD
+  category: string; // SC (Scheduled Caste - PMS Scheme)
   familyIncome: number; // Annual in INR
   cgpa: number;
   activeBacklogs: number;
@@ -76,7 +76,7 @@ const StudentProfileSchema = new Schema<IStudentProfile>(
     course: { type: String, required: true, default: 'B.Tech' },
     year: { type: Number, required: true, min: 1, max: 5 },
     semester: { type: Number, required: true, min: 1, max: 10 },
-    category: { type: String, enum: CATEGORIES, required: true, default: 'GENERAL' },
+    category: { type: String, enum: CATEGORIES, required: true, default: 'SC' },
     familyIncome: { type: Number, required: true, default: 0 },
     cgpa: { type: Number, default: 0.0, min: 0.0, max: 10.0 },
     activeBacklogs: { type: Number, default: 0, min: 0 },

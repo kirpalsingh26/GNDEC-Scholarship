@@ -30,19 +30,13 @@ import { Badge } from '../../components/common/Badge.js';
 export const OfficerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
-  const [lowAttendance, setLowAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, lowAttRes] = await Promise.all([
-          api.get('/admin/stats'),
-          api.get('/attendance/low-attendance'),
-        ]);
-
+        const statsRes = await api.get('/admin/stats');
         if (statsRes.data.success) setStats(statsRes.data.data);
-        if (lowAttRes.data.success) setLowAttendance(lowAttRes.data.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -115,55 +109,55 @@ export const OfficerDashboard: React.FC = () => {
         />
 
         <StatCard
-          title="Low Attendance Alerts"
-          value={kpis?.lowAttendanceCount || 4}
-          subtitle="Below 75% threshold"
-          icon={AlertTriangle}
-          iconColor="text-rose-600"
-          iconBg="bg-rose-50"
-          onClick={() => navigate('/officer/attendance')}
+          title="Approved PMS Grants"
+          value={kpis?.approvedApplications || 14}
+          subtitle="Certified for fee waiver"
+          icon={CheckCircle2}
+          iconColor="text-emerald-600"
+          iconBg="bg-emerald-50"
+          onClick={() => navigate('/officer/applications')}
         />
       </div>
 
-      {/* "NEEDS ATTENTION" Triage Section (Core Requirement #26) */}
+      {/* "NEEDS ATTENTION" Triage Section */}
       <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ShieldAlert className="h-5 w-5 text-rose-600" />
-              Needs Attention Triage Queue
+              <ShieldAlert className="h-5 w-5 text-amber-600" />
+              PMS Scrutiny & Verification Queue
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Urgent items requiring immediate officer action and student communication
+              Urgent tasks requiring officer certification and welfare committee sign-off
             </p>
           </div>
-          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-            High Priority
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+            Action Items
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Critical Attendance Alert */}
+          {/* SC Caste Certificate Audits */}
           <div
-            onClick={() => navigate('/officer/attendance')}
-            className="p-5 rounded-2xl bg-rose-50/60 border border-rose-200 cursor-pointer hover:bg-rose-100/70 transition-all flex flex-col justify-between"
+            onClick={() => navigate('/officer/documents')}
+            className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 cursor-pointer hover:bg-amber-100/70 transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 bg-rose-200/60 px-2 py-0.5 rounded">
-                  Critical Shortage
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded">
+                  SC Certificate
                 </span>
-                <span className="text-xs font-black text-rose-700">{lowAttendance.length} Students</span>
+                <span className="text-xs font-black text-amber-900">Priority Verification</span>
               </div>
               <h4 className="mt-3 text-xs font-bold text-slate-900">
-                Attendance Below 60% Critical Limit
+                SC Caste & Tehsildar Income Audits
               </h4>
               <p className="mt-1 text-[11px] text-slate-600 leading-relaxed">
-                Students with attendance shortages at risk of grant disqualification.
+                Review uploaded SC certificates and income limit compliance (≤ ₹2.50L).
               </p>
             </div>
-            <p className="mt-4 text-xs font-bold text-rose-700 flex items-center gap-1">
-              Review Shortages <ArrowRight className="h-3.5 w-3.5" />
+            <p className="mt-4 text-xs font-bold text-amber-800 flex items-center gap-1">
+              Audit Documents <ArrowRight className="h-3.5 w-3.5" />
             </p>
           </div>
 

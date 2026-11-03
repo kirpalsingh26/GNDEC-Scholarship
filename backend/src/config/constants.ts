@@ -64,7 +64,7 @@ export const TICKET_CATEGORIES = {
   OTHER: 'OTHER',
 } as const;
 
-export const CATEGORIES = ['GENERAL', 'SC', 'ST', 'OBC', 'EWS', 'MINORITY', 'PWD'] as const;
+export const CATEGORIES = ['SC'] as const;
 
 export const ATTENDANCE_THRESHOLDS = {
   SAFE_MINIMUM: 75,

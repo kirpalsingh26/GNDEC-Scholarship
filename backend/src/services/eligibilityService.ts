@@ -1,6 +1,5 @@
 import { IScholarship } from '../models/Scholarship.js';
 import { IStudentProfile } from '../models/StudentProfile.js';
-import { AttendanceRecord } from '../models/AttendanceRecord.js';
 import { StudentDocument } from '../models/Document.js';
 import { DOCUMENT_STATUS } from '../config/constants.js';
 
@@ -35,17 +34,6 @@ export class EligibilityService {
     const rules = scholarship.rules || {};
     const criteria: EligibilityCriterionResult[] = [];
 
-    // 1. Fetch live attendance summary for student
-    const attendanceRecords = await AttendanceRecord.find({ studentId: student._id });
-    let totalClasses = 0;
-    let attendedClasses = 0;
-    attendanceRecords.forEach((rec) => {
-      totalClasses += rec.totalClasses;
-      attendedClasses += rec.attendedClasses;
-    });
-    const currentAttendancePct =
-      totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 1000) / 10 : 100;
-
     // --- CRITERION 1: CGPA Requirement ---
     if (rules.minCgpa && rules.minCgpa > 0) {
       const satisfied = (student.cgpa || 0) >= rules.minCgpa;
@@ -61,21 +49,6 @@ export class EligibilityService {
           : `Current CGPA (${student.cgpa}) is below the required threshold of ${rules.minCgpa}.`,
       });
     }
-
-    // --- CRITERION 2: Attendance Requirement ---
-    const minAttendance = rules.minAttendance || 75;
-    const attendanceSatisfied = currentAttendancePct >= minAttendance;
-    criteria.push({
-      key: 'ATTENDANCE',
-      name: 'Minimum Attendance Threshold',
-      satisfied: attendanceSatisfied,
-      required: `≥ ${minAttendance}%`,
-      actual: `${currentAttendancePct}% (${attendedClasses}/${totalClasses} classes)`,
-      severity: 'CRITICAL',
-      feedback: attendanceSatisfied
-        ? 'Attendance threshold verified and compliant.'
-        : `Attendance (${currentAttendancePct}%) is below mandatory ${minAttendance}%.`,
-    });
 
     // --- CRITERION 3: Family Income Ceiling ---
     if (rules.maxFamilyIncome && rules.maxFamilyIncome > 0) {

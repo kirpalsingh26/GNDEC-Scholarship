@@ -2,7 +2,6 @@ import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 import { createObjectCsvStringifier } from 'csv-writer';
 import { ScholarshipApplication } from '../models/ScholarshipApplication.js';
-import { AttendanceRecord } from '../models/AttendanceRecord.js';
 import { StudentDocument } from '../models/Document.js';
 import { StudentProfile } from '../models/StudentProfile.js';
 
@@ -65,7 +64,7 @@ export class ReportService {
       { header: 'Scholarship Scheme', key: 'scheme', width: 34 },
       { header: 'Amount (₹)', key: 'amount', width: 16 },
       { header: 'CGPA', key: 'cgpa', width: 12 },
-      { header: 'Attendance %', key: 'att', width: 15 },
+      { header: 'Category', key: 'category', width: 15 },
       { header: 'Status', key: 'status', width: 22 },
       { header: 'Applied On', key: 'applied', width: 16 },
     ];
@@ -87,7 +86,7 @@ export class ReportService {
         scheme: app.scholarshipId?.title || 'N/A',
         amount: app.scholarshipId?.amount || 0,
         cgpa: app.snapshot?.cgpa || app.studentId?.cgpa || 0,
-        att: app.snapshot?.attendancePercentage ? `${app.snapshot.attendancePercentage}%` : 'N/A',
+        category: app.snapshot?.category || app.studentId?.category || 'SC',
         status: app.status,
         applied: app.appliedDate ? new Date(app.appliedDate).toISOString().split('T')[0] : '',
       });
@@ -130,7 +129,7 @@ export class ReportService {
       doc
         .fontSize(11)
         .font('Helvetica')
-        .text('ScholarSphere — Official Scholarship Grant & Audit Certificate', 40, 50);
+        .text('Guru Nanak Dev Engineering College, Ludhiana — Post-Matric Scholarship Certificate', 40, 50);
 
       doc.moveDown(4);
 
@@ -153,7 +152,7 @@ export class ReportService {
         ['Current Status:', app.status],
         ['Applied Date:', new Date(app.appliedDate).toLocaleDateString('en-IN')],
         ['CGPA Recorded:', `${app.snapshot?.cgpa || 0} / 10.0`],
-        ['Attendance Recorded:', `${app.snapshot?.attendancePercentage || 0}%`],
+        ['Caste Category:', `${app.snapshot?.category || 'SC'} (Scheduled Caste - PMS Scheme)`],
       ];
 
       fields.forEach(([label, value]) => {

@@ -11,6 +11,7 @@ import {
   EyeOff,
   ShieldCheck,
   CheckCircle2,
+  FileCheck2,
   Building2,
   Users,
   Award,
@@ -75,27 +76,27 @@ export const LoginPage: React.FC = () => {
               onClick={() => navigate('/')}
               className="flex items-center gap-3 cursor-pointer group"
             >
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+              <div className="h-12 w-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-md group-hover:scale-105 transition-transform">
                 <GraduationCap className="h-7 w-7" />
               </div>
               <div>
                 <h1 className="font-black text-xl tracking-tight text-white flex items-center gap-2">
-                  ScholarSphere
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-300 border border-indigo-500/30">
-                    GNDEC
+                  GNDEC Ludhiana
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-500/30">
+                    PMS SC
                   </span>
                 </h1>
-                <p className="text-[11px] text-indigo-200">Financial Aid & Verification Portal</p>
+                <p className="text-[11px] text-amber-200">Post-Matric Scholarship Portal</p>
               </div>
             </div>
 
             {/* Value Proposition Statement */}
             <div className="mt-8 space-y-4">
               <h2 className="text-2xl font-black tracking-tight text-white leading-snug">
-                One unified gateway for scholarships, attendance & student success.
+                Official Post-Matric Scholarship Portal for SC Students.
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Seamless digital access for enrolled students, verification staff officers, and university administrators of Guru Nanak Dev Engineering College.
+                Centralized gateway for Guru Nanak Dev Engineering College Scheduled Caste students, verification officers, and welfare committee administrators.
               </p>
             </div>
 
@@ -103,15 +104,15 @@ export const LoginPage: React.FC = () => {
             <div className="mt-8 space-y-3">
               <div className="flex items-center gap-3 text-xs text-slate-200 bg-white/5 border border-white/10 p-3 rounded-2xl">
                 <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0" />
-                <span>Explainable eligibility checklist with AI OCR assist</span>
+                <span>100% Tuition Fee Exemption for Certified SC Students</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-200 bg-white/5 border border-white/10 p-3 rounded-2xl">
-                <Zap className="h-5 w-5 text-amber-400 shrink-0" />
-                <span>Real-time attendance recovery projection algorithm</span>
+                <FileCheck2 className="h-5 w-5 text-amber-400 shrink-0" />
+                <span>Freeship Card & Tehsildar Income Verification (≤ ₹2.50L)</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-200 bg-white/5 border border-white/10 p-3 rounded-2xl">
                 <Award className="h-5 w-5 text-indigo-400 shrink-0" />
-                <span>Direct state, central, and alumni grant integration</span>
+                <span>Punjab State Direct Benefit Transfer (DBT) PFMS Disbursal</span>
               </div>
             </div>
           </div>
