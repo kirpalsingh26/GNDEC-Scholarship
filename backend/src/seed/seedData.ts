@@ -136,10 +136,11 @@ export const initProductionData = async () => {
     await officer2.save();
   }
 
-  // 4. Official Post-Matric Scholarship Scheme for SC Students
-  const pmsScheme = await Scholarship.findOne({ code: 'PB-PMS-SC' });
+  // 4. Official Post-Matric Scholarship Schemes for SC Students
+  const fifteenDaysDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000);
+  let pmsScheme = await Scholarship.findOne({ code: 'PB-PMS-SC' });
   if (!pmsScheme) {
-    await Scholarship.create({
+    pmsScheme = await Scholarship.create({
       title: 'Dr. B.R. Ambedkar Post-Matric Scholarship Scheme for SC Students (Punjab)',
       code: 'PB-PMS-SC',
       provider: 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab',
@@ -149,7 +150,7 @@ export const initProductionData = async () => {
       amount: 75000,
       frequency: 'ANNUAL',
       academicYear: '2025-2026',
-      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+      deadline: fifteenDaysDeadline,
       isRenewable: true,
       totalSeats: 500,
       availableSeats: 500,
@@ -173,8 +174,63 @@ export const initProductionData = async () => {
         'Must possess a valid Freeship Card issued via Dr. Ambedkar Scholarship Portal (scholarships.punjab.gov.in). Family income certificate from SDM/Tehsildar (<= Rs. 2.50 Lakh) and valid SC Caste Certificate mandatory.',
       contactEmail: 'scholarship@gndec.ac.in',
     });
-    console.log('✅ Punjab PMS SC Scholarship Scheme registered.');
+    console.log('✅ Punjab PMS SC Scholarship Scheme registered (15 Days Deadline).');
+  } else {
+    pmsScheme.deadline = fifteenDaysDeadline;
+    pmsScheme.status = 'ACTIVE';
+    await pmsScheme.save();
+    console.log('✅ Punjab PMS SC Scholarship Scheme deadline synchronized to 15 days.');
   }
+
+  // 4b. Punjab State SC Freeship Card Scheme & Full Fee Waiver
+  const twentyDaysDeadline = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000);
+  let freeshipScheme = await Scholarship.findOne({ code: 'PB-PMS-FREESHIP' });
+  if (!freeshipScheme) {
+    await Scholarship.create({
+      title: 'Punjab State SC Freeship Card & Direct Institutional Tuition Waiver',
+      code: 'PB-PMS-FREESHIP',
+      provider: 'Punjab State Welfare Department (Dr. Ambedkar Portal)',
+      type: 'RESERVATION',
+      description:
+        'Direct tuition and development fee exemption for Scheduled Caste students admitted under Punjab SC quota at GNDEC Ludhiana. Eligible candidates receive instant semester fee exemption upon verified Freeship Card submission.',
+      amount: 68000,
+      frequency: 'ANNUAL',
+      academicYear: '2025-2026',
+      deadline: twentyDaysDeadline,
+      isRenewable: true,
+      totalSeats: 350,
+      availableSeats: 350,
+      status: 'ACTIVE',
+      requiredDocuments: [
+        DOCUMENT_TYPES.INCOME_CERTIFICATE,
+        DOCUMENT_TYPES.CASTE_CERTIFICATE,
+        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
+        DOCUMENT_TYPES.BANK_PROOF,
+        DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
+      ],
+      rules: {
+        minCgpa: 0,
+        maxFamilyIncome: 250000,
+        allowedCategories: ['SC'],
+        maxBacklogs: 4,
+        genderRestriction: 'ALL',
+      },
+      instructions:
+        'Must possess a valid Freeship Card issued via Dr. Ambedkar Scholarship Portal (scholarships.punjab.gov.in).',
+      contactEmail: 'scholarship@gndec.ac.in',
+    });
+    console.log('✅ Punjab SC Freeship Scheme registered.');
+  } else {
+    freeshipScheme.deadline = twentyDaysDeadline;
+    freeshipScheme.status = 'ACTIVE';
+    await freeshipScheme.save();
+  }
+
+  // Archive any legacy non-PMS test schemes to ensure only current PMS SC schemes are active
+  await Scholarship.updateMany(
+    { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP'] } },
+    { status: 'ARCHIVED' }
+  );
 
   // 5. System Initial Audit Log
   const initialAudit = await AuditLog.findOne({ action: 'SYSTEM_INITIALIZED' });

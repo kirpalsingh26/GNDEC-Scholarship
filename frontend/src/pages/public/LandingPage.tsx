@@ -42,8 +42,8 @@ function calculateTimeLeft(deadlineDate: string | Date) {
   };
 }
 
-// Live Countdown Badge Component with real-time ticking
-const LiveCountdownBadge: React.FC<{ deadline: string | Date }> = ({ deadline }) => {
+// Live Countdown Clock & Urgency Badge Component with real-time ticking
+const LiveCountdownClock: React.FC<{ deadline: string | Date }> = ({ deadline }) => {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(deadline));
 
   useEffect(() => {
@@ -56,25 +56,77 @@ const LiveCountdownBadge: React.FC<{ deadline: string | Date }> = ({ deadline })
 
   if (timeLeft.isPassed) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
         <Clock className="h-3.5 w-3.5 text-amber-400" />
         Application Cycle Updating
       </span>
     );
   }
 
+  const isUrgent = timeLeft.days <= 5;
+
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs">
-      <Clock className="h-3.5 w-3.5 text-emerald-400 animate-pulse shrink-0" />
-      <span>
-        {timeLeft.days > 0 ? `${timeLeft.days} days left to apply` : `${timeLeft.hours}h ${timeLeft.minutes}m left to apply`}
-      </span>
-      <span className="text-[10px] text-emerald-200 font-mono hidden sm:inline opacity-85">
-        ({timeLeft.days}d {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m {String(timeLeft.seconds).padStart(2, '0')}s)
-      </span>
+    <div className="flex flex-col items-start md:items-end gap-2">
+      {/* Prominent Live Pill */}
+      <div
+        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-sm ${
+          isUrgent
+            ? 'bg-rose-500 text-white animate-pulse'
+            : 'bg-amber-400 text-slate-950 shadow-amber-500/20'
+        }`}
+      >
+        <Clock className="h-3.5 w-3.5 shrink-0" />
+        <span>
+          {timeLeft.days > 0
+            ? `${timeLeft.days} Days Left to Apply`
+            : `${timeLeft.hours} Hours Left to Apply`}
+        </span>
+      </div>
+
+      {/* Digital Real-Time Flip Boxes */}
+      <div className="flex items-center gap-1 sm:gap-1.5 text-center">
+        <div className="flex flex-col items-center bg-black/60 backdrop-blur-md border border-white/20 rounded-xl px-2.5 py-1 min-w-[50px] shadow-inner">
+          <span className="font-mono font-black text-sm sm:text-base text-amber-300 leading-tight">
+            {timeLeft.days}
+          </span>
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Days
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 backdrop-blur-md border border-white/20 rounded-xl px-2.5 py-1 min-w-[50px] shadow-inner">
+          <span className="font-mono font-black text-sm sm:text-base text-white leading-tight">
+            {String(timeLeft.hours).padStart(2, '0')}
+          </span>
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Hours
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 backdrop-blur-md border border-white/20 rounded-xl px-2.5 py-1 min-w-[50px] shadow-inner">
+          <span className="font-mono font-black text-sm sm:text-base text-white leading-tight">
+            {String(timeLeft.minutes).padStart(2, '0')}
+          </span>
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Mins
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 backdrop-blur-md border border-white/20 rounded-xl px-2.5 py-1 min-w-[50px] shadow-inner">
+          <span className="font-mono font-black text-sm sm:text-base text-emerald-400 leading-tight">
+            {String(timeLeft.seconds).padStart(2, '0')}
+          </span>
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Secs
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
+
+// Aliased for backwards compatibility
+const LiveCountdownBadge = LiveCountdownClock;
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,7 +157,7 @@ export const LandingPage: React.FC = () => {
               amount: 75000,
               frequency: 'ANNUAL',
               academicYear: '2025-2026',
-              deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+              deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000).toISOString(),
               isRenewable: true,
               status: 'ACTIVE',
               requiredDocuments: [
@@ -121,6 +173,35 @@ export const LandingPage: React.FC = () => {
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 3,
+                genderRestriction: 'ALL',
+              },
+            } as any,
+            {
+              _id: 'pb-pms-freeship-default',
+              title: 'Punjab State SC Freeship Card & Direct Institutional Tuition Fee Waiver',
+              code: 'PB-PMS-FREESHIP',
+              provider: 'Punjab State Welfare Department (Dr. Ambedkar Portal)',
+              type: 'RESERVATION',
+              description:
+                'Direct tuition and development fee exemption for Scheduled Caste students admitted under Punjab SC quota at GNDEC Ludhiana. Eligible candidates receive instant semester fee exemption upon verified Freeship Card submission.',
+              amount: 68000,
+              frequency: 'ANNUAL',
+              academicYear: '2025-2026',
+              deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
+              isRenewable: true,
+              status: 'ACTIVE',
+              requiredDocuments: [
+                'INCOME_CERTIFICATE',
+                'CASTE_CERTIFICATE',
+                'RESIDENCE_CERTIFICATE',
+                'BANK_PROOF',
+                'BONAFIDE_CERTIFICATE',
+              ],
+              rules: {
+                minCgpa: 0,
+                maxFamilyIncome: 250000,
+                allowedCategories: ['SC'],
+                maxBacklogs: 4,
                 genderRestriction: 'ALL',
               },
             } as any,
@@ -297,6 +378,46 @@ export const LandingPage: React.FC = () => {
             >
               State Freeship Portal <ExternalLink className="h-4 w-4 text-amber-700" />
             </a>
+          </div>
+
+          {/* Hero Live Countdown Spotlight Banner */}
+          <div className="mt-10 max-w-3xl mx-auto rounded-3xl bg-[#0b2341] text-white p-5 sm:p-7 border-2 border-amber-400 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center gap-4 text-left z-10">
+              <div className="h-14 w-14 rounded-2xl bg-amber-400/20 border border-amber-400/40 text-amber-300 flex items-center justify-center shrink-0">
+                <Clock className="h-7 w-7 animate-pulse text-amber-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white px-2 py-0.5 rounded-md animate-pulse">
+                    Open Now
+                  </span>
+                  <span className="text-xs font-black text-amber-300">
+                    Session 2025–26 Applications Active
+                  </span>
+                </div>
+                <h4 className="text-sm sm:text-base font-black text-white mt-1">
+                  Dr. B.R. Ambedkar Post-Matric SC Scheme
+                </h4>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  100% Tuition Fee Exemption • State DBT Maintenance Allowance
+                </p>
+              </div>
+            </div>
+
+            <div className="z-10 shrink-0 w-full md:w-auto flex flex-col items-center md:items-end gap-3">
+              <LiveCountdownClock deadline={scholarships[0]?.deadline || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)} />
+              <button
+                onClick={() => {
+                  const el = document.getElementById('scholarships');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Browse Schemes Below</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Key Scheme Pillars */}
