@@ -5,6 +5,8 @@ import {
   updateMyProfile,
   getMyAttendanceAnalytics,
   getMyAcademicRecords,
+  saveMyAcademicRecord,
+  deleteMyAcademicRecord,
   getStudentDashboardData,
 } from '../controllers/studentController.js';
 import {
@@ -89,6 +91,8 @@ router.get(
   getMyAttendanceAnalytics
 );
 router.get('/students/me/academics', authenticate, authorize(ROLES.STUDENT), getMyAcademicRecords);
+router.post('/students/me/academics', authenticate, authorize(ROLES.STUDENT), saveMyAcademicRecord);
+router.delete('/students/me/academics/:id', authenticate, authorize(ROLES.STUDENT), deleteMyAcademicRecord);
 
 // ==========================================
 // 3. SCHOLARSHIP ROUTES (Public Listing & Detail Allowed)
