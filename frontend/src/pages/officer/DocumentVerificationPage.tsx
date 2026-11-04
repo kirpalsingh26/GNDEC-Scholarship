@@ -207,37 +207,68 @@ export const DocumentVerificationPage: React.FC = () => {
           </div>
 
           {/* Document Simulated / Live Visual Frame */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-900 text-white p-6 shadow-inner min-h-[260px] flex flex-col justify-between">
-            <div className="border-b border-white/10 pb-3 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase font-bold text-indigo-300">
-                  Government of Punjab — Official Certificate
-                </p>
-                <h4 className="text-sm font-black mt-0.5">{selectedDoc?.documentType.replace(/_/g, ' ')}</h4>
+          {latestVer?.fileUrl && /\.(jpg|jpeg|png|webp|bmp|gif|svg|avif|jfif)$/i.test(latestVer.fileUrl) ? (
+            <div className="rounded-2xl border border-slate-200 bg-slate-950 p-4 shadow-inner flex flex-col items-center justify-center overflow-hidden">
+              <div className="w-full flex items-center justify-between pb-2 border-b border-slate-800 text-[11px] text-slate-400">
+                <span className="font-semibold text-slate-200 truncate max-w-[220px]">
+                  {latestVer.originalName}
+                </span>
+                <span className="text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800/60 px-2 py-0.5 rounded font-mono uppercase">
+                  Image Scan
+                </span>
               </div>
-              <Building2 className="h-5 w-5 text-indigo-400" />
+              <div className="py-2 w-full flex items-center justify-center max-h-72 overflow-hidden bg-slate-900/60 rounded-xl my-2">
+                <img
+                  src={latestVer.fileUrl}
+                  alt={selectedDoc?.title || 'Certificate'}
+                  className="max-h-64 max-w-full object-contain rounded-lg shadow-md hover:scale-105 transition-transform"
+                />
+              </div>
+              <div className="w-full pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Resolution: High-Res Upload</span>
+                <a
+                  href={latestVer.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-indigo-400 hover:text-indigo-300 font-bold underline"
+                >
+                  Open Full Size ↗
+                </a>
+              </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-slate-900 text-white p-6 shadow-inner min-h-[240px] flex flex-col justify-between">
+              <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-indigo-300">
+                    Government of Punjab — Official Certificate
+                  </p>
+                  <h4 className="text-sm font-black mt-0.5">{selectedDoc?.documentType.replace(/_/g, ' ')}</h4>
+                </div>
+                <Building2 className="h-5 w-5 text-indigo-400" />
+              </div>
 
-            <div className="my-4 space-y-2 text-xs font-mono">
-              <p className="text-slate-300">
-                CERTIFICATE ID: <span className="text-amber-300 font-bold">{ocr?.extractedCertificateNo || 'PB/REV/2025/892144'}</span>
-              </p>
-              <p className="text-slate-300">
-                ISSUED TO: <span className="text-white font-bold">{ocr?.extractedStudentName || `${student?.firstName} ${student?.lastName}`}</span>
-              </p>
-              <p className="text-slate-300">
-                ISSUING TEHSIL: <span className="text-slate-200">{ocr?.issuingAuthority || 'Sub-Divisional Magistrate, Ludhiana'}</span>
-              </p>
-              <p className="text-slate-300">
-                ISSUE DATE: <span className="text-emerald-400 font-bold">{ocr?.extractedIssueDate || '15/04/2025'}</span>
-              </p>
-            </div>
+              <div className="my-4 space-y-2 text-xs font-mono">
+                <p className="text-slate-300">
+                  CERTIFICATE ID: <span className="text-amber-300 font-bold">{ocr?.extractedCertificateNo || 'PB/REV/2025/892144'}</span>
+                </p>
+                <p className="text-slate-300">
+                  ISSUED TO: <span className="text-white font-bold">{ocr?.extractedStudentName || `${student?.firstName} ${student?.lastName}`}</span>
+                </p>
+                <p className="text-slate-300">
+                  FILE NAME: <span className="text-emerald-400 font-bold">{latestVer?.originalName || 'certificate.pdf'}</span>
+                </p>
+                <p className="text-slate-300">
+                  ISSUING TEHSIL: <span className="text-slate-200">{ocr?.issuingAuthority || 'Sub-Divisional Magistrate, Ludhiana'}</span>
+                </p>
+              </div>
 
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
-              <span>Security Stamp: Verified Digital Signature</span>
-              <span className="text-emerald-400 font-bold">SHA-256 Valid</span>
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Security Stamp: Verified Digital Signature</span>
+                <span className="text-emerald-400 font-bold">SHA-256 Valid</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Automated Optical Validation Box */}
           {ocr && (

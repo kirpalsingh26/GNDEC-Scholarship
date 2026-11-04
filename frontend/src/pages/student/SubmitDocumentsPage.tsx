@@ -130,8 +130,8 @@ export const SubmitDocumentsPage: React.FC = () => {
   const handleFileUpload = async (type: DocumentType, file: File) => {
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      addToast('error', 'File size exceeds 10MB limit. Please upload a smaller PDF or image.');
+    if (file.size > 25 * 1024 * 1024) {
+      addToast('error', 'File size exceeds 25MB limit. Please upload a file under 25MB.');
       return;
     }
 
@@ -359,7 +359,7 @@ export const SubmitDocumentsPage: React.FC = () => {
                   >
                     <input
                       type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
+                      accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.heic,.heif,.avif,.jfif,.doc,.docx,.xls,.xlsx,.txt"
                       disabled={isUploading}
                       onChange={(e) => {
                         const file = e.target.files?.[0];

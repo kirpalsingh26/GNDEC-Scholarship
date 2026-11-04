@@ -81,8 +81,8 @@ export const DocumentVault: React.FC = () => {
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.size > 10 * 1024 * 1024) {
-        toast.error('File exceeds maximum size of 10MB');
+      if (droppedFile.size > 25 * 1024 * 1024) {
+        toast.error('File exceeds maximum size of 25MB');
         return;
       }
       setFile(droppedFile);
@@ -243,7 +243,7 @@ export const DocumentVault: React.FC = () => {
             <input
               id="vault-file-input"
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.webp"
+              accept="image/*,application/pdf,.pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.tiff,.tif,.heic,.heif,.avif,.jfif,.doc,.docx,.xls,.xlsx,.txt"
               onChange={(e) => {
                 if (e.target.files?.[0]) {
                   setFile(e.target.files[0]);
@@ -271,7 +271,7 @@ export const DocumentVault: React.FC = () => {
                   Click to choose a file or drag & drop here
                 </p>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Supported formats: PDF, PNG, JPG, JPEG (Max 10MB)
+                  Supported formats: All documents & images (PDF, JPG, JPEG, PNG, WEBP, DOCX, etc. Max 25MB)
                 </p>
               </div>
             )}

@@ -24,37 +24,50 @@ const storage = multer.diskStorage({
   },
 });
 
+// Explicit set of dangerous executable binary & script extensions that must be blocked for system security
+const BLOCKED_EXTENSIONS = new Set([
+  '.exe',
+  '.dll',
+  '.bat',
+  '.cmd',
+  '.sh',
+  '.msi',
+  '.com',
+  '.scr',
+  '.vbs',
+  '.js',
+  '.jar',
+  '.bin',
+  '.app',
+  '.c',
+  '.cpp',
+  '.py',
+  '.php',
+]);
+
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const allowedMimeTypes = [
-    'application/pdf',
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-  ];
-
-  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        'Invalid file type. Only official documents (PDF, JPG, JPEG, PNG, WEBP) under 10MB are permitted.'
-      )
+  // Guard against malicious executables and script injections
+  if (BLOCKED_EXTENSIONS.has(ext)) {
+    return cb(
+      new Error(`Executable or script files (${ext}) are not permitted for security reasons.`)
     );
   }
+
+  // Allow all image formats (JPG, JPEG, PNG, WEBP, BMP, GIF, TIFF, SVG, HEIC, AVIF, JFIF, etc.)
+  // and all documents (PDF, Word, Excel, CSV, Text, Scans, etc.)
+  cb(null, true);
 };
 
 export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB maximum
+    fileSize: 25 * 1024 * 1024, // 25MB maximum for high-res documents and scans
   },
 });

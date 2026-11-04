@@ -432,7 +432,7 @@ export const StudentDashboard: React.FC = () => {
                             <label className="px-2.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-100 hover:bg-rose-200 rounded-lg cursor-pointer flex items-center gap-1">
                               <input
                                 type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
+                                accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.heic,.heif,.avif,.jfif,.doc,.docx,.xls,.xlsx,.txt"
                                 className="hidden"
                                 disabled={reuploadingDocType === doc.documentType}
                                 onChange={(e) => {
