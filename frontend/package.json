@@ -4,7 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5173",
+    "dev:student": "vite --port 5173",
+    "dev:teacher": "vite --port 5174",
+    "dev:admin": "vite --port 5175",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

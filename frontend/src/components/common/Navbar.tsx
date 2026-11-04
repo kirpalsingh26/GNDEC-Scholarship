@@ -28,6 +28,7 @@ import {
   subscribeToWebPush,
   checkIsSubscribed,
 } from '../../utils/pushNotifications.js';
+import { getPortalMode, PORTALS } from '../../utils/portalConfig.js';
 
 export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
@@ -136,8 +137,21 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
             </button>
 
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 text-xs font-semibold text-slate-700">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>GNDEC Ludhiana • Post Matric Scholarship (PMS) Portal</span>
+              <span
+                className={`h-2 w-2 rounded-full animate-pulse ${
+                  getPortalMode() === 'TEACHER'
+                    ? 'bg-blue-500'
+                    : getPortalMode() === 'ADMIN'
+                    ? 'bg-purple-500'
+                    : 'bg-emerald-500'
+                }`}
+              />
+              <span>
+                {getPortalMode() === 'TEACHER' && 'GNDEC Faculty Officer Console • Port 5174'}
+                {getPortalMode() === 'ADMIN' && 'GNDEC Super Admin Console • Port 5175'}
+                {getPortalMode() === 'STUDENT' && 'GNDEC Student PMS Portal • Port 5173'}
+                {getPortalMode() === 'UNIFIED' && 'GNDEC Scholarship Portal'}
+              </span>
             </div>
           </div>
 
@@ -331,12 +345,47 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
                     <p className="font-bold text-slate-900">{user?.name}</p>
                     <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
                   </div>
+
+                  {/* Multi-Portal Tab Links */}
+                  <div className="py-1 border-b border-slate-100 text-[10px]">
+                    <span className="px-3 py-1 text-slate-400 font-bold uppercase tracking-wider block">
+                      Open Dedicated Portals:
+                    </span>
+                    <a
+                      href={PORTALS.STUDENT.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 flex items-center justify-between text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                    >
+                      <span>🎓 Student Portal (5173)</span>
+                      <ExternalLink className="h-3 w-3 opacity-50" />
+                    </a>
+                    <a
+                      href={PORTALS.TEACHER.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 flex items-center justify-between text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                    >
+                      <span>🛡️ Faculty Console (5174)</span>
+                      <ExternalLink className="h-3 w-3 opacity-50" />
+                    </a>
+                    <a
+                      href={PORTALS.ADMIN.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 flex items-center justify-between text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                    >
+                      <span>⚙️ Super Admin (5175)</span>
+                      <ExternalLink className="h-3 w-3 opacity-50" />
+                    </a>
+                  </div>
+
                   <button
                     onClick={() => {
                       setIsProfileDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full mt-1 flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                    className="w-full mt-1 flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out

@@ -40,9 +40,56 @@ import { ScholarshipManagerPage } from './pages/admin/ScholarshipManagerPage.js'
 import { DepartmentCoursePage } from './pages/admin/DepartmentCoursePage.js';
 import { AuditLogsPage } from './pages/admin/AuditLogsPage.js';
 import { SystemSettingsPage } from './pages/admin/SystemSettingsPage.js';
+import { getPortalMode, isRoleAllowedOnPortal } from './utils/portalConfig.js';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const RootRoute: React.FC = () => {
+  const { user } = useAuth();
+  const portalMode = getPortalMode();
+
+  if (portalMode === 'TEACHER') {
+    if (user && (user.role === 'OFFICER' || user.role === 'ADMIN')) {
+      return <Navigate to="/officer/dashboard" replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+
+  if (portalMode === 'ADMIN') {
+    if (user && user.role === 'ADMIN') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+
+  // Student / Public Portal (Port 5173)
+  return <LandingPage />;
+};
+
+const FallbackRoute: React.FC = () => {
+  const { user } = useAuth();
+  const portalMode = getPortalMode();
+
+  if (portalMode === 'TEACHER') {
+    if (user && (user.role === 'OFFICER' || user.role === 'ADMIN')) {
+      return <Navigate to="/officer/dashboard" replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+  if (portalMode === 'ADMIN') {
+    if (user && user.role === 'ADMIN') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+  return <Navigate to="/" replace />;
+};
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({
+  children,
+  allowedRoles,
+}) => {
   const { user, isLoading } = useAuth();
+  const portalMode = getPortalMode();
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 text-xs text-slate-400 font-semibold animate-pulse">
@@ -53,6 +100,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  // Portal boundary protection
+  if (portalMode === 'TEACHER' && user.role === 'STUDENT') {
+    return <Navigate to="/login" replace />;
+  }
+  if (portalMode === 'ADMIN' && user.role !== 'ADMIN') {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Role validation
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    if (user.role === 'STUDENT') {
+      return <Navigate to="/student/dashboard" replace />;
+    }
+    if (user.role === 'OFFICER') {
+      return <Navigate to="/officer/dashboard" replace />;
+    }
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -62,8 +129,8 @@ export const App: React.FC = () => {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+            {/* Dynamic Public / Entrypoint Routes */}
+            <Route path="/" element={<RootRoute />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify/:token" element={<PublicQRVerifyPage />} />
@@ -113,7 +180,7 @@ export const App: React.FC = () => {
             </Route>
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<FallbackRoute />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

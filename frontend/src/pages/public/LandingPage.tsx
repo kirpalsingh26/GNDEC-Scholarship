@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../context/AuthContext.js';
 import api from '../../services/api.js';
 import { Scholarship } from '../../types/index.js';
+import { PortalSwitcherBar } from '../../components/common/PortalSwitcherBar.js';
 
 // Helper to compute remaining days, hours, minutes, and seconds
 function calculateTimeLeft(deadlineDate: string | Date) {
@@ -403,6 +404,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans selection:bg-amber-600 selection:text-white">
+      <PortalSwitcherBar />
       {/* 1. Official State Government & College Top Announcement Ticker */}
       <div className="bg-[#0b1f3a] text-white py-2 px-4 border-b border-amber-500/40 text-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
