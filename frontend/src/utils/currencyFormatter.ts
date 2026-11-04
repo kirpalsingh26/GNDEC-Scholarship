@@ -69,3 +69,4 @@ export const formatIncomeWords = (val: number | string | undefined | null): stri
 
   return result.trim() + ' Rupees';
 };
+
