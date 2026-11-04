@@ -23,6 +23,12 @@ export const syncScholarshipDeadlines = async () => {
       await sch.save();
     }
   }
+
+  // Ensure minimum CGPA requirement is at least 6.0 across all scholarships
+  await Scholarship.updateMany(
+    { $or: [{ 'rules.minCgpa': { $lt: 6 } }, { 'rules.minCgpa': { $exists: false } }] },
+    { $set: { 'rules.minCgpa': 6 } }
+  );
 };
 
 export const listScholarships = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -131,7 +137,11 @@ export const checkEligibilityForScholarship = async (
 
 export const createScholarship = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const scholarship = await Scholarship.create(req.body);
+    const payload = { ...req.body };
+    if (!payload.rules) payload.rules = {};
+    payload.rules.minCgpa = Math.max(6, Number(payload.rules.minCgpa || 6));
+
+    const scholarship = await Scholarship.create(payload);
 
     await logAudit({
       req,
@@ -154,7 +164,12 @@ export const createScholarship = async (req: AuthRequest, res: Response, next: N
 export const updateScholarship = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const scholarship = await Scholarship.findByIdAndUpdate(id, req.body, { new: true });
+    const payload = { ...req.body };
+    if (payload.rules) {
+      payload.rules.minCgpa = Math.max(6, Number(payload.rules.minCgpa || 6));
+    }
+
+    const scholarship = await Scholarship.findByIdAndUpdate(id, payload, { new: true });
 
     if (!scholarship) {
       return res.status(404).json({ success: false, message: 'Scholarship not found.' });

@@ -268,7 +268,7 @@ export const LandingPage: React.FC = () => {
                 'FEE_RECEIPT',
               ],
               rules: {
-                minCgpa: 0,
+                minCgpa: 6,
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 3,
@@ -297,7 +297,7 @@ export const LandingPage: React.FC = () => {
                 'BONAFIDE_CERTIFICATE',
               ],
               rules: {
-                minCgpa: 0,
+                minCgpa: 6,
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 4,
@@ -326,7 +326,7 @@ export const LandingPage: React.FC = () => {
                 'BONAFIDE_CERTIFICATE',
               ],
               rules: {
-                minCgpa: 0,
+                minCgpa: 6,
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 3,
@@ -355,7 +355,7 @@ export const LandingPage: React.FC = () => {
                 'BANK_PROOF',
               ],
               rules: {
-                minCgpa: 0,
+                minCgpa: 6,
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 2,
@@ -808,7 +808,7 @@ export const LandingPage: React.FC = () => {
                           <div>
                             <strong className="text-slate-800 text-[11px] block">Academic Standing</strong>
                             <span className="text-slate-600 text-[11px]">
-                              Min CGPA: {sch.rules?.minCgpa || 0} • Max Backlogs: {sch.rules?.maxBacklogs ?? 3}
+                              Min CGPA: {Math.max(6, sch.rules?.minCgpa || 6)} • Max Backlogs: {sch.rules?.maxBacklogs ?? 3}
                             </span>
                           </div>
                         </div>

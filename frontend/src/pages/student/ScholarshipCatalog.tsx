@@ -119,7 +119,7 @@ export const ScholarshipCatalog: React.FC = () => {
 
         <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs self-start sm:self-auto">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <span>Category: <strong className="text-amber-800">SC Only</strong> • Ceiling: <strong className="text-slate-900">≤ ₹2.50L</strong></span>
+          <span>Category: <strong className="text-amber-800">SC Only</strong> • Ceiling: <strong className="text-slate-900">≤ ₹2.50L</strong> • Min CGPA: <strong className="text-emerald-700 font-mono">≥ 6.0</strong></span>
         </div>
       </div>
 
@@ -156,9 +156,11 @@ export const ScholarshipCatalog: React.FC = () => {
         ) : (
           filtered.map((sch) => {
             const elig = sch.eligibility;
+            const minCgpa = Math.max(6.0, sch.rules?.minCgpa || 6.0);
             const isCategoryEligible = !sch.rules?.allowedCategories?.length || sch.rules.allowedCategories.includes(profile?.category || 'SC');
             const isIncomeEligible = !sch.rules?.maxFamilyIncome || ((profile?.familyIncome || 0) <= sch.rules.maxFamilyIncome);
-            const isEligible = elig ? elig.isEligible : (isCategoryEligible && isIncomeEligible);
+            const isCgpaEligible = (profile?.cgpa || 0) >= minCgpa;
+            const isEligible = elig ? elig.isEligible : (isCategoryEligible && isIncomeEligible && isCgpaEligible);
             const isExp = isExpired(sch);
             const appliedApp = getAppliedApplication(sch._id);
             const hasApplied = Boolean(appliedApp);
@@ -263,14 +265,18 @@ export const ScholarshipCatalog: React.FC = () => {
                   </div>
 
                   {/* Requirements Summary Chips */}
-                  <div className="mt-3.5 grid grid-cols-2 gap-2 text-[11px] text-slate-600">
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                  <div className="mt-3.5 grid grid-cols-3 gap-2 text-[11px] text-slate-600">
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
                       <span className="text-slate-400 block text-[9px] uppercase font-bold">Category</span>
                       <span className="font-bold text-amber-800">SC Only</span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                      <span className="text-slate-400 block text-[9px] uppercase font-bold">Income Ceiling</span>
-                      <span className="font-bold text-slate-800">≤ ₹2.50 Lakh/yr</span>
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                      <span className="text-slate-400 block text-[9px] uppercase font-bold">Income</span>
+                      <span className="font-bold text-slate-800">≤ ₹2.50L</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                      <span className="text-slate-400 block text-[9px] uppercase font-bold">Min CGPA</span>
+                      <span className="font-bold text-emerald-800 font-mono">≥ {minCgpa.toFixed(1)}</span>
                     </div>
                   </div>
 
@@ -383,6 +389,17 @@ export const ScholarshipCatalog: React.FC = () => {
             isEligible: selectedScholarship.eligibility?.isEligible ?? true,
             scorePercentage: selectedScholarship.eligibility?.scorePercentage ?? 100,
             criteriaBreakdown: selectedScholarship.eligibility?.criteriaBreakdown ?? [
+              {
+                key: 'CGPA',
+                name: 'Minimum CGPA Requirement',
+                satisfied: (profile?.cgpa || 0) >= Math.max(6.0, selectedScholarship.rules?.minCgpa || 6.0),
+                required: `≥ ${Math.max(6.0, selectedScholarship.rules?.minCgpa || 6.0).toFixed(2)} CGPA`,
+                actual: profile?.cgpa ? `${profile.cgpa.toFixed(2)} CGPA` : 'Pending Entry (0.00)',
+                severity: 'CRITICAL',
+                feedback: (profile?.cgpa || 0) >= Math.max(6.0, selectedScholarship.rules?.minCgpa || 6.0)
+                  ? 'Candidate meets the mandatory minimum requirement of 6.00 CGPA.'
+                  : 'Current academic CGPA is below the mandatory requirement of 6.00 CGPA.',
+              },
               {
                 key: 'CATEGORY',
                 name: 'Social Reservation Category',

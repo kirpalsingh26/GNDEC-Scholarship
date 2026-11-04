@@ -35,7 +35,7 @@ export const ScholarshipManagerPage: React.FC = () => {
     frequency: 'ANNUAL',
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     description: '',
-    minCgpa: 0,
+    minCgpa: 6,
     maxFamilyIncome: 250000,
     maxBacklogs: 1,
     status: 'ACTIVE',
@@ -73,7 +73,7 @@ export const ScholarshipManagerPage: React.FC = () => {
       frequency: 'ANNUAL',
       deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       description: 'Punjab Post-Matric Scholarship grant for eligible SC engineering candidates.',
-      minCgpa: 0,
+      minCgpa: 6,
       maxFamilyIncome: 250000,
       maxBacklogs: 0,
       status: 'ACTIVE',
@@ -96,7 +96,7 @@ export const ScholarshipManagerPage: React.FC = () => {
         description: formData.description,
         status: formData.status,
         rules: {
-          minCgpa: Number(formData.minCgpa),
+          minCgpa: Math.max(6, Number(formData.minCgpa || 6)),
           maxFamilyIncome: Number(formData.maxFamilyIncome),
           maxBacklogs: Number(formData.maxBacklogs),
           allowedCategories: ['SC'],
@@ -216,7 +216,7 @@ export const ScholarshipManagerPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-medium">Minimum CGPA:</span>
-                    <span className="font-bold text-purple-700 font-mono">≥ {sch.rules?.minCgpa || 0}</span>
+                    <span className="font-bold text-purple-700 font-mono">≥ {Math.max(6, sch.rules?.minCgpa || 6)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-medium">Eligible Category:</span>
@@ -252,7 +252,7 @@ export const ScholarshipManagerPage: React.FC = () => {
                       frequency: sch.frequency,
                       deadline: new Date(sch.deadline).toISOString().split('T')[0],
                       description: sch.description,
-                      minCgpa: sch.rules?.minCgpa || 0,
+                      minCgpa: Math.max(6, sch.rules?.minCgpa || 6),
                       maxFamilyIncome: sch.rules?.maxFamilyIncome || 250000,
                       maxBacklogs: sch.rules?.maxBacklogs || 0,
                       status: sch.status,
@@ -318,15 +318,17 @@ export const ScholarshipManagerPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Min. CGPA Required</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Min. CGPA Required (Min: 6.0)
+              </label>
               <input
                 type="number"
                 step="0.1"
-                min={0}
+                min={6}
                 max={10}
                 value={formData.minCgpa}
-                onChange={(e) => setFormData({ ...formData, minCgpa: Number(e.target.value) })}
-                className="block w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-slate-50/50 hover:bg-white transition-colors"
+                onChange={(e) => setFormData({ ...formData, minCgpa: Math.max(6, Number(e.target.value)) })}
+                className="block w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold bg-slate-50/50 hover:bg-white transition-colors"
               />
             </div>
           </div>

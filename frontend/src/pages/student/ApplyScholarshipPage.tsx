@@ -68,7 +68,18 @@ export const ApplyScholarshipPage: React.FC = () => {
     fetchScholarshipAndApplication();
   }, [id]);
 
+  const minRequiredCgpa = Math.max(6.0, Number(scholarship?.rules?.minCgpa || 6.0));
+  const studentCgpa = Number(profile?.cgpa || 0);
+  const isCgpaQualified = studentCgpa >= minRequiredCgpa;
+
   const handleSubmitApplication = async () => {
+    if (!isCgpaQualified) {
+      const msg = `Minimum CGPA of ${minRequiredCgpa.toFixed(2)} is required for this scholarship. Your registered CGPA is ${studentCgpa.toFixed(2)}.`;
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
     if (!agreeTerms) {
       setError('You must certify the declaration before submitting.');
       toast.warning('Please agree to the certification declaration first.');
@@ -190,6 +201,21 @@ export const ApplyScholarshipPage: React.FC = () => {
         </div>
       )}
 
+      {/* CGPA Eligibility Notice */}
+      {!isCgpaQualified && !existingApplication && (
+        <div className="rounded-3xl bg-amber-50/90 border border-amber-300 p-5 text-amber-950 shadow-2xs flex items-start gap-3.5">
+          <AlertCircle className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-sm font-bold text-amber-950">Academic Merit Requirement Notice</h4>
+            <p className="text-xs text-amber-900/80 leading-relaxed mt-0.5">
+              Every scholarship program at GNDEC mandates a minimum cumulative grade point average (CGPA) of{' '}
+              <strong className="font-mono">≥ {minRequiredCgpa.toFixed(1)}</strong>. Your registered CGPA is{' '}
+              <strong className="font-mono">{studentCgpa.toFixed(2)}</strong>. Application submission is restricted until qualifying marks are authenticated.
+            </p>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700 flex items-center gap-2 shadow-2xs">
           <AlertCircle className="h-4 w-4 shrink-0" />
@@ -216,11 +242,23 @@ export const ApplyScholarshipPage: React.FC = () => {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Academic Merit (CGPA)</span>
+            <div className="flex items-center justify-between">
+              <span className={`font-mono font-bold ${isCgpaQualified ? 'text-emerald-700' : 'text-amber-800'}`}>
+                {profile?.cgpa ? `${studentCgpa.toFixed(2)} CGPA` : 'Pending (0.00)'}
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${isCgpaQualified ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-100 text-amber-900 border-amber-300'}`}>
+                Mandatory: ≥ {minRequiredCgpa.toFixed(1)}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Department & Semester</span>
             <span className="font-semibold text-slate-800">{profile?.department || 'Engineering'} (Sem {profile?.semester || 1})</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 sm:col-span-2">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Category & Family Income</span>
             <span className="font-semibold text-slate-800">
               {profile?.category || 'SC'} • ₹{(profile?.familyIncome || 0).toLocaleString('en-IN')}/yr
@@ -289,10 +327,16 @@ export const ApplyScholarshipPage: React.FC = () => {
 
           <button
             onClick={handleSubmitApplication}
-            disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 py-3 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50"
+            disabled={submitting || !isCgpaQualified}
+            className="w-full flex items-center justify-center gap-2 py-3 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>{submitting ? 'Submitting Application...' : 'Confirm & Submit Application'}</span>
+            <span>
+              {submitting
+                ? 'Submitting Application...'
+                : !isCgpaQualified
+                ? `Ineligible: CGPA Below ${minRequiredCgpa.toFixed(1)} Requirement`
+                : 'Confirm & Submit Application'}
+            </span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

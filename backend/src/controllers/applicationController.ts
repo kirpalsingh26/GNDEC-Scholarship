@@ -57,6 +57,15 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       });
     }
 
+    // Enforce minimum CGPA requirement (at least 6.0 is required in every scholarship)
+    const minRequiredCgpa = Math.max(6.0, Number(scholarship.rules?.minCgpa || 6.0));
+    if ((profile.cgpa || 0) < minRequiredCgpa) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum CGPA of ${minRequiredCgpa.toFixed(2)} is required for this scholarship. Your current registered CGPA is ${(profile.cgpa || 0).toFixed(2)}.`,
+      });
+    }
+
     // Evaluate live eligibility
     const evalResult = await EligibilityService.evaluateStudent(profile, scholarship);
 

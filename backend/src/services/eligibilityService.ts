@@ -34,21 +34,21 @@ export class EligibilityService {
     const rules = scholarship.rules || {};
     const criteria: EligibilityCriterionResult[] = [];
 
-    // --- CRITERION 1: CGPA Requirement ---
-    if (rules.minCgpa && rules.minCgpa > 0) {
-      const satisfied = (student.cgpa || 0) >= rules.minCgpa;
-      criteria.push({
-        key: 'CGPA',
-        name: 'Minimum CGPA Requirement',
-        satisfied,
-        required: `≥ ${rules.minCgpa.toFixed(2)} CGPA`,
-        actual: `${(student.cgpa || 0).toFixed(2)} CGPA`,
-        severity: 'CRITICAL',
-        feedback: satisfied
-          ? 'CGPA requirement successfully met.'
-          : `Current CGPA (${student.cgpa}) is below the required threshold of ${rules.minCgpa}.`,
-      });
-    }
+    // --- CRITERION 1: CGPA Requirement (Minimum 6.0 required in every scholarship) ---
+    const minCgpaRequired = Math.max(6.0, Number(rules.minCgpa || 6.0));
+    const studentCgpa = Number(student.cgpa || 0);
+    const cgpaSatisfied = studentCgpa >= minCgpaRequired;
+    criteria.push({
+      key: 'CGPA',
+      name: 'Academic Merit (Minimum CGPA)',
+      satisfied: cgpaSatisfied,
+      required: `≥ ${minCgpaRequired.toFixed(2)} CGPA`,
+      actual: student.cgpa ? `${studentCgpa.toFixed(2)} CGPA` : 'Pending Entry (0.00)',
+      severity: 'CRITICAL',
+      feedback: cgpaSatisfied
+        ? `Academic merit satisfied: Current CGPA (${studentCgpa.toFixed(2)}) meets the minimum mandatory threshold of ${minCgpaRequired.toFixed(2)}.`
+        : `Current academic CGPA (${studentCgpa.toFixed(2)}) is below the mandatory requirement of ${minCgpaRequired.toFixed(2)} CGPA.`,
+    });
 
     // --- CRITERION 3: Family Income Ceiling ---
     if (rules.maxFamilyIncome && rules.maxFamilyIncome > 0) {

@@ -68,7 +68,7 @@ const ScholarshipSchema = new Schema<IScholarship>(
       },
     ],
     rules: {
-      minCgpa: { type: Number, default: 0 },
+      minCgpa: { type: Number, default: 6, min: 6 },
       maxFamilyIncome: { type: Number, default: 0 }, // 0 means no income cap
       allowedCategories: [{ type: String, enum: CATEGORIES }],
       allowedDepartments: [{ type: String }],
@@ -83,5 +83,15 @@ const ScholarshipSchema = new Schema<IScholarship>(
   },
   { timestamps: true }
 );
+
+ScholarshipSchema.pre('save', function (next) {
+  if (!this.rules) {
+    this.rules = {} as any;
+  }
+  if (!this.rules.minCgpa || this.rules.minCgpa < 6) {
+    this.rules.minCgpa = 6;
+  }
+  next();
+});
 
 export const Scholarship = mongoose.model<IScholarship>('Scholarship', ScholarshipSchema);

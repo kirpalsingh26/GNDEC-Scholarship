@@ -164,7 +164,7 @@ export const initProductionData = async () => {
         DOCUMENT_TYPES.FEE_RECEIPT,
       ],
       rules: {
-        minCgpa: 0,
+        minCgpa: 6,
         maxFamilyIncome: 250000,
         allowedCategories: ['SC'],
         maxBacklogs: 3,
@@ -209,7 +209,7 @@ export const initProductionData = async () => {
         DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
       ],
       rules: {
-        minCgpa: 0,
+        minCgpa: 6,
         maxFamilyIncome: 250000,
         allowedCategories: ['SC'],
         maxBacklogs: 4,
@@ -253,7 +253,7 @@ export const initProductionData = async () => {
         DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
       ],
       rules: {
-        minCgpa: 0,
+        minCgpa: 6,
         maxFamilyIncome: 250000,
         allowedCategories: ['SC'],
         maxBacklogs: 3,
@@ -297,7 +297,7 @@ export const initProductionData = async () => {
         DOCUMENT_TYPES.BANK_PROOF,
       ],
       rules: {
-        minCgpa: 0,
+        minCgpa: 6,
         maxFamilyIncome: 250000,
         allowedCategories: ['SC'],
         maxBacklogs: 2,
@@ -339,7 +339,7 @@ export const initProductionData = async () => {
         DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
       ],
       rules: {
-        minCgpa: 0,
+        minCgpa: 6,
         maxFamilyIncome: 250000,
         allowedCategories: ['SC'],
         maxBacklogs: 4,
@@ -360,6 +360,12 @@ export const initProductionData = async () => {
   await Scholarship.updateMany(
     { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP', 'PB-PMS-HOSTEL', 'PB-PMS-MERIT', 'PB-PMS-2024-CLOSED'] } },
     { status: 'ARCHIVED' }
+  );
+
+  // Ensure all scholarships enforce minimum CGPA of 6.0
+  await Scholarship.updateMany(
+    { $or: [{ 'rules.minCgpa': { $lt: 6 } }, { 'rules.minCgpa': { $exists: false } }] },
+    { $set: { 'rules.minCgpa': 6 } }
   );
 
   // 5. System Initial Audit Log
