@@ -3,14 +3,12 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/common/Sidebar.js';
 import { Navbar } from '../components/common/Navbar.js';
 import { HelpAssistantWidget } from '../components/common/HelpAssistantWidget.js';
-import { PortalSwitcherBar } from '../components/common/PortalSwitcherBar.js';
 
 export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <PortalSwitcherBar />
       <div className="flex-1 flex flex-row">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         <div className="flex-1 flex flex-col min-w-0">

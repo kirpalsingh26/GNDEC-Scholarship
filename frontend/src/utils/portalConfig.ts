@@ -121,3 +121,4 @@ export const isRoleAllowedOnPortal = (role?: string, portalType?: PortalType): b
   const allowed = PORTALS[current]?.allowedRoles || ['STUDENT', 'OFFICER', 'ADMIN'];
   return allowed.includes(role);
 };
+

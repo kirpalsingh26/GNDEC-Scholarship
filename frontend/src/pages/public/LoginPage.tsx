@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import { getPortalMode, PORTALS } from '../../utils/portalConfig.js';
-import { PortalSwitcherBar } from '../../components/common/PortalSwitcherBar.js';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,9 +104,6 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 flex flex-col font-sans relative selection:bg-indigo-500 selection:text-white">
-      {/* Top Multi-Portal Switcher Bar */}
-      <PortalSwitcherBar />
-
       <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Background Animated Ambient Glows */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
