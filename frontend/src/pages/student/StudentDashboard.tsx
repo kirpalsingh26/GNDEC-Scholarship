@@ -127,54 +127,54 @@ export const StudentDashboard: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12 font-sans">
       {/* =========================================================================
-          HERO COCKPIT WELCOME BANNER
+          HERO COCKPIT WELCOME BANNER (LIGHT THEME MATCHING LOGIN PAGE AESTHETICS)
       ========================================================================= */}
-      <div className="rounded-3xl bg-gradient-to-br from-[#071324] via-[#0b1f3a] to-[#0d274c] p-6 sm:p-8 text-white shadow-xl border border-amber-500/30 relative overflow-hidden">
-        {/* Ambient Glows */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/30 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
+        {/* Ambient Subtle Glows */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
-            {/* Student Avatar / Shield Emblem */}
-            <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-lg shadow-amber-500/20 shrink-0">
-              <div className="h-full w-full rounded-[14px] bg-[#071324] flex items-center justify-center text-amber-300 font-black text-xl sm:text-2xl">
-                {(profile?.firstName?.[0] || user?.name?.[0] || 'S').toUpperCase()}
-              </div>
+            {/* Golden Emblem Container */}
+            <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-br from-amber-400/25 to-amber-600/10 border border-amber-400/40 flex items-center justify-center text-amber-700 shadow-md shadow-amber-500/10 shrink-0">
+              <GraduationCap className="h-8 w-8" />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 uppercase tracking-wider">
+                <span className="text-[9px] font-black px-2 py-0.5 rounded bg-amber-400 text-slate-950 uppercase tracking-wider">
                   PMS SC SCHOLAR
                 </span>
                 {isVerified ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                     100% Tuition Fee Exemption Certified ✓
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    <Clock className="h-3.5 w-3.5 text-amber-400 animate-spin" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
+                    <Clock className="h-3.5 w-3.5 text-amber-600 animate-spin" />
                     Officer Scrutiny In Progress
                   </span>
                 )}
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Welcome back, {profile?.firstName || user?.name}! 👋
               </h1>
 
-              <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-slate-300">
-                <span className="font-mono text-amber-300 font-bold bg-white/10 px-2 py-0.5 rounded">
+              <div className="flex flex-wrap items-center gap-y-1 gap-x-2.5 text-xs text-slate-600">
+                <span className="font-mono text-slate-800 font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                   URN: {profile?.rollNumber || '2104520'}
                 </span>
                 <span>•</span>
-                <span>{profile?.department || 'Computer Science & Engineering'}</span>
+                <span className="font-medium text-slate-700">{profile?.department || 'Computer Science & Engineering'}</span>
                 <span>•</span>
-                <span>Semester {profile?.semester || 5}</span>
+                <span className="font-medium text-slate-700">Semester {profile?.semester || 5}</span>
                 <span>•</span>
-                <span className="text-amber-200">Category: SC Verified</span>
+                <span className="font-bold text-amber-900 bg-amber-100/70 border border-amber-200/80 px-2 py-0.5 rounded-md text-[11px]">
+                  Category: SC Verified ✓
+                </span>
               </div>
             </div>
           </div>
@@ -183,11 +183,7 @@ export const StudentDashboard: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-auto">
             <button
               onClick={() => setIsQRModalOpen(true)}
-              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                isVerified
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20'
-                  : 'bg-amber-400 hover:bg-amber-500 text-slate-950 shadow-amber-400/20'
-              }`}
+              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white shadow-indigo-600/20 transform active:scale-[0.99]"
             >
               <ShieldCheck className="h-4 w-4" />
               <span>{isVerified ? 'Verified Digital ID' : 'Check ID Pass Status'}</span>
@@ -195,19 +191,19 @@ export const StudentDashboard: React.FC = () => {
 
             <button
               onClick={() => navigate('/student/documents')}
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs transition-all flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
             >
-              <FolderLock className="h-4 w-4 text-amber-300" />
+              <FolderLock className="h-4 w-4 text-indigo-600" />
               <span>Document Vault</span>
             </button>
 
             <button
               onClick={() => fetchDashboard(true)}
               disabled={refreshing}
-              title="Refresh scrutiny status"
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-300 hover:text-white transition-all cursor-pointer disabled:opacity-50"
+              title="Refresh scrutiny records"
+              className="p-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-amber-400' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-amber-600' : ''}`} />
             </button>
           </div>
         </div>
@@ -220,7 +216,7 @@ export const StudentDashboard: React.FC = () => {
         {/* Application Status Card */}
         <div
           onClick={() => navigate('/student/applications')}
-          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-sm hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
+          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -234,7 +230,7 @@ export const StudentDashboard: React.FC = () => {
                 #{latestApp?.applicationNumber || 'GNDEC-PMS-2025'}
               </p>
             </div>
-            <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${isVerified ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+            <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border ${isVerified ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60' : 'bg-amber-50 text-amber-600 border-amber-200/60'}`}>
               {isVerified ? <FileCheck2 className="h-5 w-5" /> : <Clock className="h-5 w-5 animate-pulse" />}
             </div>
           </div>
@@ -249,7 +245,7 @@ export const StudentDashboard: React.FC = () => {
         {/* Tuition Fee Waiver Card */}
         <div
           onClick={() => navigate('/student/scholarships')}
-          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-sm hover:border-emerald-300 transition-all cursor-pointer flex flex-col justify-between"
+          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -263,7 +259,7 @@ export const StudentDashboard: React.FC = () => {
                 Punjab Post-Matric SC Scheme
               </p>
             </div>
-            <div className="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center shrink-0">
               <GraduationCap className="h-5 w-5" />
             </div>
           </div>
@@ -276,7 +272,7 @@ export const StudentDashboard: React.FC = () => {
         {/* Annual Family Income Card */}
         <div
           onClick={() => navigate('/student/profile')}
-          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-sm hover:border-blue-300 transition-all cursor-pointer flex flex-col justify-between"
+          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -290,7 +286,7 @@ export const StudentDashboard: React.FC = () => {
                 Limit: ≤ ₹2.50 Lakh / year
               </p>
             </div>
-            <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/60 flex items-center justify-center shrink-0">
               <Wallet className="h-5 w-5" />
             </div>
           </div>
@@ -303,7 +299,7 @@ export const StudentDashboard: React.FC = () => {
         {/* Uploaded Documents Card */}
         <div
           onClick={() => navigate('/student/documents')}
-          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-sm hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
+          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -317,7 +313,7 @@ export const StudentDashboard: React.FC = () => {
                 {isVerified ? 'All Certificates Certified' : 'Under Officer Inspection'}
               </p>
             </div>
-            <div className="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200/60 flex items-center justify-center shrink-0">
               <FolderLock className="h-5 w-5" />
             </div>
           </div>
@@ -332,9 +328,9 @@ export const StudentDashboard: React.FC = () => {
           VERIFICATION STATUS NOTICE (IF PENDING)
       ========================================================================= */}
       {!isVerified && (
-        <div className="rounded-2xl bg-amber-50/90 border border-amber-300 p-4 sm:p-5 shadow-2xs">
+        <div className="rounded-2xl bg-amber-50/90 border border-amber-300/80 p-4 sm:p-5 shadow-2xs">
           <div className="flex items-start gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5 shadow-xs border border-amber-200">
               <ShieldCheck className="h-5 w-5 text-amber-700" />
             </div>
             <div className="space-y-1 min-w-0">
@@ -357,7 +353,7 @@ export const StudentDashboard: React.FC = () => {
       {/* =========================================================================
           APPLICATION LIFECYCLE PROGRESS PIPELINE
       ========================================================================= */}
-      <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-xs">
+      <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -439,10 +435,10 @@ export const StudentDashboard: React.FC = () => {
           RECENT IN-APP NOTIFICATIONS & DEADLINE REMINDERS FEED
       ========================================================================= */}
       {recentNotifications.length > 0 && (
-        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-xs space-y-3">
+        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-2xs space-y-3">
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700">
+              <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
                 <Bell className="h-4 w-4" />
               </div>
               <div>
@@ -468,9 +464,9 @@ export const StudentDashboard: React.FC = () => {
                 onClick={() => notif.link && navigate(notif.link)}
                 className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                   notif.type === 'DEADLINE'
-                    ? 'bg-rose-50/50 border-rose-200 hover:bg-rose-50'
+                    ? 'bg-rose-50/60 border-rose-200 hover:bg-rose-50'
                     : notif.type === 'DOCUMENT'
-                    ? 'bg-amber-50/50 border-amber-200 hover:bg-amber-50'
+                    ? 'bg-amber-50/60 border-amber-200 hover:bg-amber-50'
                     : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
                 }`}
               >
@@ -503,7 +499,7 @@ export const StudentDashboard: React.FC = () => {
       {/* =========================================================================
           UPLOADED DOCUMENTS SCRUTINY VAULT TABLE
       ========================================================================= */}
-      <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
+      <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -526,7 +522,7 @@ export const StudentDashboard: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 bg-slate-50/70 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-2.5 px-3">Certificate Type</th>
                 <th className="py-2.5 px-3">Version</th>
                 <th className="py-2.5 px-3">Scrutiny Status</th>
@@ -540,10 +536,10 @@ export const StudentDashboard: React.FC = () => {
                 const isReupload = doc.status === 'REUPLOAD_REQUIRED';
 
                 return (
-                  <tr key={doc._id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={doc._id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs">
+                        <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shrink-0 font-bold text-xs">
                           <FileText className="h-4 w-4" />
                         </div>
                         <div>
@@ -583,14 +579,14 @@ export const StudentDashboard: React.FC = () => {
                             href={latestVer.fileUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="px-2.5 py-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg flex items-center gap-1 transition-colors"
+                            className="px-2.5 py-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 rounded-lg flex items-center gap-1 transition-colors"
                           >
                             <Eye className="h-3 w-3" />
                             View
                           </a>
                         )}
                         {isReupload && (
-                          <label className="px-2.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-100 hover:bg-rose-200 rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
+                          <label className="px-2.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
                             <input
                               type="file"
                               accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.heic,.heif,.avif,.jfif,.doc,.docx,.xls,.xlsx,.txt"
@@ -620,13 +616,13 @@ export const StudentDashboard: React.FC = () => {
       ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Compliance Checklist */}
-        <div className="lg:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-3">
+        <div className="lg:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-3">
           <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
               PMS Criteria Compliance Checklist
             </h3>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
               {isVerified ? 'All Certified ✓' : 'In Review ⏳'}
             </span>
           </div>
@@ -675,7 +671,7 @@ export const StudentDashboard: React.FC = () => {
         </div>
 
         {/* Scholarship Cell Contact Card */}
-        <div className="lg:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 pb-2.5 border-b border-slate-100">
               <Building2 className="h-4 w-4 text-indigo-600" />
@@ -728,7 +724,7 @@ export const StudentDashboard: React.FC = () => {
           className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
         >
           <div>
-            <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <GraduationCap className="h-5 w-5" />
             </div>
             <h4 className="text-sm font-bold text-slate-900">PMS Scheme Catalog</h4>
@@ -746,7 +742,7 @@ export const StudentDashboard: React.FC = () => {
           className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
         >
           <div>
-            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <FolderLock className="h-5 w-5" />
             </div>
             <h4 className="text-sm font-bold text-slate-900">Secure Document Vault</h4>
@@ -764,7 +760,7 @@ export const StudentDashboard: React.FC = () => {
           className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
         >
           <div>
-            <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <Award className="h-5 w-5" />
             </div>
             <h4 className="text-sm font-bold text-slate-900">Academic Renewal</h4>
@@ -782,7 +778,7 @@ export const StudentDashboard: React.FC = () => {
           className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
         >
           <div>
-            <div className="h-10 w-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-200/60 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <Building2 className="h-5 w-5" />
             </div>
             <h4 className="text-sm font-bold text-slate-900">Scholarship Helpdesk</h4>

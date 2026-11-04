@@ -8,8 +8,10 @@ export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 flex flex-row">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans relative selection:bg-amber-500 selection:text-slate-950 overflow-x-hidden">
+      {/* Subtle Background Light Grid Pattern */}
+      <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-60" />
+      <div className="flex-1 flex flex-row relative z-10">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         <div className="flex-1 flex flex-col min-w-0">
           <Navbar onToggleSidebar={() => setIsSidebarOpen(true)} />
