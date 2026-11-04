@@ -54,6 +54,49 @@ export const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
+  // Dynamic progress calculation based on active step and field completion
+  const getProgressInfo = () => {
+    if (step === 1) {
+      const hasName = formData.name.trim().length > 0;
+      const hasEmail = formData.email.trim().includes('@');
+      const hasPass = formData.password.length >= 6;
+      const passMatch = hasPass && formData.password === formData.confirmPassword;
+      const fieldsFilled = (hasName ? 1 : 0) + (hasEmail ? 1 : 0) + (passMatch ? 1 : 0);
+
+      if (fieldsFilled === 0) {
+        return { percent: 0, label: '0% Completed' };
+      }
+      if (fieldsFilled === 1) {
+        return { percent: 10, label: '10% Completed' };
+      }
+      if (fieldsFilled === 2) {
+        return { percent: 20, label: '20% Completed' };
+      }
+      return { percent: 33, label: '33% • Step 1 Ready' };
+    }
+
+    if (step === 2) {
+      const hasRoll = formData.rollNumber.trim().length > 0;
+      if (!hasRoll) {
+        return { percent: 33, label: '33% Completed (Step 1 Done)' };
+      }
+      const hasPhone = formData.phone.trim().length >= 10;
+      if (!hasPhone) {
+        return { percent: 50, label: '50% Completed' };
+      }
+      return { percent: 66, label: '66% • Step 2 Ready' };
+    }
+
+    // Step 3
+    const hasValidIncome = formData.familyIncome > 0 && formData.familyIncome <= 250000;
+    if (!hasValidIncome) {
+      return { percent: 66, label: '66% Completed (Steps 1 & 2 Done)' };
+    }
+    return { percent: 90, label: '90% • Ready to Register' };
+  };
+
+  const progress = getProgressInfo();
+
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -297,10 +340,8 @@ export const RegisterPage: React.FC = () => {
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-700 border border-indigo-200">
                     Step {step} of 3
                   </div>
-                  <span className="text-xs font-bold text-slate-400 font-mono">
-                    {step === 1 && '33% Completed'}
-                    {step === 2 && '66% Completed'}
-                    {step === 3 && 'Final Step'}
+                  <span className="text-xs font-bold text-slate-500 font-mono">
+                    {progress.label}
                   </span>
                 </div>
 
@@ -308,7 +349,7 @@ export const RegisterPage: React.FC = () => {
                 <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-indigo-600 to-amber-500 transition-all duration-300 rounded-full"
-                    style={{ width: step === 1 ? '33.3%' : step === 2 ? '66.6%' : '100%' }}
+                    style={{ width: `${progress.percent}%` }}
                   />
                 </div>
 
