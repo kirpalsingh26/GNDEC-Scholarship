@@ -43,7 +43,11 @@ function calculateTimeLeft(deadlineDate: string | Date) {
 }
 
 // Live Countdown Clock & Urgency Badge Component with real-time ticking
-const LiveCountdownClock: React.FC<{ deadline: string | Date }> = ({ deadline }) => {
+const LiveCountdownClock: React.FC<{
+  deadline: string | Date;
+  compact?: boolean;
+  showPill?: boolean;
+}> = ({ deadline, compact = false, showPill = true }) => {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(deadline));
 
   useEffect(() => {
@@ -56,32 +60,76 @@ const LiveCountdownClock: React.FC<{ deadline: string | Date }> = ({ deadline })
 
   if (timeLeft.isPassed) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-        <Clock className="h-3.5 w-3.5 text-amber-400" />
-        Application Cycle Updating
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+        <Clock className="h-3 w-3 text-amber-400" />
+        Application Cycle Active
       </span>
     );
   }
 
   const isUrgent = timeLeft.days <= 5;
 
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1 text-center">
+        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
+          <span className="font-mono font-black text-xs text-amber-300 leading-tight">
+            {timeLeft.days}
+          </span>
+          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Days
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
+          <span className="font-mono font-black text-xs text-white leading-tight">
+            {String(timeLeft.hours).padStart(2, '0')}
+          </span>
+          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Hrs
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
+          <span className="font-mono font-black text-xs text-white leading-tight">
+            {String(timeLeft.minutes).padStart(2, '0')}
+          </span>
+          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Min
+          </span>
+        </div>
+        <span className="text-amber-400 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
+          <span className="font-mono font-black text-xs text-emerald-400 leading-tight">
+            {String(timeLeft.seconds).padStart(2, '0')}
+          </span>
+          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+            Sec
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-start md:items-end gap-2">
       {/* Prominent Live Pill */}
-      <div
-        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-sm ${
-          isUrgent
-            ? 'bg-rose-500 text-white animate-pulse'
-            : 'bg-amber-400 text-slate-950 shadow-amber-500/20'
-        }`}
-      >
-        <Clock className="h-3.5 w-3.5 shrink-0" />
-        <span>
-          {timeLeft.days > 0
-            ? `${timeLeft.days} Days Left to Apply`
-            : `${timeLeft.hours} Hours Left to Apply`}
-        </span>
-      </div>
+      {showPill && (
+        <div
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-sm ${
+            isUrgent
+              ? 'bg-rose-500 text-white animate-pulse'
+              : 'bg-amber-400 text-slate-950 shadow-amber-500/20'
+          }`}
+        >
+          <Clock className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            {timeLeft.days > 0
+              ? `${timeLeft.days} Days Left to Apply`
+              : `${timeLeft.hours} Hours Left to Apply`}
+          </span>
+        </div>
+      )}
 
       {/* Digital Real-Time Flip Boxes */}
       <div className="flex items-center gap-1 sm:gap-1.5 text-center">
@@ -202,6 +250,64 @@ export const LandingPage: React.FC = () => {
                 maxFamilyIncome: 250000,
                 allowedCategories: ['SC'],
                 maxBacklogs: 4,
+                genderRestriction: 'ALL',
+              },
+            } as any,
+            {
+              _id: 'pb-pms-hostel-default',
+              title: 'Punjab State SC Hosteller Special Boarding & Mess Allowance Scheme',
+              code: 'PB-PMS-HOSTEL',
+              provider: 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab',
+              type: 'RESERVATION',
+              description:
+                'Dedicated residential and boarding maintenance grant for Scheduled Caste (SC) students residing in GNDEC campus hostels. Disbursed via DBT at ₹4,000 per month to cover mess bills and hostel accommodations.',
+              amount: 48000,
+              frequency: 'ANNUAL',
+              academicYear: '2025-2026',
+              deadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000).toISOString(),
+              isRenewable: true,
+              status: 'ACTIVE',
+              requiredDocuments: [
+                'INCOME_CERTIFICATE',
+                'CASTE_CERTIFICATE',
+                'RESIDENCE_CERTIFICATE',
+                'BANK_PROOF',
+                'BONAFIDE_CERTIFICATE',
+              ],
+              rules: {
+                minCgpa: 0,
+                maxFamilyIncome: 250000,
+                allowedCategories: ['SC'],
+                maxBacklogs: 3,
+                genderRestriction: 'ALL',
+              },
+            } as any,
+            {
+              _id: 'pb-pms-merit-default',
+              title: 'Dr. Ambedkar SC Higher Technical Education Book Bank & Equipment Grant',
+              code: 'PB-PMS-MERIT',
+              provider: 'Punjab State Directorate of Technical Education & Industrial Training',
+              type: 'RESERVATION',
+              description:
+                'Annual academic grant providing financial assistance for textbook procurement, laptop/computing devices, scientific calculators, and laboratory toolkits for SC engineering and technology students.',
+              amount: 35000,
+              frequency: 'ANNUAL',
+              academicYear: '2025-2026',
+              deadline: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000).toISOString(),
+              isRenewable: true,
+              status: 'ACTIVE',
+              requiredDocuments: [
+                'INCOME_CERTIFICATE',
+                'CASTE_CERTIFICATE',
+                'RESIDENCE_CERTIFICATE',
+                'ACADEMIC_MARKSHEET',
+                'BANK_PROOF',
+              ],
+              rules: {
+                minCgpa: 0,
+                maxFamilyIncome: 250000,
+                allowedCategories: ['SC'],
+                maxBacklogs: 2,
                 genderRestriction: 'ALL',
               },
             } as any,
@@ -458,7 +564,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 4. Active Scholarship Schemes Catalog (Publicly Accessible Without Login) */}
-      <section id="scholarships" className="py-14 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
+      <section id="scholarships" className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
         <div className="text-center max-w-3xl mx-auto mb-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold mb-3 shadow-2xs">
             <Sparkles className="h-3.5 w-3.5 text-amber-600" />
@@ -477,191 +583,196 @@ export const LandingPage: React.FC = () => {
             Loading active scholarship programs and live submission deadlines...
           </div>
         ) : (
-          scholarships.map((sch) => {
-            const formattedDeadline = new Date(sch.deadline).toLocaleDateString('en-IN', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            });
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            {scholarships.map((sch) => {
+              const formattedDeadline = new Date(sch.deadline).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              });
 
-            return (
-              <div
-                key={sch._id}
-                className="rounded-3xl bg-white border border-slate-200 shadow-md hover:border-indigo-200 hover:shadow-lg transition-all overflow-hidden"
-              >
-                {/* Header Banner */}
-                <div className="bg-[#0b2341] text-white p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-amber-400 text-xs font-black uppercase tracking-wider bg-amber-500/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
-                        Code: {sch.code || 'PB-PMS-SC'}
-                      </span>
-                      <span className="text-xs text-slate-300 font-semibold">
-                        Academic Session: {sch.academicYear || '2025–26'}
+              const diffDays = Math.max(
+                0,
+                Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+              );
+
+              return (
+                <div
+                  key={sch._id}
+                  className="rounded-3xl bg-white border border-slate-200 shadow-md hover:border-amber-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                >
+                  {/* Header Banner */}
+                  <div className="bg-[#0b2341] text-white p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden border-b border-amber-500/20">
+                    <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-400 text-[11px] font-black uppercase tracking-wider bg-amber-500/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
+                          Code: {sch.code || 'PB-PMS-SC'}
+                        </span>
+                        <span className="text-[11px] text-slate-300 font-semibold bg-white/5 px-2 py-0.5 rounded">
+                          Session {sch.academicYear || '2025–26'}
+                        </span>
+                      </div>
+
+                      {/* Live Days Left Pill */}
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-400 text-slate-950 shadow-sm shrink-0">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        <span>{diffDays > 0 ? `${diffDays} Days Left` : 'Closing Soon'}</span>
                       </span>
                     </div>
-                    <h4 className="text-xl sm:text-2xl font-black text-white leading-snug">
+
+                    <h4 className="text-lg sm:text-xl font-black text-white leading-snug group-hover:text-amber-300 transition-colors line-clamp-2">
                       {sch.title}
                     </h4>
-                    <p className="text-xs text-slate-300 flex items-center gap-1.5">
+
+                    <p className="text-[11px] text-slate-300 flex items-center gap-1.5 mt-1.5">
                       <Building2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                      {sch.provider || 'Department of Social Justice & Empowerment, Govt. of Punjab'}
+                      <span className="line-clamp-1">
+                        {sch.provider || 'Department of Social Justice & Empowerment, Govt. of Punjab'}
+                      </span>
                     </p>
-                  </div>
 
-                  {/* Live Countdown & Amount Block */}
-                  <div className="text-left md:text-right shrink-0 space-y-2">
-                    <LiveCountdownBadge deadline={sch.deadline} />
-                    <p className="text-xs text-amber-200 font-bold">
-                      Grant Value: ₹{(sch.amount || 75000).toLocaleString('en-IN')} / {sch.frequency || 'Annual'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Body Content */}
-                <div className="p-6 sm:p-8 space-y-6">
-                  {/* Scheme Description */}
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    {sch.description}
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left Column: Eligibility Conditions */}
-                    <div className="space-y-3">
-                      <h5 className="text-xs font-extrabold text-[#0b2341] uppercase tracking-wider flex items-center gap-2">
-                        <ShieldCheck className="h-4 w-4 text-amber-600" />
-                        Mandatory Eligibility Criteria
-                      </h5>
-                      <ul className="space-y-2 text-xs text-slate-700">
-                        <li className="flex items-start gap-2 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Community / Caste:</strong> Strictly reserved for{' '}
-                            <strong>{sch.rules?.allowedCategories?.join(', ') || 'SC (Scheduled Caste)'}</strong> candidates recognized in Punjab.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Income Ceiling:</strong> Gross annual family income must not exceed{' '}
-                            <strong>₹{(sch.rules?.maxFamilyIncome || 250000).toLocaleString('en-IN')}/-</strong> (certified by Tehsildar/SDM).
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Domicile & Residence:</strong> Candidate must be a permanent resident / bonafide domicile of the State of Punjab.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Academic Rules:</strong> Min CGPA: {sch.rules?.minCgpa || 0} • Maximum Allowed Backlogs: {sch.rules?.maxBacklogs ?? 3}.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Eligible Programs:</strong> Enrolled in B.Tech, M.Tech, MCA, MBA programs across all engineering departments.
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    {/* Right Column: Grant Coverage, Deadline & Documents */}
-                    <div className="space-y-3">
-                      <h5 className="text-xs font-extrabold text-[#0b2341] uppercase tracking-wider flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-indigo-600" />
-                        Grant Coverage & Timeline
-                      </h5>
-
-                      {/* Timeline Cards */}
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                          <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider">Application Deadline</p>
-                          <p className="font-black text-slate-900 mt-0.5 text-xs sm:text-sm">{formattedDeadline}</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">Updated automatically</p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                          <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Fee Waiver Benefit</p>
-                          <p className="font-black text-emerald-950 mt-0.5 text-xs sm:text-sm">100% Exemption</p>
-                          <p className="text-[10px] text-emerald-700 mt-0.5">Tuition & Exam Fees</p>
-                        </div>
-                      </div>
-
-                      {/* Required Documents List */}
+                    {/* Live Digital Ticking Clock & Grant Value Strip */}
+                    <div className="mt-4 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-black/25 -mx-5 sm:-mx-6 -mb-5 sm:-mb-6 p-4 px-5 sm:px-6">
                       <div>
-                        <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                          <FileCheck2 className="h-3.5 w-3.5 text-slate-500" />
-                          Mandatory Verification Documents Checklist:
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-600">
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> SC Caste Certificate
+                        <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">
+                          Grant Allowance
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-white">
+                          ₹{(sch.amount || 75000).toLocaleString('en-IN')}
+                          <span className="text-xs font-medium text-slate-300 ml-1">
+                            /{sch.frequency?.toLowerCase() || 'annual'}
                           </span>
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Income Certificate (≤ ₹2.50L)
-                          </span>
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Punjab Domicile Certificate
-                          </span>
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> State Freeship Card
-                          </span>
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Academic Marksheets
-                          </span>
-                          <span className="p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Aadhaar Bank Passbook
-                          </span>
-                        </div>
+                        </span>
+                      </div>
+
+                      <div className="shrink-0 w-full sm:w-auto flex justify-start sm:justify-end">
+                        <LiveCountdownBadge deadline={sch.deadline} compact />
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Action Footer */}
-                  <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-[11px] text-slate-500">
-                      Applications submitted are saved to your enrolled account. Approved grants remain active for 6 months post-approval.
+                  {/* Body Content */}
+                  <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between space-y-5">
+                    {/* Scheme Description */}
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                      {sch.description}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                      {!user && (
-                        <button
-                          onClick={() => handleRegisterClick(sch)}
-                          className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all shadow-2xs"
-                        >
-                          New Student? Register
-                        </button>
-                      )}
+                    {/* Eligibility & Conditions 2x2 Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-slate-800 text-[11px] block">Community / Caste</strong>
+                          <span className="text-slate-600 text-[11px] leading-tight">
+                            Exclusively for <strong>{sch.rules?.allowedCategories?.join(', ') || 'SC'}</strong> candidates of Punjab.
+                          </span>
+                        </div>
+                      </div>
 
-                      <button
-                        onClick={() => handleApplyClick(sch)}
-                        className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-[#0b2341] hover:bg-[#12335c] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
-                      >
-                        {!user ? (
-                          <>
-                            <Lock className="h-3.5 w-3.5 text-amber-400" />
-                            Apply for Scholarship (Sign In)
-                          </>
-                        ) : user.role === 'STUDENT' ? (
-                          <>
-                            Apply for Scholarship
-                            <ArrowRight className="h-4 w-4" />
-                          </>
-                        ) : (
-                          <>
-                            Review Scheme Queue
-                            <ArrowRight className="h-4 w-4" />
-                          </>
+                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-slate-800 text-[11px] block">Annual Family Income</strong>
+                          <span className="text-slate-600 text-[11px] leading-tight">
+                            Gross limit ≤ <strong>₹{(sch.rules?.maxFamilyIncome || 250000).toLocaleString('en-IN')}/-</strong>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-slate-800 text-[11px] block">Academic Standing</strong>
+                          <span className="text-slate-600 text-[11px] leading-tight">
+                            Min CGPA: {sch.rules?.minCgpa || 0} • Max Backlogs: {sch.rules?.maxBacklogs ?? 3}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
+                        <Calendar className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-slate-800 text-[11px] block">Application Deadline</strong>
+                          <span className="text-slate-800 font-bold text-[11px] leading-tight text-amber-900">
+                            {formattedDeadline}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Required Documents Checklist */}
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <FileCheck2 className="h-3.5 w-3.5 text-slate-500" />
+                        Mandatory Document Verification:
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-600">
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          SC Caste Certificate
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          Income Proof (≤ ₹2.50L)
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          Punjab Domicile
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          State Freeship Card
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          Academic Marksheet
+                        </span>
+                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
+                          Aadhaar Bank Book
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Action Footer */}
+                    <div className="pt-4 border-t border-slate-200 mt-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <p className="text-[10px] text-slate-500 text-center sm:text-left">
+                        Submitted applications save to your profile. Grants remain active for 6 months.
+                      </p>
+
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        {!user && (
+                          <button
+                            onClick={() => handleRegisterClick(sch)}
+                            className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all shadow-2xs"
+                          >
+                            Register
+                          </button>
                         )}
-                      </button>
+
+                        <button
+                          onClick={() => handleApplyClick(sch)}
+                          className="flex-1 sm:flex-none px-5 py-2 rounded-xl bg-[#0b2341] hover:bg-[#12335c] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                        >
+                          {!user ? (
+                            <>
+                              <Lock className="h-3.5 w-3.5 text-amber-400" />
+                              <span>Apply (Sign In)</span>
+                            </>
+                          ) : user.role === 'STUDENT' ? (
+                            <>
+                              <span>Apply for Scheme</span>
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </>
+                          ) : (
+                            <>
+                              <span>Review Queue</span>
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </section>
 

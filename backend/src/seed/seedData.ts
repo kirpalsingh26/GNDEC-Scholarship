@@ -226,9 +226,97 @@ export const initProductionData = async () => {
     await freeshipScheme.save();
   }
 
+  // 4c. Punjab State SC Hosteller Special Boarding & Mess Allowance
+  const twelveDaysDeadline = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000);
+  let hostelScheme = await Scholarship.findOne({ code: 'PB-PMS-HOSTEL' });
+  if (!hostelScheme) {
+    await Scholarship.create({
+      title: 'Punjab State SC Hosteller Special Boarding & Mess Allowance Scheme',
+      code: 'PB-PMS-HOSTEL',
+      provider: 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab',
+      type: 'RESERVATION',
+      description:
+        'Dedicated residential and boarding maintenance grant for Scheduled Caste (SC) students residing in GNDEC campus hostels. Disbursed via DBT at ₹4,000 per month to cover mess bills and hostel accommodations.',
+      amount: 48000,
+      frequency: 'ANNUAL',
+      academicYear: '2025-2026',
+      deadline: twelveDaysDeadline,
+      isRenewable: true,
+      totalSeats: 250,
+      availableSeats: 250,
+      status: 'ACTIVE',
+      requiredDocuments: [
+        DOCUMENT_TYPES.INCOME_CERTIFICATE,
+        DOCUMENT_TYPES.CASTE_CERTIFICATE,
+        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
+        DOCUMENT_TYPES.BANK_PROOF,
+        DOCUMENT_TYPES.BONAFIDE_CERTIFICATE,
+      ],
+      rules: {
+        minCgpa: 0,
+        maxFamilyIncome: 250000,
+        allowedCategories: ['SC'],
+        maxBacklogs: 3,
+        genderRestriction: 'ALL',
+      },
+      instructions:
+        'Must be a bonafide GNDEC hostel resident belonging to the Scheduled Caste (SC) of Punjab with income <= 2.50 Lakh.',
+      contactEmail: 'scholarship@gndec.ac.in',
+    });
+    console.log('✅ Punjab SC Hosteller Scheme registered (12 Days Deadline).');
+  } else {
+    hostelScheme.deadline = twelveDaysDeadline;
+    hostelScheme.status = 'ACTIVE';
+    await hostelScheme.save();
+  }
+
+  // 4d. Dr. Ambedkar SC Higher Technical Education Book Bank & Equipment Grant
+  const eighteenDaysDeadline = new Date(Date.now() + 18 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000);
+  let meritScheme = await Scholarship.findOne({ code: 'PB-PMS-MERIT' });
+  if (!meritScheme) {
+    await Scholarship.create({
+      title: 'Dr. Ambedkar SC Higher Technical Education Book Bank & Study Equipment Grant',
+      code: 'PB-PMS-MERIT',
+      provider: 'Punjab State Directorate of Technical Education & Industrial Training',
+      type: 'RESERVATION',
+      description:
+        'Annual academic grant providing financial assistance for textbook procurement, laptop/computing devices, scientific calculators, and laboratory toolkits for SC engineering and technology students.',
+      amount: 35000,
+      frequency: 'ANNUAL',
+      academicYear: '2025-2026',
+      deadline: eighteenDaysDeadline,
+      isRenewable: true,
+      totalSeats: 300,
+      availableSeats: 300,
+      status: 'ACTIVE',
+      requiredDocuments: [
+        DOCUMENT_TYPES.INCOME_CERTIFICATE,
+        DOCUMENT_TYPES.CASTE_CERTIFICATE,
+        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
+        DOCUMENT_TYPES.ACADEMIC_MARKSHEET,
+        DOCUMENT_TYPES.BANK_PROOF,
+      ],
+      rules: {
+        minCgpa: 0,
+        maxFamilyIncome: 250000,
+        allowedCategories: ['SC'],
+        maxBacklogs: 2,
+        genderRestriction: 'ALL',
+      },
+      instructions:
+        'Open to all enrolled SC undergraduate and postgraduate students in technical disciplines at GNDEC.',
+      contactEmail: 'scholarship@gndec.ac.in',
+    });
+    console.log('✅ Punjab SC Technical Equipment Grant registered (18 Days Deadline).');
+  } else {
+    meritScheme.deadline = eighteenDaysDeadline;
+    meritScheme.status = 'ACTIVE';
+    await meritScheme.save();
+  }
+
   // Archive any legacy non-PMS test schemes to ensure only current PMS SC schemes are active
   await Scholarship.updateMany(
-    { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP'] } },
+    { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP', 'PB-PMS-HOSTEL', 'PB-PMS-MERIT'] } },
     { status: 'ARCHIVED' }
   );
 
