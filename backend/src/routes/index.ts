@@ -193,7 +193,12 @@ router.get(
   authorize(ROLES.OFFICER, ROLES.ADMIN),
   getAdminDashboardStats
 );
-router.get('/admin/users', authenticate, authorize(ROLES.ADMIN), listUsers);
+router.get(
+  '/admin/users',
+  authenticate,
+  authorize(ROLES.OFFICER, ROLES.ADMIN),
+  listUsers
+);
 router.post('/admin/users', authenticate, authorize(ROLES.ADMIN), createUser);
 router.put('/admin/users/:id/status', authenticate, authorize(ROLES.ADMIN), updateUserStatus);
 router.get('/admin/audit-logs', authenticate, authorize(ROLES.ADMIN), getAuditLogs);

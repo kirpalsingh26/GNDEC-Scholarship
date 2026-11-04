@@ -297,19 +297,60 @@ export const ApplicationReviewPage: React.FC = () => {
 
       {/* Officer Decision Panel */}
       <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
-        <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-indigo-600" />
-          Committee Final Evaluation & Decision
-        </h3>
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-blue-600" />
+              Faculty Scrutiny Committee Decision Console
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Authenticate student eligibility and certify statutory sanction for the 2025–26 academic cycle
+            </p>
+          </div>
+          <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+            Sign-Off Desk
+          </span>
+        </div>
+
+        {/* Predefined Quick Remarks Picker */}
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            Standard Scrutiny Endorsement / Predefined Feedback
+          </label>
+          <select
+            onChange={(e) => {
+              if (e.target.value) setRemarks(e.target.value);
+            }}
+            defaultValue=""
+            className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/60 hover:bg-white transition-colors cursor-pointer mb-2"
+          >
+            <option value="" disabled>Select standard committee endorsement...</option>
+            <option value="Freeship Card authenticated with Punjab Dr. Ambedkar Portal. Annual family income verified ≤ ₹2.50 Lakh. 100% Tuition Fee Exemption Sanctioned.">
+              ✓ Freeship Card & Income Verified (Sanction 100% Fee Exemption)
+            </option>
+            <option value="SDM Income Certificate verified within the ₹2.50 Lakh ceiling. Punjab State SC category confirmed.">
+              ✓ Income & Caste Verified
+            </option>
+            <option value="Income Certificate scan is unclear or not issued by authorized Tehsildar/SDM. Please re-upload current session certificate.">
+              ↻ Unclear Income Certificate (Request Re-upload)
+            </option>
+            <option value="Freeship Card missing or invalid registration number. Please re-upload verified Punjab Freeship Card.">
+              ↻ Invalid Freeship Card (Request Re-upload)
+            </option>
+            <option value="Candidate family annual income exceeds the statutory ₹2.50 Lakh ceiling for PMS SC Scheme.">
+              ✕ Income Exceeds Statutory Ceiling (Reject)
+            </option>
+          </select>
+        </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700">Official Committee Remarks / Audit Notes</label>
+          <label className="block text-xs font-bold text-slate-700">Official Committee Audit Remarks</label>
           <textarea
             rows={3}
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            placeholder="e.g. Candidate fulfills all state eligibility parameters. Certificates authenticated with Sub-Divisional Magistrate portal..."
-            className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 hover:bg-white focus:bg-white transition-colors"
+            placeholder="Official remarks to be logged in candidate permanent dossier..."
+            className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition-colors"
           />
         </div>
 
@@ -317,33 +358,37 @@ export const ApplicationReviewPage: React.FC = () => {
           <button
             onClick={() => handleUpdateStatus('APPROVED')}
             disabled={processing}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5"
           >
-            ✓ Approve Scholarship Grant
-          </button>
-
-          <button
-            onClick={() => handleUpdateStatus('ELIGIBILITY_REVIEW')}
-            disabled={processing}
-            className="px-4 py-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all"
-          >
-            ⏱ Under Committee Review
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Approve & Sanction 100% Fee Waiver</span>
           </button>
 
           <button
             onClick={() => handleUpdateStatus('ADDITIONAL_DOCUMENTS_REQUIRED')}
             disabled={processing}
-            className="px-4 py-2.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-all"
+            className="px-4 py-2.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
           >
-            ↻ Request Additional Certificates
+            <RotateCcw className="h-3.5 w-3.5 text-amber-600" />
+            <span>Request Certificate Re-upload</span>
+          </button>
+
+          <button
+            onClick={() => handleUpdateStatus('ELIGIBILITY_REVIEW')}
+            disabled={processing}
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Clock className="h-3.5 w-3.5 text-slate-500" />
+            <span>Mark Under Committee Review</span>
           </button>
 
           <button
             onClick={() => handleUpdateStatus('REJECTED')}
             disabled={processing}
-            className="px-4 py-2.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors"
+            className="px-4 py-2.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            ✕ Reject Application
+            <XCircle className="h-3.5 w-3.5" />
+            <span>Reject Application</span>
           </button>
         </div>
       </div>

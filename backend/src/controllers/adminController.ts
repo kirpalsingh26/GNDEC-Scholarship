@@ -115,8 +115,20 @@ export const listUsers = async (req: AuthRequest, res: Response, next: NextFunct
       ];
     }
 
-    const users = await User.find(query).select('-password').sort({ createdAt: -1 });
-    return res.status(200).json({ success: true, data: users });
+    const users = await User.find(query).select('-password').sort({ createdAt: -1 }).lean();
+    const userIds = users.map((u) => u._id);
+    const profiles = await StudentProfile.find({ userId: { $in: userIds } }).lean();
+    const profileMap: Record<string, any> = {};
+    profiles.forEach((p: any) => {
+      if (p.userId) profileMap[p.userId.toString()] = p;
+    });
+
+    const enrichedUsers = users.map((u: any) => ({
+      ...u,
+      profile: profileMap[u._id.toString()] || null,
+    }));
+
+    return res.status(200).json({ success: true, data: enrichedUsers });
   } catch (error) {
     next(error);
   }

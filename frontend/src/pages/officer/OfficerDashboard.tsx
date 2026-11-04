@@ -3,14 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users,
   FileCheck2,
-  AlertTriangle,
   CheckCircle2,
   Clock,
   ArrowRight,
-  TrendingUp,
-  FileText,
   ShieldAlert,
-  Sparkles,
+  ShieldCheck,
+  Building2,
+  FolderLock,
+  Calendar,
+  Eye,
+  FileSpreadsheet,
+  AlertCircle,
+  ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -24,21 +29,32 @@ import {
   Tooltip,
 } from 'recharts';
 import api from '../../services/api.js';
-import { StatCard } from '../../components/common/StatCard.js';
 import { Badge } from '../../components/common/Badge.js';
+import { useAuth } from '../../context/AuthContext.js';
 
 export const OfficerDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState<any>(null);
+  const [recentApplications, setRecentApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsRes = await api.get('/admin/stats');
-        if (statsRes.data.success) setStats(statsRes.data.data);
+        const [statsRes, appsRes] = await Promise.allSettled([
+          api.get('/admin/stats'),
+          api.get('/applications'),
+        ]);
+
+        if (statsRes.status === 'fulfilled' && statsRes.value.data.success) {
+          setStats(statsRes.value.data.data);
+        }
+        if (appsRes.status === 'fulfilled' && appsRes.value.data.success) {
+          setRecentApplications((appsRes.value.data.data || []).slice(0, 5));
+        }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load faculty dashboard:', err);
       } finally {
         setLoading(false);
       }
@@ -47,15 +63,18 @@ export const OfficerDashboard: React.FC = () => {
   }, []);
 
   const kpis = stats?.kpis;
-  const totalAppsCount = (kpis?.approvedApplications ?? 0) + (kpis?.pendingApplications ?? 0) + (kpis?.rejectedApplications ?? 0);
+  const totalAppsCount =
+    (kpis?.approvedApplications ?? 0) +
+    (kpis?.pendingApplications ?? 0) +
+    (kpis?.rejectedApplications ?? 0);
   const totalStudentsCount = kpis?.totalStudents ?? 0;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans">
       {/* =========================================================================
-          HERO EXECUTIVE BANNER (LIGHT THEME MATCHING PORTAL DESIGN SYSTEM)
+          HERO EXECUTIVE BANNER (INSTITUTIONAL GNDEC FACULTY CONSOLE)
       ========================================================================= */}
-      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-blue-50/30 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-blue-50/40 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
         {/* Subtle Ambient Backlights */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -63,7 +82,7 @@ export const OfficerDashboard: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
             <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/30 flex items-center justify-center text-blue-700 shadow-md shadow-blue-500/10 shrink-0">
-              <ShieldAlert className="h-8 w-8 text-blue-600" />
+              <ShieldCheck className="h-8 w-8 text-blue-600" />
             </div>
 
             <div className="space-y-1.5">
@@ -73,7 +92,10 @@ export const OfficerDashboard: React.FC = () => {
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-900 border border-blue-200 shadow-2xs">
                   <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
-                  Port 5174 • Verified Session 2025–26
+                  Port 5174 • Session 2025–26
+                </span>
+                <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+                  Welcome, <strong className="text-slate-800">{user?.name || 'Prof. Rajesh Sharma'}</strong>
                 </span>
               </div>
 
@@ -81,79 +103,143 @@ export const OfficerDashboard: React.FC = () => {
                 Scholarship Scrutiny & Verification Desk
               </h1>
 
-              <p className="text-xs text-slate-600">
-                Guru Nanak Dev Engineering College • Dr. B.R. Ambedkar Post-Matric SC Scheme Verification Authority
+              <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                Guru Nanak Dev Engineering College • Dr. B.R. Ambedkar Post-Matric SC Scheme Scrutiny Authority. Verify Punjab Freeship Cards, SDM income certificates, and certify candidate eligibility for 100% tuition waiver.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-auto shrink-0">
             <button
               onClick={() => navigate('/officer/documents')}
               className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-blue-600/20 transform active:scale-[0.99]"
             >
-              <FileCheck2 className="h-4 w-4" />
-              <span>Document Verification Desk</span>
+              <FolderLock className="h-4 w-4" />
+              <span>Verify Documents</span>
             </button>
 
             <button
               onClick={() => navigate('/officer/applications')}
-              className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Users className="h-4 w-4 text-indigo-600" />
-              <span>Applications Queue</span>
+              <FileCheck2 className="h-4 w-4 text-indigo-600" />
+              <span>Review Queue</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* =========================================================================
-          KEY OPERATIONAL METRICS (REAL DATA)
+          KEY OPERATIONAL METRICS (REAL DATA STATS)
       ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Scholarship Students"
-          value={totalStudentsCount}
-          subtitle="Enrolled candidates on portal"
-          icon={Users}
-          iconColor="text-indigo-600"
-          iconBg="bg-indigo-50"
+        {/* Metric 1: Total Enrolled Students */}
+        <div
           onClick={() => navigate('/officer/students')}
-        />
+          className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Enrolled SC Scholars
+            </span>
+            <div className="h-9 w-9 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-colors">
+              <Users className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {totalStudentsCount}
+            </p>
+            <p className="text-xs text-slate-500 flex items-center justify-between">
+              <span>Registered on portal</span>
+              <span className="text-[10px] font-bold text-indigo-600 flex items-center">
+                Directory <ChevronRight className="h-3 w-3" />
+              </span>
+            </p>
+          </div>
+        </div>
 
-        <StatCard
-          title="Applications Pending"
-          value={kpis?.pendingApplications ?? 0}
-          subtitle="Awaiting committee review"
-          icon={FileCheck2}
-          iconColor="text-amber-600"
-          iconBg="bg-amber-50"
+        {/* Metric 2: Applications Pending Scrutiny */}
+        <div
           onClick={() => navigate('/officer/applications')}
-        />
+          className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-amber-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+              Pending Scrutiny
+            </span>
+            <div className="h-9 w-9 rounded-xl bg-amber-50 group-hover:bg-amber-500 text-amber-600 group-hover:text-white flex items-center justify-center transition-colors">
+              <Clock className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl sm:text-3xl font-black text-amber-700 font-mono tracking-tight">
+              {kpis?.pendingApplications ?? 0}
+            </p>
+            <p className="text-xs text-slate-500 flex items-center justify-between">
+              <span>Awaiting officer review</span>
+              <span className="text-[10px] font-bold text-amber-700 flex items-center">
+                Audit Queue <ChevronRight className="h-3 w-3" />
+              </span>
+            </p>
+          </div>
+        </div>
 
-        <StatCard
-          title="Documents Under Review"
-          value={kpis?.pendingDocs ?? 0}
-          subtitle="Awaiting officer inspection"
-          icon={Clock}
-          iconColor="text-blue-600"
-          iconBg="bg-blue-50"
+        {/* Metric 3: Documents Under Review */}
+        <div
           onClick={() => navigate('/officer/documents')}
-        />
+          className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+              Certificates Queued
+            </span>
+            <div className="h-9 w-9 rounded-xl bg-blue-50 group-hover:bg-blue-600 text-blue-600 group-hover:text-white flex items-center justify-center transition-colors">
+              <FolderLock className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl sm:text-3xl font-black text-blue-700 font-mono tracking-tight">
+              {kpis?.pendingDocs ?? 0}
+            </p>
+            <p className="text-xs text-slate-500 flex items-center justify-between">
+              <span>SDM seals & Freeship cards</span>
+              <span className="text-[10px] font-bold text-blue-600 flex items-center">
+                Verify <ChevronRight className="h-3 w-3" />
+              </span>
+            </p>
+          </div>
+        </div>
 
-        <StatCard
-          title="Approved PMS Grants"
-          value={kpis?.approvedApplications ?? 0}
-          subtitle="Certified for fee waiver"
-          icon={CheckCircle2}
-          iconColor="text-emerald-600"
-          iconBg="bg-emerald-50"
+        {/* Metric 4: Approved & Sanctioned */}
+        <div
           onClick={() => navigate('/officer/applications')}
-        />
+          className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+              Sanctioned Grants
+            </span>
+            <div className="h-9 w-9 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition-colors">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono tracking-tight">
+              {kpis?.approvedApplications ?? 0}
+            </p>
+            <p className="text-xs text-slate-500 flex items-center justify-between">
+              <span>Certified 100% fee waiver</span>
+              <span className="text-[10px] font-bold text-emerald-700 flex items-center">
+                Certified <ChevronRight className="h-3 w-3" />
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* =========================================================================
-          TRIAGE & ACTION WORKSPACE TILES
+          TRIAGE & SCRUTINY WORKSPACE TILES
       ========================================================================= */}
       <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -167,7 +253,7 @@ export const OfficerDashboard: React.FC = () => {
             </p>
           </div>
           <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-            Official Workflow
+            Mandatory Verification Rules
           </span>
         </div>
 
@@ -175,7 +261,7 @@ export const OfficerDashboard: React.FC = () => {
           {/* Certificate Scrutiny */}
           <div
             onClick={() => navigate('/officer/documents')}
-            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/20 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
+            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
           >
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -190,7 +276,7 @@ export const OfficerDashboard: React.FC = () => {
                 Caste, Income & Domicile Verification
               </h4>
               <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
-                Inspect Freeship cards, Tehsildar income certificates (≤ ₹2.50L), and Punjab resident certificates.
+                Inspect Punjab Freeship cards, Tehsildar income certificates (≤ ₹2.50L), and bonafide resident certificates.
               </p>
             </div>
             <p className="mt-4 text-xs font-bold text-blue-700 flex items-center gap-1">
@@ -201,7 +287,7 @@ export const OfficerDashboard: React.FC = () => {
           {/* Applications Review */}
           <div
             onClick={() => navigate('/officer/applications')}
-            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
+            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
           >
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -216,7 +302,7 @@ export const OfficerDashboard: React.FC = () => {
                 Pending Committee Approvals
               </h4>
               <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
-                Approve, request re-upload, or reject candidate PMS scholarship bundles.
+                Review candidate dossiers, sanction 100% tuition waiver, or request re-upload of unclear certificates.
               </p>
             </div>
             <p className="mt-4 text-xs font-bold text-indigo-700 flex items-center gap-1">
@@ -227,7 +313,7 @@ export const OfficerDashboard: React.FC = () => {
           {/* Student Directory */}
           <div
             onClick={() => navigate('/officer/students')}
-            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/20 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
+            className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer flex flex-col justify-between group shadow-2xs"
           >
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -253,13 +339,134 @@ export const OfficerDashboard: React.FC = () => {
       </div>
 
       {/* =========================================================================
+          RECENT APPLICATIONS AWAITING FACULTY SCRUTINY TABLE
+      ========================================================================= */}
+      <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <FileCheck2 className="h-4 w-4 text-indigo-600" />
+              Recent Applications Awaiting Faculty Scrutiny
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Latest candidate submissions requiring verification officer sign-off
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/officer/applications')}
+            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+          >
+            <span>View Full Queue ({kpis?.totalApplications ?? totalAppsCount})</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="py-12 text-center text-xs text-slate-400 animate-pulse">
+            Loading recent candidate submissions...
+          </div>
+        ) : recentApplications.length === 0 ? (
+          <div className="py-10 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200 p-6">
+            <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+            <p className="font-bold text-slate-700">All Submitted Applications Scrutinized</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              New submissions from SC candidates will appear here immediately.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/70 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th className="py-2.5 px-3">Candidate Student</th>
+                  <th className="py-2.5 px-3">Application ID</th>
+                  <th className="py-2.5 px-3">Scholarship Scheme</th>
+                  <th className="py-2.5 px-3">Submission Date</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentApplications.map((app: any) => {
+                  const studentName = app.studentId
+                    ? `${app.studentId.firstName} ${app.studentId.lastName}`
+                    : 'Candidate Student';
+
+                  return (
+                    <tr key={app._id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center shrink-0 font-bold text-xs">
+                            {studentName.charAt(0)}
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 block">{studentName}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              URN: {app.studentId?.rollNumber || 'N/A'} • {app.snapshot?.department?.split(' ')[0] || 'SC'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-3 font-mono font-bold text-indigo-700">
+                        {app.applicationNumber}
+                      </td>
+
+                      <td className="py-3 px-3">
+                        <span className="font-semibold text-slate-800 block line-clamp-1">
+                          {app.scholarshipId?.title || 'Punjab SC Post-Matric Scheme'}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {app.scholarshipId?.provider || 'Govt. of Punjab'}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">
+                        {new Date(app.appliedDate).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
+
+                      <td className="py-3 px-3">
+                        <Badge status={app.status} size="sm" />
+                      </td>
+
+                      <td className="py-3 px-3 text-right">
+                        <button
+                          onClick={() => navigate(`/officer/applications/${app._id}`)}
+                          className="px-3 py-1.5 text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-2xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                        >
+                          <Eye className="h-3 w-3" />
+                          <span>Scrutinize</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* =========================================================================
           ANALYTICS & REPORTING CHARTS
       ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Status Breakdown Donut Chart */}
         <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs">
-          <h3 className="text-sm font-bold text-slate-900 mb-0.5">Application Status Distribution</h3>
-          <p className="text-xs text-slate-500 mb-4">Breakdown of submitted scholarship bundles</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Application Status Distribution</h3>
+              <p className="text-xs text-slate-500">Breakdown of submitted scholarship bundles</p>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+              Live Feed
+            </span>
+          </div>
+
           {totalAppsCount === 0 ? (
             <div className="h-56 flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
               <Clock className="h-8 w-8 text-slate-400 mb-2" />
@@ -295,8 +502,16 @@ export const OfficerDashboard: React.FC = () => {
 
         {/* Department Distribution Bar Chart */}
         <div className="rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-2xs">
-          <h3 className="text-sm font-bold text-slate-900 mb-0.5">Department Beneficiary Distribution</h3>
-          <p className="text-xs text-slate-500 mb-4">Candidates distributed across GNDEC engineering branches</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Department Beneficiary Distribution</h3>
+              <p className="text-xs text-slate-500">Candidates distributed across GNDEC engineering branches</p>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+              B.Tech / M.Tech
+            </span>
+          </div>
+
           {totalStudentsCount === 0 ? (
             <div className="h-56 flex flex-col items-center justify-center text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
               <Users className="h-8 w-8 text-slate-400 mb-2" />
@@ -317,6 +532,45 @@ export const OfficerDashboard: React.FC = () => {
               </ResponsiveContainer>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* =========================================================================
+          REGULATORY SCRUTINY & STATUTORY INFORMATION BANNER
+      ========================================================================= */}
+      <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-amber-500/10 text-amber-800 border border-amber-500/20 shrink-0">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-slate-900">
+              Punjab State Scheduled Caste Post-Matric Statutory Guidelines
+            </h4>
+            <p className="text-slate-500 mt-0.5 leading-relaxed">
+              Mandatory: Bonafide resident of Punjab, Scheduled Caste (SC) category certificate issued by competent authority, declared annual parental income ceiling ≤ ₹2,50,000, and verified Freeship Card.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => navigate('/officer/reports')}
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 font-bold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+            <span>Audit Reports</span>
+          </button>
+
+          <a
+            href="https://scholarships.punjab.gov.in"
+            target="_blank"
+            rel="noreferrer"
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <span>Punjab Portal</span>
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </div>
