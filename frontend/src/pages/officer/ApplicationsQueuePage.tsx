@@ -394,7 +394,7 @@ export const ApplicationsQueuePage: React.FC = () => {
                     const studentName = app.studentId
                       ? `${app.studentId.firstName} ${app.studentId.lastName}`
                       : 'Candidate Student';
-                    const cgpa = app.snapshot?.cgpa || 8.0;
+                    const cgpa = app.snapshot?.cgpa && app.snapshot.cgpa > 0 ? app.snapshot.cgpa.toFixed(2) : 'N/A';
 
                     return (
                       <tr key={app._id} className="hover:bg-indigo-50/20 transition-colors group">
@@ -501,7 +501,7 @@ export const ApplicationsQueuePage: React.FC = () => {
             const studentName = app.studentId
               ? `${app.studentId.firstName} ${app.studentId.lastName}`
               : 'Candidate Student';
-            const cgpa = app.snapshot?.cgpa || 8.0;
+            const cgpa = app.snapshot?.cgpa && app.snapshot.cgpa > 0 ? app.snapshot.cgpa.toFixed(2) : 'N/A';
 
             return (
               <div

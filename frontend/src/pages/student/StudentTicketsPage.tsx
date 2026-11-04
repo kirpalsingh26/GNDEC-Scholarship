@@ -12,10 +12,12 @@ import {
   Sparkles,
   ChevronRight,
   Filter,
+  Inbox,
+  ShieldCheck,
+  X,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
-import { Modal } from '../../components/common/Modal.js';
 import { SupportTicket } from '../../types/index.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
@@ -27,6 +29,7 @@ export const StudentTicketsPage: React.FC = () => {
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'OPEN' | 'RESOLVED'>('ALL');
 
@@ -40,6 +43,7 @@ export const StudentTicketsPage: React.FC = () => {
 
   const fetchTickets = async () => {
     try {
+      setLoading(true);
       const res = await api.get('/tickets');
       if (res.data.success) {
         setTickets(res.data.data);
@@ -49,6 +53,7 @@ export const StudentTicketsPage: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
+      addToast('error', 'Unable to retrieve your inquiry history.');
     } finally {
       setLoading(false);
     }
@@ -72,7 +77,7 @@ export const StudentTicketsPage: React.FC = () => {
         setIsNewOpen(false);
         setNewSubject('');
         setNewDesc('');
-        addToast('success', 'Support inquiry submitted successfully! A ticket number has been assigned.');
+        addToast('success', 'Support inquiry submitted! A ticket number has been assigned.');
         await fetchTickets();
         setSelectedTicket(res.data.data);
       }
@@ -86,6 +91,7 @@ export const StudentTicketsPage: React.FC = () => {
 
   const handleSendReply = async () => {
     if (!replyMessage.trim() || !selectedTicket) return;
+    setSending(true);
     try {
       const res = await api.post(`/tickets/${selectedTicket._id}/reply`, {
         message: replyMessage,
@@ -93,19 +99,22 @@ export const StudentTicketsPage: React.FC = () => {
       if (res.data.success) {
         setSelectedTicket(res.data.data);
         setReplyMessage('');
-        addToast('info', 'Your message has been sent to the scholarship officer.');
+        addToast('info', 'Your message has been dispatched to the scholarship desk.');
         fetchTickets();
       }
     } catch (err) {
       console.error(err);
-      addToast('error', 'Failed to send reply.');
+      addToast('error', 'Failed to send message.');
+    } finally {
+      setSending(false);
     }
   };
 
   const quickTemplates = [
-    'I have uploaded the renewed Income Certificate to Document Vault.',
+    'I have uploaded my renewed Annual Income Certificate to Document Vault.',
     'Could you please verify my Punjab SC Freeship Card status?',
-    'What is the expected date for the next grant disbursement cycle?',
+    'What is the expected date for the next DBT grant disbursement cycle?',
+    'My latest semester marksheet has been submitted for renewal.',
   ];
 
   const filteredTickets = tickets.filter((t) => {
@@ -125,9 +134,9 @@ export const StudentTicketsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold mb-1.5 shadow-2xs">
-            <HelpCircle className="h-3.5 w-3.5 text-indigo-600" />
-            <span>Financial Aid Helpdesk</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold mb-1.5">
+            <HelpCircle className="h-3.5 w-3.5 text-amber-600" />
+            <span>Scholarship Cell Helpdesk • Port 5173</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             Student Inquiries & Support Desk
@@ -139,10 +148,10 @@ export const StudentTicketsPage: React.FC = () => {
 
         <button
           onClick={() => setIsNewOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-200 transition-all hover:scale-[1.02] self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 self-start sm:self-auto cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          Open New Inquiry
+          <span>Open New Inquiry</span>
         </button>
       </div>
 
@@ -158,21 +167,27 @@ export const StudentTicketsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStatusFilter('ALL')}
-                className={`px-2 py-0.5 rounded-md transition-all ${statusFilter === 'ALL' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-500'}`}
+                className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                  statusFilter === 'ALL' ? 'bg-[#0b2341] text-amber-400 font-black shadow-2xs' : 'text-slate-500'
+                }`}
               >
                 All
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter('OPEN')}
-                className={`px-2 py-0.5 rounded-md transition-all ${statusFilter === 'OPEN' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-500'}`}
+                className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                  statusFilter === 'OPEN' ? 'bg-[#0b2341] text-amber-400 font-black shadow-2xs' : 'text-slate-500'
+                }`}
               >
                 Open
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter('RESOLVED')}
-                className={`px-2 py-0.5 rounded-md transition-all ${statusFilter === 'RESOLVED' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-500'}`}
+                className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                  statusFilter === 'RESOLVED' ? 'bg-[#0b2341] text-amber-400 font-black shadow-2xs' : 'text-slate-500'
+                }`}
               >
                 Resolved
               </button>
@@ -186,19 +201,19 @@ export const StudentTicketsPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by ticket # or keyword..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:ring-2 focus:ring-amber-500 transition-colors"
             />
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              <div className="h-5 w-5 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin mx-auto mb-2" />
+            <div className="py-16 text-center text-xs text-slate-400">
+              <div className="h-6 w-6 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto mb-2" />
               Loading your inquiries...
             </div>
           ) : filteredTickets.length === 0 ? (
-            <div className="py-10 text-center text-xs text-slate-400">
-              <MessageSquare className="h-8 w-8 text-slate-300 mx-auto mb-1.5 stroke-[1.5]" />
-              <p className="font-bold text-slate-700">No matching tickets found</p>
+            <div className="py-12 text-center text-xs text-slate-400">
+              <Inbox className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="font-bold text-slate-700">No matching tickets</p>
               <p className="text-[11px] text-slate-400 mt-0.5">Click &apos;Open New Inquiry&apos; to submit a question.</p>
             </div>
           ) : (
@@ -209,12 +224,12 @@ export const StudentTicketsPage: React.FC = () => {
                   onClick={() => setSelectedTicket(t)}
                   className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
                     selectedTicket?._id === t._id
-                      ? 'bg-indigo-50/90 border-indigo-200 shadow-2xs scale-[1.01]'
+                      ? 'bg-amber-50/80 border-amber-300 shadow-2xs ring-1 ring-amber-500/20'
                       : 'bg-white border-slate-100 hover:bg-slate-50/80 hover:border-slate-200'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="font-mono text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                    <span className="font-mono text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                       {t.ticketNumber}
                     </span>
                     <Badge status={t.status} size="sm" />
@@ -238,18 +253,18 @@ export const StudentTicketsPage: React.FC = () => {
               <div className="border-b border-slate-100 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200/60">
+                    <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
                       {selectedTicket.ticketNumber}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
                       {selectedTicket.category}
                     </span>
                   </div>
                   <Badge status={selectedTicket.status} />
                 </div>
-                <h3 className="text-base font-extrabold text-slate-900 mt-2">{selectedTicket.subject}</h3>
+                <h3 className="text-base font-black text-slate-900 mt-2">{selectedTicket.subject}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Assigned Officer: <strong className="text-slate-800">{selectedTicket.assignedOfficerName || 'GNDEC Scholarship Desk'}</strong>
+                  Assigned Desk: <strong className="text-slate-800">{selectedTicket.assignedOfficerName || 'GNDEC Scholarship Cell'}</strong>
                 </p>
               </div>
 
@@ -263,14 +278,14 @@ export const StudentTicketsPage: React.FC = () => {
                       className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                     >
                       <div className="flex items-center gap-1.5 mb-1 text-[10px] text-slate-400 font-medium">
-                        <span className="font-bold text-slate-700">{m.senderName}</span>
+                        <span className="font-bold text-slate-700">{isMe ? 'You (Candidate)' : m.senderName}</span>
                         <span>•</span>
                         <span>{new Date(m.sentAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                       <div
                         className={`p-3.5 rounded-2xl text-xs max-w-lg leading-relaxed shadow-2xs ${
                           isMe
-                            ? 'bg-indigo-600 text-white rounded-br-xs'
+                            ? 'bg-[#0b2341] text-white rounded-br-xs'
                             : 'bg-slate-100 text-slate-900 rounded-bl-xs border border-slate-200/60'
                         }`}
                       >
@@ -293,27 +308,28 @@ export const StudentTicketsPage: React.FC = () => {
                       key={idx}
                       type="button"
                       onClick={() => setReplyMessage(tpl)}
-                      className="text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 px-2.5 py-1 rounded-xl border border-slate-200/70 transition-colors text-left"
+                      className="text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-amber-50 hover:text-amber-900 px-2.5 py-1 rounded-xl border border-slate-200 transition-colors text-left cursor-pointer"
                     >
                       {tpl}
                     </button>
                   ))}
                 </div>
 
-                {/* Reply Input Box */}
+                {/* Reply Input */}
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={replyMessage}
                     onChange={(e) => setReplyMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
-                    placeholder="Type your message to the scholarship officer..."
-                    className="flex-1 px-4 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 hover:bg-white focus:bg-white transition-colors"
+                    onKeyDown={(e) => e.key === 'Enter' && !sending && handleSendReply()}
+                    placeholder="Type follow-up message to officer..."
+                    className="flex-1 px-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 bg-slate-50/50 hover:bg-white focus:bg-white transition-colors"
                   />
                   <button
                     type="button"
                     onClick={handleSendReply}
-                    className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-sm shadow-indigo-200 transition-all hover:scale-105"
+                    disabled={sending || !replyMessage.trim()}
+                    className="p-2.5 bg-[#0b2341] hover:bg-[#123158] text-amber-400 rounded-xl shadow-sm transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="h-4 w-4" />
                   </button>
@@ -321,81 +337,97 @@ export const StudentTicketsPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-slate-400 text-xs py-16">
+            <div className="h-full flex flex-col items-center justify-center text-slate-400 text-xs py-20">
               <MessageSquare className="h-10 w-10 text-slate-300 mb-2" />
-              Select an inquiry from the left queue to view the reply thread
+              <p className="font-bold text-slate-700">No ticket selected</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Select a query from the left queue to read conversation history.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* New Ticket Modal */}
-      <Modal
-        isOpen={isNewOpen}
-        onClose={() => setIsNewOpen(false)}
-        title="Submit Scholarship / Aid Inquiry"
-        subtitle="Our financial aid officer will respond within 24 business hours"
-      >
-        <form onSubmit={handleCreateTicket} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700">Inquiry Category</label>
-            <select
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="SCHOLARSHIP">Scholarship Application / Approval Status</option>
-              <option value="DOCUMENTS">Document Rejection / Re-upload Help</option>
-              <option value="FREESHIP_CARD">Punjab Freeship Card / State Portal Issue</option>
-              <option value="ELIGIBILITY">Eligibility Criteria & Income Ceiling Clarification</option>
-              <option value="RENEWAL">Annual Scholarship Renewal</option>
-              <option value="TECHNICAL">Portal Technical Issue</option>
-              <option value="OTHER">General Query</option>
-            </select>
-          </div>
+      {/* CREATE NEW TICKET MODAL */}
+      {isNewOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 overflow-hidden">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+                  <HelpCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Open Support Inquiry</h3>
+                  <p className="text-xs text-slate-500">Contact GNDEC scholarship verification officers</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsNewOpen(false)}
+                className="h-8 w-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700">Subject</label>
-            <input
-              type="text"
-              required
-              value={newSubject}
-              onChange={(e) => setNewSubject(e.target.value)}
-              placeholder="e.g. Issue regarding Income Certificate digital seal"
-              className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+            <form onSubmit={handleCreateTicket} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Inquiry Category</label>
+                <select
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs font-semibold border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 bg-slate-50/50 hover:bg-white transition-colors"
+                >
+                  <option value="SCHOLARSHIP">Scholarship Scheme & Eligibility</option>
+                  <option value="DOCUMENT">Document Verification & Freeship Card</option>
+                  <option value="PAYMENT">DBT Bank Disbursement & PFMS</option>
+                  <option value="TECHNICAL">Portal Account & Password</option>
+                  <option value="OTHER">General Inquiry</option>
+                </select>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700">Query Description</label>
-            <textarea
-              required
-              rows={4}
-              value={newDesc}
-              onChange={(e) => setNewDesc(e.target.value)}
-              placeholder="Provide specific details about your question, application ID, or document..."
-              className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Subject / Question Summary</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Income Certificate verification pending for PMS SC"
+                  value={newSubject}
+                  onChange={(e) => setNewSubject(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 bg-slate-50/50 hover:bg-white transition-colors"
+                />
+              </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setIsNewOpen(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={creating}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-200 transition-all hover:scale-[1.02]"
-            >
-              {creating ? 'Submitting Inquiry...' : 'Submit Inquiry Ticket'}
-            </button>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Detailed Description</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Provide any details, application number, or certificate details to help the officer assist you..."
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 bg-slate-50/50 hover:bg-white transition-colors leading-relaxed"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsNewOpen(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="px-5 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
+                >
+                  {creating ? 'Submitting...' : 'Submit Inquiry'}
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };

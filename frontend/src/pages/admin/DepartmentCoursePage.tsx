@@ -10,6 +10,7 @@ export const DepartmentCoursePage: React.FC = () => {
   useEffect(() => {
     const fetchDepts = async () => {
       try {
+        setLoading(true);
         const res = await api.get('/admin/departments');
         if (res.data.success) {
           setData(res.data.data);
@@ -40,9 +41,9 @@ export const DepartmentCoursePage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold mb-1.5 shadow-2xs">
-            <Building2 className="h-3.5 w-3.5 text-indigo-600" />
-            <span>Academic Infrastructure</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/70 text-purple-800 text-xs font-bold mb-1.5">
+            <Building2 className="h-3.5 w-3.5 text-purple-600" />
+            <span>Academic Infrastructure • Port 5175</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             Departments, Programs & Curriculum
@@ -56,9 +57,9 @@ export const DepartmentCoursePage: React.FC = () => {
         <div className="flex p-1 rounded-2xl bg-slate-100 border border-slate-200/80 shadow-2xs self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('DEPTS')}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeTab === 'DEPTS'
-                ? 'bg-white text-indigo-700 shadow-2xs'
+                ? 'bg-white text-purple-800 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -66,9 +67,9 @@ export const DepartmentCoursePage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('SUBJECTS')}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeTab === 'SUBJECTS'
-                ? 'bg-white text-indigo-700 shadow-2xs'
+                ? 'bg-white text-purple-800 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -77,25 +78,30 @@ export const DepartmentCoursePage: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === 'DEPTS' ? (
+      {loading ? (
+        <div className="py-20 text-center text-xs text-slate-400">
+          <div className="h-6 w-6 rounded-full border-2 border-purple-600 border-t-transparent animate-spin mx-auto mb-2" />
+          Loading academic infrastructure...
+        </div>
+      ) : activeTab === 'DEPTS' ? (
         /* Departments Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.departments?.map((dept: any) => (
             <div
               key={dept._id}
-              className="rounded-3xl bg-white border border-slate-200/80 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-indigo-200"
+              className="rounded-3xl bg-white border border-slate-200/80 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-purple-200"
             >
               <div>
                 <div className="flex items-center justify-between mb-3.5">
-                  <span className="font-mono font-bold text-xs text-indigo-700 bg-indigo-50/90 px-2.5 py-1 rounded-xl border border-indigo-200/60 shadow-2xs">
+                  <span className="font-mono font-bold text-xs text-purple-800 bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200/70 shadow-2xs">
                     {dept.code}
                   </span>
-                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/70 shadow-2xs">
+                  <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/70 shadow-2xs">
                     ✓ Active Branch
                   </span>
                 </div>
 
-                <h3 className="text-base font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                <h3 className="text-base font-extrabold text-slate-900 group-hover:text-purple-600 transition-colors">
                   {dept.name}
                 </h3>
                 <p className="text-xs text-slate-600 font-medium mt-1">
@@ -108,7 +114,7 @@ export const DepartmentCoursePage: React.FC = () => {
               </div>
 
               <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-semibold">
-                <span className="flex items-center gap-1 text-indigo-600">
+                <span className="flex items-center gap-1 text-purple-700">
                   <GraduationCap className="h-4 w-4" />
                   B.Tech (4 Years)
                 </span>
@@ -135,9 +141,9 @@ export const DepartmentCoursePage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {subjectsList.map((sub: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-indigo-50/25 transition-colors group">
+                  <tr key={idx} className="hover:bg-purple-50/25 transition-colors group">
                     <td className="py-4 px-5 whitespace-nowrap">
-                      <span className="font-mono font-bold text-xs text-indigo-700 bg-indigo-50/80 px-2.5 py-1 rounded-xl border border-indigo-200/60 shadow-2xs">
+                      <span className="font-mono font-bold text-xs text-purple-800 bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200/70 shadow-2xs">
                         {sub.code || sub.subjectCode}
                       </span>
                     </td>
@@ -151,7 +157,7 @@ export const DepartmentCoursePage: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-4 px-5 text-center whitespace-nowrap">
-                      <span className="font-mono font-bold text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
+                      <span className="font-mono font-bold text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-200/70">
                         {sub.credits || 4} Credits
                       </span>
                     </td>
