@@ -15,10 +15,12 @@ import {
   GraduationCap,
   Calendar,
   Wallet,
+  AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
 import api from '../../services/api.js';
+import { formatIndianCurrency, parseIndianCurrency, formatIncomeWords } from '../../utils/currencyFormatter.js';
 
 export const StudentProfilePage: React.FC = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -234,12 +236,64 @@ export const StudentProfilePage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700">Annual Family Income (₹)</label>
-                <input
-                  type="number"
-                  value={formData.familyIncome}
-                  onChange={(e) => setFormData({ ...formData, familyIncome: Number(e.target.value) })}
-                  className="mt-1 block w-full px-3.5 py-2.5 text-xs border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50 hover:bg-white transition-colors font-bold text-slate-900"
-                />
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                    ₹
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. 1,80,000"
+                    value={formData.familyIncome ? formatIndianCurrency(formData.familyIncome) : ''}
+                    onChange={(e) => {
+                      const parsed = parseIndianCurrency(e.target.value);
+                      setFormData({ ...formData, familyIncome: parsed });
+                    }}
+                    className={`block w-full pl-7 pr-3.5 py-2.5 text-xs border rounded-xl font-bold font-mono transition-colors ${
+                      formData.familyIncome > 250000
+                        ? 'border-rose-300 bg-rose-50/40 text-rose-900 focus:ring-2 focus:ring-rose-500 focus:border-rose-500'
+                        : 'border-slate-200/80 bg-slate-50/50 hover:bg-white text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
+                  />
+                </div>
+                {Boolean(formData.familyIncome && formData.familyIncome > 0) && (
+                  <div className="mt-1.5 p-2 rounded-lg bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+                    <span className="font-bold text-slate-700">
+                      ₹{formatIndianCurrency(formData.familyIncome)} •{' '}
+                      <span className="text-slate-500 font-normal italic">
+                        {formatIncomeWords(formData.familyIncome)}
+                      </span>
+                    </span>
+                    {formData.familyIncome <= 250000 ? (
+                      <span className="text-emerald-700 font-extrabold flex items-center gap-1 shrink-0">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                        Eligible (≤ ₹2,50,000)
+                      </span>
+                    ) : (
+                      <span className="text-rose-700 font-extrabold flex items-center gap-1 shrink-0">
+                        <AlertCircle className="h-3 w-3 text-rose-600" />
+                        Exceeds ₹2,50,000 Cap
+                      </span>
+                    )}
+                  </div>
+                )}
+                <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-medium">Quick presets:</span>
+                  {[100000, 150000, 180000, 220000, 250000].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, familyIncome: preset })}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        formData.familyIncome === preset
+                          ? 'bg-indigo-100 text-indigo-900 border-indigo-300 font-black'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      ₹{formatIndianCurrency(preset)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

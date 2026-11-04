@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sliders, Save, CheckCircle2, Shield, Bell, Sparkles, Globe, Key, Database } from 'lucide-react';
 import { useToast } from '../../context/ToastContext.js';
+import { formatIndianCurrency, parseIndianCurrency, formatIncomeWords } from '../../utils/currencyFormatter.js';
 
 export const SystemSettingsPage: React.FC = () => {
   const { addToast } = useToast();
@@ -49,12 +50,23 @@ export const SystemSettingsPage: React.FC = () => {
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Annual Family Income Cap (₹)
               </label>
-              <input
-                type="number"
-                value={settings.maxFamilyIncome}
-                onChange={(e) => setSettings({ ...settings, maxFamilyIncome: Number(e.target.value) })}
-                className="block w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold bg-slate-50/50 hover:bg-white transition-colors"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                  ₹
+                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={settings.maxFamilyIncome ? formatIndianCurrency(settings.maxFamilyIncome) : ''}
+                  onChange={(e) => setSettings({ ...settings, maxFamilyIncome: parseIndianCurrency(e.target.value) })}
+                  className="block w-full pl-7 pr-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold font-mono bg-slate-50/50 hover:bg-white transition-colors"
+                />
+              </div>
+              {Boolean(settings.maxFamilyIncome && settings.maxFamilyIncome > 0) && (
+                <p className="text-[11px] text-purple-700 font-medium mt-1">
+                  ₹{formatIndianCurrency(settings.maxFamilyIncome)} ({formatIncomeWords(settings.maxFamilyIncome)})
+                </p>
+              )}
             </div>
 
             <div>

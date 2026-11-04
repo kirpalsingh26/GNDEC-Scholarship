@@ -24,6 +24,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
+import { formatIndianCurrency, parseIndianCurrency, formatIncomeWords } from '../../utils/currencyFormatter.js';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -652,22 +653,73 @@ export const RegisterPage: React.FC = () => {
                       <label className="block text-xs font-bold text-slate-800">
                         Annual Gross Family Income (₹)
                       </label>
-                      <span className="text-[10px] text-slate-500 font-medium">Tehsildar Certified</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Tehsildar / SDM Certified</span>
                     </div>
                     <div className="relative rounded-xl shadow-2xs">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs sm:text-sm">
                         ₹
                       </div>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         required
-                        placeholder="e.g. 180000"
-                        value={formData.familyIncome || ''}
-                        onChange={(e) => setFormData({ ...formData, familyIncome: e.target.value === '' ? ('' as any) : Number(e.target.value) })}
-                        className="block w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                        placeholder="e.g. 1,80,000"
+                        value={formData.familyIncome ? formatIndianCurrency(formData.familyIncome) : ''}
+                        onChange={(e) => {
+                          const parsed = parseIndianCurrency(e.target.value);
+                          setFormData({ ...formData, familyIncome: parsed > 0 ? parsed : ('' as any) });
+                        }}
+                        className={`block w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border rounded-xl text-slate-900 font-bold focus:bg-white focus:ring-3 focus:ring-indigo-100 transition-all outline-none font-mono ${
+                          Number(formData.familyIncome) > 250000
+                            ? 'border-rose-400 focus:border-rose-600 bg-rose-50/30'
+                            : 'border-slate-200 focus:border-indigo-600'
+                        }`}
                       />
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-1">
+
+                    {/* Live formatting readout with Indian currency words */}
+                    {Boolean(formData.familyIncome && Number(formData.familyIncome) > 0) && (
+                      <div className="mt-1.5 p-2 rounded-lg bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+                        <span className="font-bold text-slate-700">
+                          ₹{formatIndianCurrency(formData.familyIncome)} •{' '}
+                          <span className="text-slate-500 font-normal italic">
+                            {formatIncomeWords(formData.familyIncome)}
+                          </span>
+                        </span>
+                        {Number(formData.familyIncome) <= 250000 ? (
+                          <span className="text-emerald-700 font-extrabold flex items-center gap-1 shrink-0">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                            Eligible (≤ ₹2,50,000)
+                          </span>
+                        ) : (
+                          <span className="text-rose-700 font-extrabold flex items-center gap-1 shrink-0">
+                            <AlertCircle className="h-3 w-3 text-rose-600" />
+                            Exceeds ₹2,50,000 Cap
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Quick Income Preset Pills */}
+                    <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] text-slate-400 font-semibold">Common Presets:</span>
+                      {[100000, 150000, 180000, 220000, 250000].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, familyIncome: preset })}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                            formData.familyIncome === preset
+                              ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-2xs font-black'
+                              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          ₹{formatIndianCurrency(preset)}
+                        </button>
+                      ))}
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 mt-1.5">
                       *Punjab State PMS mandates total annual income ≤ ₹2,50,000/year issued by Tehsildar/SDM.
                     </p>
                   </div>

@@ -16,6 +16,7 @@ import { Modal } from '../../components/common/Modal.js';
 import { Badge } from '../../components/common/Badge.js';
 import { Scholarship } from '../../types/index.js';
 import { useToast } from '../../context/ToastContext.js';
+import { formatIndianCurrency, parseIndianCurrency, formatIncomeWords } from '../../utils/currencyFormatter.js';
 
 export const ScholarshipManagerPage: React.FC = () => {
   const { addToast } = useToast();
@@ -308,13 +309,24 @@ export const ScholarshipManagerPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Grant Amount (₹)</label>
-              <input
-                type="number"
-                required
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
-                className="block w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold bg-slate-50/50 hover:bg-white transition-colors"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                  ₹
+                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={formData.amount ? formatIndianCurrency(formData.amount) : ''}
+                  onChange={(e) => setFormData({ ...formData, amount: parseIndianCurrency(e.target.value) })}
+                  className="block w-full pl-7 pr-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold font-mono bg-slate-50/50 hover:bg-white transition-colors"
+                />
+              </div>
+              {Boolean(formData.amount && formData.amount > 0) && (
+                <p className="text-[11px] text-purple-700 font-medium mt-1">
+                  ₹{formatIndianCurrency(formData.amount)} ({formatIncomeWords(formData.amount)})
+                </p>
+              )}
             </div>
 
             <div>
@@ -336,13 +348,24 @@ export const ScholarshipManagerPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Max Family Income Cap (₹)</label>
-              <input
-                type="number"
-                value={formData.maxFamilyIncome}
-                onChange={(e) => setFormData({ ...formData, maxFamilyIncome: Number(e.target.value) })}
-                placeholder="250000 for Punjab PMS SC"
-                className="block w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-slate-50/50 hover:bg-white transition-colors"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                  ₹
+                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={formData.maxFamilyIncome ? formatIndianCurrency(formData.maxFamilyIncome) : ''}
+                  onChange={(e) => setFormData({ ...formData, maxFamilyIncome: parseIndianCurrency(e.target.value) })}
+                  placeholder="2,50,000 for Punjab PMS SC"
+                  className="block w-full pl-7 pr-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold font-mono bg-slate-50/50 hover:bg-white transition-colors"
+                />
+              </div>
+              {Boolean(formData.maxFamilyIncome && formData.maxFamilyIncome > 0) && (
+                <p className="text-[11px] text-slate-600 font-medium mt-1">
+                  Cap: ₹{formatIndianCurrency(formData.maxFamilyIncome)} ({formatIncomeWords(formData.maxFamilyIncome)})
+                </p>
+              )}
             </div>
 
             <div>
