@@ -163,9 +163,33 @@ export const listApplications = async (req: AuthRequest, res: Response, next: Ne
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit));
 
+    // Check 6-month validity for APPROVED applications
+    const now = new Date();
+    const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
+    const processedApplications = await Promise.all(
+      applications.map(async (app) => {
+        if (app.status === 'APPROVED') {
+          const approvalDate = app.reviewedDate || app.updatedAt || app.createdAt;
+          const expiry = app.expiryDate || new Date(approvalDate.getTime() + sixMonthsMs);
+          const isExpired = now.getTime() > expiry.getTime();
+
+          if (app.isExpired !== isExpired || !app.expiryDate) {
+            app.isExpired = isExpired;
+            app.expiryDate = expiry;
+            await app.save();
+          }
+        }
+        return app;
+      })
+    );
+
+    const result = req.query.hideExpired === 'true'
+      ? processedApplications.filter((app) => !app.isExpired)
+      : processedApplications;
+
     return res.status(200).json({
       success: true,
-      data: applications,
+      data: result,
       pagination: {
         total,
         page: Number(page),
@@ -187,6 +211,19 @@ export const getApplicationById = async (req: AuthRequest, res: Response, next: 
 
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found.' });
+    }
+
+    if (application.status === 'APPROVED') {
+      const now = new Date();
+      const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
+      const approvalDate = application.reviewedDate || application.updatedAt || application.createdAt;
+      const expiry = application.expiryDate || new Date(approvalDate.getTime() + sixMonthsMs);
+      const isExpired = now.getTime() > expiry.getTime();
+      if (application.isExpired !== isExpired || !application.expiryDate) {
+        application.isExpired = isExpired;
+        application.expiryDate = expiry;
+        await application.save();
+      }
     }
 
     // Role check: student can only view their own
@@ -243,6 +280,12 @@ export const updateApplicationStatus = async (
     await application.save();
 
     if (status === APPLICATION_STATUS.APPROVED) {
+      // Keep approved applications valid for 6 months (180 days) post-approval
+      const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
+      application.expiryDate = new Date(Date.now() + sixMonthsMs);
+      application.isExpired = false;
+      await application.save();
+
       await StudentProfile.findByIdAndUpdate(application.studentId, {
         isProfileComplete: true,
       });

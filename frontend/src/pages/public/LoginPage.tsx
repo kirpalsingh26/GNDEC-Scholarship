@@ -65,6 +65,12 @@ export const LoginPage: React.FC = () => {
         console.warn('Dashboard check:', dashErr);
       }
 
+      const redirectTo = (location.state as any)?.redirectTo;
+      if (redirectTo) {
+        navigate(redirectTo);
+        return;
+      }
+
       navigate('/student/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
@@ -157,6 +163,19 @@ export const LoginPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Direct Scholarship Intent Banner */}
+            {(location.state as any)?.scholarshipTitle && (
+              <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-300 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                <GraduationCap className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-amber-950">Scholarship Application Intent</p>
+                  <p className="text-[11px] text-amber-800 mt-0.5">
+                    Sign in with your student credentials to continue applying for <strong>{(location.state as any).scholarshipTitle}</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Registration Success Banner */}
             {registrationMsg && (
               <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-300 p-4 text-xs text-emerald-800 flex items-start gap-3 shadow-2xs">
@@ -237,6 +256,7 @@ export const LoginPage: React.FC = () => {
             <span className="text-slate-500">First-time student candidate?</span>
             <Link
               to="/register"
+              state={location.state}
               className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
             >
               Register Enrolled SC Candidate

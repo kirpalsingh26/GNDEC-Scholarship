@@ -119,6 +119,8 @@ export interface ScholarshipApplication {
   reviewedBy?: any;
   reviewerNotes?: string;
   rejectionReason?: string;
+  isExpired?: boolean;
+  expiryDate?: string;
   snapshot: {
     cgpa: number;
     attendancePercentage?: number;

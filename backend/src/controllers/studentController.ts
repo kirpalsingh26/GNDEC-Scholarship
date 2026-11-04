@@ -107,6 +107,22 @@ export const getStudentDashboardData = async (
       .populate('scholarshipId')
       .sort({ appliedDate: -1 });
 
+    // Evaluate 6-month validity for approved applications
+    const now = new Date();
+    const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
+    for (const app of applications) {
+      if (app.status === 'APPROVED') {
+        const approvalDate = app.reviewedDate || app.updatedAt || app.createdAt;
+        const expiry = app.expiryDate || new Date(approvalDate.getTime() + sixMonthsMs);
+        const isExpired = now.getTime() > expiry.getTime();
+        if (app.isExpired !== isExpired || !app.expiryDate) {
+          app.isExpired = isExpired;
+          app.expiryDate = expiry;
+          await app.save();
+        }
+      }
+    }
+
     const documents = await StudentDocument.find({ studentId: profile._id }).sort({ updatedAt: -1 });
     const verifiedDocuments = documents.filter((d) => d.status === 'VERIFIED').length;
     const hasReuploadRequired = documents.some((d) => d.status === 'REUPLOAD_REQUIRED');

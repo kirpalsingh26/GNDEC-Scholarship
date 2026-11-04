@@ -58,7 +58,7 @@ import {
   exportApplicationPdf,
   getPublicQRVerification,
 } from '../controllers/reportController.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
 import { ROLES } from '../config/constants.js';
 
@@ -86,10 +86,10 @@ router.get(
 router.get('/students/me/academics', authenticate, authorize(ROLES.STUDENT), getMyAcademicRecords);
 
 // ==========================================
-// 3. SCHOLARSHIP ROUTES
+// 3. SCHOLARSHIP ROUTES (Public Listing & Detail Allowed)
 // ==========================================
-router.get('/scholarships', authenticate, listScholarships);
-router.get('/scholarships/:id', authenticate, getScholarshipById);
+router.get('/scholarships', optionalAuth, listScholarships);
+router.get('/scholarships/:id', optionalAuth, getScholarshipById);
 router.get('/scholarships/:id/eligibility', authenticate, checkEligibilityForScholarship);
 router.post('/scholarships', authenticate, authorize(ROLES.ADMIN), createScholarship);
 router.put('/scholarships/:id', authenticate, authorize(ROLES.ADMIN), updateScholarship);

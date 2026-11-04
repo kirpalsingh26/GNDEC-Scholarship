@@ -31,6 +31,7 @@ export const StudentApplicationsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [hideExpired, setHideExpired] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const fetchApplications = async () => {
@@ -51,6 +52,14 @@ export const StudentApplicationsPage: React.FC = () => {
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  const isApplicationExpired = (app: ScholarshipApplication) => {
+    if (app.isExpired) return true;
+    if (app.status === 'APPROVED' && app.expiryDate) {
+      return new Date(app.expiryDate).getTime() < Date.now();
+    }
+    return false;
+  };
 
   const handleDownloadPdf = async (app: ScholarshipApplication, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -79,6 +88,11 @@ export const StudentApplicationsPage: React.FC = () => {
     const title = app.scholarshipId?.title || '';
     const provider = app.scholarshipId?.provider || '';
     const appNum = app.applicationNumber || '';
+    const expired = isApplicationExpired(app);
+
+    if (hideExpired && expired) {
+      return false;
+    }
 
     const matchesSearch =
       title.toLowerCase().includes(search.toLowerCase()) ||
@@ -89,7 +103,8 @@ export const StudentApplicationsPage: React.FC = () => {
       statusFilter === 'ALL' ||
       (statusFilter === 'IN_REVIEW' &&
         ['SUBMITTED', 'DOCUMENT_VERIFICATION', 'ELIGIBILITY_REVIEW', 'ADDITIONAL_DOCUMENTS_REQUIRED'].includes(app.status)) ||
-      (statusFilter === 'APPROVED' && app.status === 'APPROVED') ||
+      (statusFilter === 'APPROVED' && app.status === 'APPROVED' && !expired) ||
+      (statusFilter === 'EXPIRED' && expired) ||
       (statusFilter === 'REJECTED' && app.status === 'REJECTED');
 
     return matchesSearch && matchesStatus;
@@ -99,7 +114,8 @@ export const StudentApplicationsPage: React.FC = () => {
   const inReviewCount = applications.filter((a) =>
     ['SUBMITTED', 'DOCUMENT_VERIFICATION', 'ELIGIBILITY_REVIEW'].includes(a.status)
   ).length;
-  const approvedCount = applications.filter((a) => a.status === 'APPROVED').length;
+  const approvedActiveCount = applications.filter((a) => a.status === 'APPROVED' && !isApplicationExpired(a)).length;
+  const expiredCount = applications.filter((a) => isApplicationExpired(a)).length;
   const actionRequiredCount = applications.filter(
     (a) => a.status === 'ADDITIONAL_DOCUMENTS_REQUIRED' || a.status === 'REJECTED'
   ).length;
@@ -145,20 +161,20 @@ export const StudentApplicationsPage: React.FC = () => {
         </div>
 
         <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs">
-          <p className="text-xs text-slate-500 font-medium">Approved & Awarded</p>
-          <p className="text-2xl font-black text-emerald-600 mt-1">{approvedCount}</p>
-          <p className="text-[11px] text-emerald-500 mt-0.5">Disbursement ready</p>
+          <p className="text-xs text-slate-500 font-medium">Approved & Valid</p>
+          <p className="text-2xl font-black text-emerald-600 mt-1">{approvedActiveCount}</p>
+          <p className="text-[11px] text-emerald-500 mt-0.5">Active &lt; 6 months</p>
         </div>
 
         <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs">
-          <p className="text-xs text-slate-500 font-medium">Needs Attention</p>
-          <p className="text-2xl font-black text-amber-600 mt-1">{actionRequiredCount}</p>
-          <p className="text-[11px] text-amber-500 mt-0.5">Re-upload or appeals</p>
+          <p className="text-xs text-slate-500 font-medium">Expired Approvals</p>
+          <p className="text-2xl font-black text-amber-600 mt-1">{expiredCount}</p>
+          <p className="text-[11px] text-amber-500 mt-0.5">&gt; 6 months (Historical)</p>
         </div>
       </div>
 
       {/* Search & Status Filters */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs">
         <div className="relative flex-1 w-full">
           <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -170,25 +186,38 @@ export const StudentApplicationsPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          {[
-            { id: 'ALL', label: `All (${applications.length})` },
-            { id: 'IN_REVIEW', label: `In Review (${inReviewCount})` },
-            { id: 'APPROVED', label: `Approved (${approvedCount})` },
-            { id: 'REJECTED', label: 'Closed / Rejected' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
-                statusFilter === tab.id
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/60'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            {[
+              { id: 'ALL', label: `All (${applications.length})` },
+              { id: 'IN_REVIEW', label: `In Review (${inReviewCount})` },
+              { id: 'APPROVED', label: `Active (${approvedActiveCount})` },
+              { id: 'EXPIRED', label: `Expired (${expiredCount})` },
+              { id: 'REJECTED', label: 'Closed / Rejected' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setStatusFilter(tab.id)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+                  statusFilter === tab.id
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/60'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <label className="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer select-none shrink-0">
+            <input
+              type="checkbox"
+              checked={hideExpired}
+              onChange={(e) => setHideExpired(e.target.checked)}
+              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5"
+            />
+            <span>Hide Expired</span>
+          </label>
         </div>
       </div>
 
@@ -238,6 +267,18 @@ export const StudentApplicationsPage: React.FC = () => {
                       {app.isRenewal && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
                           Annual Renewal
+                        </span>
+                      )}
+                      {isApproved && isApplicationExpired(app) && (
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3 text-amber-700" />
+                          Expired (&gt; 6 Mos Ago)
+                        </span>
+                      )}
+                      {isApproved && !isApplicationExpired(app) && (
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-700" />
+                          Valid (Active Grant)
                         </span>
                       )}
                     </div>

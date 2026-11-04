@@ -238,12 +238,23 @@ export const ScholarshipCatalog: React.FC = () => {
               >
                 <div>
                   {/* Scheme Header Badges */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="font-mono text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-300">
-                      {sch.code}
-                    </span>
-                    <Badge status={sch.status} size="sm" />
-                  </div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="font-mono text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-300">
+                        {sch.code}
+                      </span>
+                      <Badge status={sch.status} size="sm" />
+                    </div>
+
+                    <div className="mb-2 flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-slate-400" />
+                        Deadline: {new Date(sch.deadline).toLocaleDateString('en-IN')}
+                      </span>
+                      <span className="font-bold text-emerald-700 flex items-center gap-1">
+                        <Clock className="h-3 w-3 text-emerald-600 animate-pulse" />
+                        {Math.max(0, Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days left
+                      </span>
+                    </div>
 
                   <h3 className="text-base font-extrabold text-[#0b2341] group-hover:text-amber-700 transition-colors leading-snug">
                     {sch.title}

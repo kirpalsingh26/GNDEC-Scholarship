@@ -118,6 +118,34 @@ export const ApplicationStatusPage: React.FC = () => {
         </button>
       </div>
 
+      {/* 6-Month Post-Approval Validity Status Banner */}
+      {application.status === 'APPROVED' && application.isExpired && (
+        <div className="rounded-2xl bg-amber-50 border border-amber-300 p-4 text-xs text-amber-950 flex items-start gap-3 shadow-2xs">
+          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-bold text-amber-950">Application Validity Window Concluded (Expired)</h4>
+            <p className="mt-0.5 text-amber-800 leading-relaxed">
+              This scholarship approval was granted more than 6 months ago (validity expired on{' '}
+              {application.expiryDate ? new Date(application.expiryDate).toLocaleDateString('en-IN') : 'previous cycle'}).
+              This record is preserved in your institutional student account for historical audit and certification.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {application.status === 'APPROVED' && !application.isExpired && (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-300 p-4 text-xs text-emerald-950 flex items-start gap-3 shadow-2xs">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-bold text-emerald-950">Active Approved Scholarship</h4>
+            <p className="mt-0.5 text-emerald-800 leading-relaxed">
+              Your application is approved and active. Approved scholarship benefits remain valid for 6 months post-approval
+              (valid until {application.expiryDate ? new Date(application.expiryDate).toLocaleDateString('en-IN') : 'active session'}).
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Reviewer Notes / Rejection Callout */}
       {application.reviewerNotes && (
         <div className="rounded-2xl bg-indigo-50 border border-indigo-200 p-4 text-xs text-indigo-900">

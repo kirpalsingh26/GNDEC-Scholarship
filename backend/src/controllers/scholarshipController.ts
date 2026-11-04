@@ -5,8 +5,31 @@ import { EligibilityService } from '../services/eligibilityService.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { logAudit } from '../utils/auditLogger.js';
 
+/**
+ * Automatically checks and updates deadlines for active scholarships.
+ * If an active scholarship's deadline has passed, automatically extends it by 30 days
+ * for the ongoing academic cycle, ensuring deadlines remain live and up to date.
+ */
+export const syncScholarshipDeadlines = async () => {
+  const now = new Date();
+  const expiredActive = await Scholarship.find({
+    status: 'ACTIVE',
+    deadline: { $lt: now },
+  });
+
+  if (expiredActive.length > 0) {
+    for (const sch of expiredActive) {
+      sch.deadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      await sch.save();
+    }
+  }
+};
+
 export const listScholarships = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    // Automatically update and maintain active scholarship deadlines
+    await syncScholarshipDeadlines();
+
     const { department, category, type, search, status } = req.query;
 
     const query: any = {};

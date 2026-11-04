@@ -50,6 +50,29 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   }
 };
 
+export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    const secret = process.env.JWT_SECRET || 'scholarsphere_super_secret_jwt_key_2026_gndec_portal';
+
+    const decoded = jwt.verify(token, secret) as { id: string; email: string; role: Role };
+    const user = await User.findById(decoded.id);
+    if (user && user.status === 'ACTIVE') {
+      req.user = user;
+      req.token = token;
+    }
+    next();
+  } catch (error) {
+    // Gracefully proceed unauthenticated if token is absent, invalid, or expired
+    next();
+  }
+};
+
 export const authorize = (...roles: Role[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {

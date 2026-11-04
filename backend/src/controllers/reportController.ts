@@ -64,7 +64,7 @@ export const getPublicQRVerification = async (
     // Fetch verified application summary (sanitized, zero sensitive bank/income/aadhaar exposed)
     const applications = await ScholarshipApplication.find({ studentId: student._id })
       .populate('scholarshipId', 'title code provider amount')
-      .select('applicationNumber status academicYear appliedDate');
+      .select('applicationNumber status academicYear appliedDate isExpired expiryDate');
 
     const totalVerifiedDocs = await StudentDocument.countDocuments({
       studentId: student._id,
@@ -73,7 +73,7 @@ export const getPublicQRVerification = async (
 
     const isApproved =
       student.isProfileComplete === true &&
-      applications.some((app: any) => app.status === 'APPROVED');
+      applications.some((app: any) => app.status === 'APPROVED' && !app.isExpired);
 
     const verificationStatus = isApproved ? 'VERIFIED_PMS_SCHOLAR' : 'PENDING_VERIFICATION';
 

@@ -52,6 +52,10 @@ export interface IScholarshipApplication extends Document {
   disbursementStatus?: 'PENDING' | 'DISBURSED' | 'FAILED';
   disbursementAmount?: number;
   disbursementDate?: Date;
+  
+  // Post-approval lifecycle tracking (6 months validity)
+  isExpired?: boolean;
+  expiryDate?: Date;
 
   createdAt: Date;
   updatedAt: Date;
@@ -114,6 +118,8 @@ const ScholarshipApplicationSchema = new Schema<IScholarshipApplication>(
     disbursementStatus: { type: String, enum: ['PENDING', 'DISBURSED', 'FAILED'] },
     disbursementAmount: { type: Number },
     disbursementDate: { type: Date },
+    isExpired: { type: Boolean, default: false, index: true },
+    expiryDate: { type: Date, index: true },
   },
   { timestamps: true }
 );
