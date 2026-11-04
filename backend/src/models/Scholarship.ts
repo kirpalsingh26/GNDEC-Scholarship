@@ -68,7 +68,7 @@ const ScholarshipSchema = new Schema<IScholarship>(
       },
     ],
     rules: {
-      minCgpa: { type: Number, default: 6, min: 6 },
+      minCgpa: { type: Number, default: 6 },
       maxFamilyIncome: { type: Number, default: 0 }, // 0 means no income cap
       allowedCategories: [{ type: String, enum: CATEGORIES }],
       allowedDepartments: [{ type: String }],
@@ -84,11 +84,21 @@ const ScholarshipSchema = new Schema<IScholarship>(
   { timestamps: true }
 );
 
+ScholarshipSchema.pre('validate', function (next) {
+  if (!this.rules) {
+    this.rules = {} as any;
+  }
+  if (this.rules.minCgpa === undefined || this.rules.minCgpa === null || this.rules.minCgpa < 6) {
+    this.rules.minCgpa = 6;
+  }
+  next();
+});
+
 ScholarshipSchema.pre('save', function (next) {
   if (!this.rules) {
     this.rules = {} as any;
   }
-  if (!this.rules.minCgpa || this.rules.minCgpa < 6) {
+  if (this.rules.minCgpa === undefined || this.rules.minCgpa === null || this.rules.minCgpa < 6) {
     this.rules.minCgpa = 6;
   }
   next();

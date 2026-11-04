@@ -137,6 +137,12 @@ export const initProductionData = async () => {
   }
 
   // 4. Official Post-Matric Scholarship Schemes for SC Students
+  // Pre-migrate any existing database records to minimum 6.0 CGPA
+  await Scholarship.updateMany(
+    { $or: [{ 'rules.minCgpa': { $lt: 6 } }, { 'rules.minCgpa': { $exists: false } }] },
+    { $set: { 'rules.minCgpa': 6 } }
+  );
+
   const fifteenDaysDeadline = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000);
   let pmsScheme = await Scholarship.findOne({ code: 'PB-PMS-SC' });
   if (!pmsScheme) {
@@ -178,6 +184,8 @@ export const initProductionData = async () => {
   } else {
     pmsScheme.deadline = fifteenDaysDeadline;
     pmsScheme.status = 'ACTIVE';
+    if (!pmsScheme.rules) pmsScheme.rules = {} as any;
+    pmsScheme.rules.minCgpa = 6;
     await pmsScheme.save();
     console.log('✅ Punjab PMS SC Scholarship Scheme deadline synchronized to 15 days.');
   }
@@ -223,6 +231,8 @@ export const initProductionData = async () => {
   } else {
     freeshipScheme.deadline = twentyDaysDeadline;
     freeshipScheme.status = 'ACTIVE';
+    if (!freeshipScheme.rules) freeshipScheme.rules = {} as any;
+    freeshipScheme.rules.minCgpa = 6;
     await freeshipScheme.save();
   }
 
@@ -267,6 +277,8 @@ export const initProductionData = async () => {
   } else {
     hostelScheme.deadline = twelveDaysDeadline;
     hostelScheme.status = 'ACTIVE';
+    if (!hostelScheme.rules) hostelScheme.rules = {} as any;
+    hostelScheme.rules.minCgpa = 6;
     await hostelScheme.save();
   }
 
@@ -311,6 +323,8 @@ export const initProductionData = async () => {
   } else {
     meritScheme.deadline = eighteenDaysDeadline;
     meritScheme.status = 'ACTIVE';
+    if (!meritScheme.rules) meritScheme.rules = {} as any;
+    meritScheme.rules.minCgpa = 6;
     await meritScheme.save();
   }
 
@@ -353,6 +367,8 @@ export const initProductionData = async () => {
   } else {
     expiredScheme.deadline = expiredDate;
     expiredScheme.status = 'EXPIRED';
+    if (!expiredScheme.rules) expiredScheme.rules = {} as any;
+    expiredScheme.rules.minCgpa = 6;
     await expiredScheme.save();
   }
 

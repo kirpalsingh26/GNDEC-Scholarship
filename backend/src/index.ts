@@ -11,9 +11,10 @@ import { initProductionData } from './seed/seedData.js';
 import { initDeadlineScheduler } from './services/deadlineReminderService.js';
 
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Security & Parsing Middlewares
 app.use(
