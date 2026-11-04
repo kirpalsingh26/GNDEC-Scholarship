@@ -8,6 +8,7 @@ import { connectDB } from './config/db.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { initProductionData } from './seed/seedData.js';
+import { initDeadlineScheduler } from './services/deadlineReminderService.js';
 
 dotenv.config();
 
@@ -57,6 +58,9 @@ const startServer = async () => {
     
     // Initialize essential production system data (departments, admin, officer, PMS scheme)
     await initProductionData();
+
+    // Start automated scholarship deadline reminders scheduler (Asia/Kolkata timezone)
+    initDeadlineScheduler();
 
     app.listen(PORT, () => {
       console.log(`🚀 ScholarSphere Backend API running on port ${PORT}`);

@@ -18,6 +18,7 @@ import {
   Upload,
   Lock,
   Info,
+  Bell,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.js';
@@ -31,15 +32,23 @@ export const StudentDashboard: React.FC = () => {
   const { user, profile } = useAuth();
   const { addToast } = useToast();
   const [data, setData] = useState<any>(null);
+  const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [reuploadingDocType, setReuploadingDocType] = useState<string | null>(null);
 
   const fetchDashboard = async () => {
     try {
-      const res = await api.get('/students/dashboard');
-      if (res.data.success) {
-        setData(res.data.data);
+      const [dashRes, notifRes] = await Promise.allSettled([
+        api.get('/students/dashboard'),
+        api.get('/notifications'),
+      ]);
+
+      if (dashRes.status === 'fulfilled' && dashRes.value.data.success) {
+        setData(dashRes.value.data.data);
+      }
+      if (notifRes.status === 'fulfilled' && notifRes.value.data.success) {
+        setRecentNotifications((notifRes.value.data.data || []).slice(0, 3));
       }
     } catch (err) {
       console.error(err);
@@ -282,6 +291,65 @@ export const StudentDashboard: React.FC = () => {
             ))}
           </div>
         </div>
+
+        {/* Recent In-App Notifications & Alerts Feed */}
+        {recentNotifications.length > 0 && (
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700">
+                  <Bell className="h-4 w-4" />
+                </div>
+                <h3 className="text-xs font-bold text-slate-900">
+                  Latest In-App Notices & Deadlines
+                </h3>
+              </div>
+              <button
+                onClick={() => navigate('/student/notifications')}
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+              >
+                Notification Center <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {recentNotifications.map((notif) => (
+                <div
+                  key={notif._id}
+                  onClick={() => notif.link && navigate(notif.link)}
+                  className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    notif.type === 'DEADLINE'
+                      ? 'bg-rose-50/50 border-rose-200 hover:bg-rose-50'
+                      : notif.type === 'DOCUMENT'
+                      ? 'bg-amber-50/50 border-amber-200 hover:bg-amber-50'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
+                        {notif.type}
+                      </span>
+                      {!notif.isRead && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" />
+                      )}
+                    </div>
+                    <p className="text-xs font-bold text-slate-900 line-clamp-1">{notif.title}</p>
+                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{notif.message}</p>
+                  </div>
+                  <p className="text-[9px] text-slate-400 mt-2">
+                    {new Date(notif.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Uploaded Documents Scrutiny Table */}
         <div className="rounded-2xl bg-white border border-slate-200 p-6 shadow-xs space-y-4">

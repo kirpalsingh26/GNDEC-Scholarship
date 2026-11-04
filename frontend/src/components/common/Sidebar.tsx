@@ -19,6 +19,7 @@ import {
   LogOut,
   Upload,
   X,
+  Bell,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: 'PMS Scheme', path: '/student/scholarships', icon: GraduationCap },
     { name: 'My Applications', path: '/student/applications', icon: FileCheck2 },
     { name: 'Document Vault', path: '/student/documents', icon: FolderLock },
+    { name: 'Notifications', path: '/student/notifications', icon: Bell },
     { name: 'Academic Records', path: '/student/academics', icon: Award },
     { name: 'Grant Renewal', path: '/student/renewals', icon: RefreshCw },
     { name: 'Inquiry Helpdesk', path: '/student/tickets', icon: HelpCircle },

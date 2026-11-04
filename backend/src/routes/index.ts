@@ -44,6 +44,10 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   sendBroadcastAnnouncement,
+  getVapidPublicKeyHandler,
+  subscribePush,
+  unsubscribePush,
+  sendTestPush,
 } from '../controllers/notificationController.js';
 import {
   getAdminDashboardStats,
@@ -163,8 +167,12 @@ router.get('/tickets/:id', authenticate, getTicketById);
 router.post('/tickets/:id/reply', authenticate, replyToTicket);
 
 // ==========================================
-// 8. NOTIFICATION ROUTES
+// 8. NOTIFICATION & WEB PUSH ROUTES
 // ==========================================
+router.get('/notifications/vapid-public-key', getVapidPublicKeyHandler);
+router.post('/notifications/subscribe', authenticate, subscribePush);
+router.post('/notifications/unsubscribe', authenticate, unsubscribePush);
+router.post('/notifications/test-push', authenticate, sendTestPush);
 router.get('/notifications', authenticate, getMyNotifications);
 router.put('/notifications/:id/read', authenticate, markNotificationRead);
 router.put('/notifications/read-all', authenticate, markAllNotificationsRead);

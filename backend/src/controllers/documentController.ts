@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { StudentDocument, IDocumentVersion } from '../models/Document.js';
 import { StudentProfile } from '../models/StudentProfile.js';
-import { Notification } from '../models/Notification.js';
+import { notifyUser } from '../services/pushNotificationService.js';
 import { OcrService } from '../services/ocrService.js';
 import { DOCUMENT_STATUS, DocumentType } from '../config/constants.js';
 import { AuthRequest } from '../middleware/auth.js';
@@ -154,14 +154,14 @@ export const verifyDocument = async (req: AuthRequest, res: Response, next: Next
     doc.latestVerifiedVersion = doc.currentVersion;
     await doc.save();
 
-    // Notify student
-    await Notification.create({
+    // Notify student via in-app notification and web push
+    await notifyUser({
       recipientId: doc.userId,
       title: 'Document Verified ✓',
       message: `Your document '${doc.title}' has been successfully verified by ${req.user?.name}.`,
       type: 'DOCUMENT',
       link: '/student/documents',
-      relatedEntityId: doc._id,
+      relatedEntityId: doc._id as any,
     });
 
     await logAudit({
@@ -217,14 +217,14 @@ export const rejectDocument = async (req: AuthRequest, res: Response, next: Next
 
     await doc.save();
 
-    // Notify student with clear guidance
-    await Notification.create({
+    // Notify student with clear guidance via in-app and web push
+    await notifyUser({
       recipientId: doc.userId,
       title: requestReupload ? 'Document Re-upload Required' : 'Document Rejected',
       message: `Your document '${doc.title}' requires attention. Reason: ${rejectionReason || comments}. Please upload a new copy.`,
       type: 'DOCUMENT',
       link: '/student/documents',
-      relatedEntityId: doc._id,
+      relatedEntityId: doc._id as any,
     });
 
     await logAudit({

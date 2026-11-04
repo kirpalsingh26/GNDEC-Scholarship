@@ -4,6 +4,7 @@ import { Scholarship } from '../models/Scholarship.js';
 import { StudentProfile } from '../models/StudentProfile.js';
 import { StudentDocument } from '../models/Document.js';
 import { Notification } from '../models/Notification.js';
+import { notifyUser } from '../services/pushNotificationService.js';
 import { EligibilityService } from '../services/eligibilityService.js';
 import { APPLICATION_STATUS, DOCUMENT_STATUS } from '../config/constants.js';
 import { AuthRequest } from '../middleware/auth.js';
@@ -106,14 +107,14 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       { applicationId: application._id }
     );
 
-    // Notify student
-    await Notification.create({
-      recipientId: req.user?._id,
+    // Notify student via in-app notification and web push
+    await notifyUser({
+      recipientId: (req.user?._id || application.userId) as any,
       title: 'Application Submitted Successfully',
       message: `Your application #${appNumber} for '${scholarship.title}' has been received and queued for document verification.`,
       type: 'APPLICATION',
       link: `/student/applications/${application._id}`,
-      relatedEntityId: application._id,
+      relatedEntityId: application._id as any,
     });
 
     await logAudit({
@@ -173,7 +174,19 @@ export const listApplications = async (req: AuthRequest, res: Response, next: Ne
           const expiry = app.expiryDate || new Date(approvalDate.getTime() + sixMonthsMs);
           const isExpired = now.getTime() > expiry.getTime();
 
-          if (app.isExpired !== isExpired || !app.expiryDate) {
+          if (!app.isExpired && isExpired) {
+            app.isExpired = true;
+            app.expiryDate = expiry;
+            await app.save();
+            await notifyUser({
+              recipientId: app.userId,
+              title: 'Scholarship Grant Validity Expired (6 Months)',
+              message: `Your scholarship approval for application #${app.applicationNumber} has concluded its active 6-month validity window.`,
+              type: 'APPLICATION',
+              link: `/student/applications/${app._id}`,
+              relatedEntityId: app._id as any,
+            });
+          } else if (app.isExpired !== isExpired || !app.expiryDate) {
             app.isExpired = isExpired;
             app.expiryDate = expiry;
             await app.save();
@@ -300,14 +313,14 @@ export const updateApplicationStatus = async (
       });
     }
 
-    // Notify student
-    await Notification.create({
+    // Notify student via in-app notification and web push
+    await notifyUser({
       recipientId: application.userId,
       title: `Application Update: ${status.replace(/_/g, ' ')}`,
       message: `Your application #${application.applicationNumber} status is now '${status.replace(/_/g, ' ')}'. Notes: ${remarks || 'Review in progress.'}`,
       type: 'APPLICATION',
       link: `/student/applications/${application._id}`,
-      relatedEntityId: application._id,
+      relatedEntityId: application._id as any,
     });
 
     await logAudit({

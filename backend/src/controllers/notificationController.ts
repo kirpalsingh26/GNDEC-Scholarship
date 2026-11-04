@@ -1,6 +1,115 @@
 import { Response, NextFunction } from 'express';
 import { Notification } from '../models/Notification.js';
+import { PushSubscription } from '../models/PushSubscription.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { getVapidPublicKey } from '../config/vapid.js';
+import { sendPushNotificationToUser } from '../services/pushNotificationService.js';
+
+export const getVapidPublicKeyHandler = async (
+  _req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const key = getVapidPublicKey();
+    return res.status(200).json({
+      success: true,
+      data: { publicKey: key },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const subscribePush = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { endpoint, keys, userAgent } = req.body;
+
+    if (!endpoint || !keys || !keys.p256dh || !keys.auth) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid subscription payload. Endpoint and keys are required.',
+      });
+    }
+
+    // Upsert push subscription securely in MongoDB
+    await PushSubscription.findOneAndUpdate(
+      { endpoint },
+      {
+        userId: req.user?._id,
+        endpoint,
+        keys: {
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+        },
+        userAgent: userAgent || req.headers['user-agent'],
+      },
+      { upsert: true, new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Web push notifications registered successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const unsubscribePush = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { endpoint } = req.body;
+    if (endpoint) {
+      await PushSubscription.findOneAndDelete({
+        endpoint,
+        userId: req.user?._id,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Web push notifications unsubscribed.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const sendTestPush = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    await sendPushNotificationToUser(req.user._id, {
+      title: 'GNDEC Scholarship Portal',
+      body: 'Push notifications are connected and working properly on your device!',
+      data: {
+        url: '/student/dashboard',
+        type: 'ANNOUNCEMENT',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Test push notification dispatched.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getMyNotifications = async (
   req: AuthRequest,
