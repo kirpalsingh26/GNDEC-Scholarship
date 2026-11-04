@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Award,
@@ -17,7 +17,11 @@ import {
   Check,
   ArrowRight,
   ShieldCheck,
-  HelpCircle,
+  Upload,
+  Eye,
+  ExternalLink,
+  Scan,
+  X,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { StatCard } from '../../components/common/StatCard.js';
@@ -49,7 +53,18 @@ interface AcademicRecordItem {
   earnedCredits: number;
   backlogs: number;
   subjects: SubjectEntry[];
+  documentId?: any;
+  fileUrl?: string;
+  verificationStatus?: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED';
   updatedAt: string;
+}
+
+interface UploadedFileInfo {
+  fileUrl: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
 }
 
 const GNDEC_SAMPLE_TEMPLATE: SubjectEntry[] = [
@@ -154,6 +169,7 @@ export const AcademicRecordPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
   const { addToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [records, setRecords] = useState<AcademicRecordItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,6 +177,11 @@ export const AcademicRecordPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Gemini OCR upload state
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrSuccessMsg, setOcrSuccessMsg] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<UploadedFileInfo | null>(null);
 
   // Manual Entry Form State
   const [formData, setFormData] = useState({
@@ -182,7 +203,6 @@ export const AcademicRecordPage: React.FC = () => {
         const fetchedRecords: AcademicRecordItem[] = res.data.data || [];
         setRecords(fetchedRecords);
         if (fetchedRecords.length > 0) {
-          // Select highest or matching semester
           const semExists = fetchedRecords.some((r) => r.semester === selectedSemester);
           if (!semExists) {
             setSelectedSemester(fetchedRecords[fetchedRecords.length - 1].semester);
@@ -212,6 +232,8 @@ export const AcademicRecordPage: React.FC = () => {
   // Open modal for NEW entry
   const handleOpenNewModal = () => {
     const nextSem = records.length > 0 ? Math.max(...records.map((r) => r.semester)) + 1 : profile?.semester || 1;
+    setUploadedFile(null);
+    setOcrSuccessMsg('');
     setFormData({
       semester: Math.min(8, nextSem),
       academicYear: '2024-2025',
@@ -240,6 +262,18 @@ export const AcademicRecordPage: React.FC = () => {
 
   // Open modal to EDIT existing record
   const handleOpenEditModal = (rec: AcademicRecordItem) => {
+    setUploadedFile(
+      rec.fileUrl
+        ? {
+            fileUrl: rec.fileUrl,
+            fileName: rec.fileUrl.split('/').pop() || 'marksheet.pdf',
+            originalName: `Semester_${rec.semester}_Marksheet.pdf`,
+            fileSize: 102400,
+            mimeType: 'application/pdf',
+          }
+        : null
+    );
+    setOcrSuccessMsg('');
     setFormData({
       semester: rec.semester,
       academicYear: rec.academicYear || '2024-2025',
@@ -251,6 +285,66 @@ export const AcademicRecordPage: React.FC = () => {
       subjects: rec.subjects && rec.subjects.length > 0 ? [...rec.subjects] : [createEmptySubject()],
     });
     setIsModalOpen(true);
+  };
+
+  // Trigger Gemini AI OCR on file selection
+  const handleMarksheetFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      addToast('error', 'Please upload an image (PNG, JPG, WEBP) or PDF marksheet scan.');
+      return;
+    }
+
+    setOcrLoading(true);
+    setOcrSuccessMsg('');
+
+    try {
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+      uploadData.append('semester', String(formData.semester));
+
+      const res = await api.post('/students/me/academics/ocr', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (res.data.success && res.data.data) {
+        const ocr = res.data.data;
+
+        // Auto-fill form entries from Gemini OCR extraction
+        setFormData((prev) => ({
+          ...prev,
+          semester: ocr.semester || prev.semester,
+          academicYear: ocr.academicYear || prev.academicYear,
+          sgpa: ocr.sgpa || prev.sgpa,
+          cgpa: ocr.cgpa || prev.cgpa,
+          totalCredits: ocr.totalCredits || prev.totalCredits,
+          earnedCredits: ocr.earnedCredits || prev.earnedCredits,
+          backlogs: ocr.backlogs !== undefined ? ocr.backlogs : prev.backlogs,
+          subjects: ocr.subjects && ocr.subjects.length > 0 ? ocr.subjects : prev.subjects,
+        }));
+
+        setUploadedFile({
+          fileUrl: ocr.fileUrl,
+          fileName: ocr.fileName,
+          originalName: ocr.originalName,
+          fileSize: ocr.fileSize,
+          mimeType: ocr.mimeType,
+        });
+
+        const successText = `Gemini OCR successfully extracted Semester ${ocr.semester} data (${ocr.subjects?.length || 0} subjects). Entries auto-filled below!`;
+        setOcrSuccessMsg(successText);
+        addToast('success', successText);
+      }
+    } catch (err: any) {
+      console.error(err);
+      addToast('error', err.response?.data?.message || 'Gemini OCR failed to extract marksheet.');
+    } finally {
+      setOcrLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   // Load GNDEC Sample Courses Template into form
@@ -269,7 +363,8 @@ export const AcademicRecordPage: React.FC = () => {
       backlogs: 0,
       subjects: JSON.parse(JSON.stringify(GNDEC_SAMPLE_TEMPLATE)),
     });
-    addToast('info', 'Loaded GNDEC B.Tech semester course template with pre-filled marks.');
+    setOcrSuccessMsg('Loaded GNDEC standard course template with pre-filled marks.');
+    addToast('info', 'Loaded GNDEC B.Tech semester course template.');
   };
 
   // Subject row helpers
@@ -277,7 +372,6 @@ export const AcademicRecordPage: React.FC = () => {
     const updated = [...formData.subjects];
     const item = { ...updated[index], [field]: value };
 
-    // Auto calculate total and grade when marks change
     if (field === 'internalMarks' || field === 'externalMarks') {
       const internal = field === 'internalMarks' ? Number(value) : Number(item.internalMarks || 0);
       const external = field === 'externalMarks' ? Number(value) : Number(item.externalMarks || 0);
@@ -291,7 +385,6 @@ export const AcademicRecordPage: React.FC = () => {
 
     updated[index] = item;
 
-    // Recompute total credits, earned credits, backlogs & SGPA
     const totalCreds = updated.reduce((sum, s) => sum + (Number(s.credits) || 0), 0);
     const earnedCreds = updated.filter((s) => s.status !== 'FAIL').reduce((sum, s) => sum + (Number(s.credits) || 0), 0);
     const totalPoints = updated.reduce((sum, s) => sum + (Number(s.credits) || 0) * (Number(s.gradePoints) || 0), 0);
@@ -324,7 +417,7 @@ export const AcademicRecordPage: React.FC = () => {
     setFormData({ ...formData, subjects: updated });
   };
 
-  // Submit manual academic record
+  // Submit both uploaded marksheet and manual entries for verification
   const handleSaveAcademicRecord = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.subjects.length === 0) {
@@ -334,18 +427,33 @@ export const AcademicRecordPage: React.FC = () => {
 
     setSaving(true);
     try {
-      const res = await api.post('/students/me/academics', formData);
+      const payload: any = {
+        ...formData,
+      };
+
+      // Include uploaded marksheet document details if available
+      if (uploadedFile) {
+        payload.fileUrl = uploadedFile.fileUrl;
+        payload.fileName = uploadedFile.fileName;
+        payload.originalName = uploadedFile.originalName;
+        payload.fileSize = uploadedFile.fileSize;
+        payload.mimeType = uploadedFile.mimeType;
+      }
+
+      const res = await api.post('/students/me/academics', payload);
       if (res.data.success) {
-        addToast('success', `Semester ${formData.semester} academic performance saved successfully!`);
+        const msg = uploadedFile
+          ? `Semester ${formData.semester} marksheet scan and academic entries submitted for verification ✓`
+          : `Semester ${formData.semester} academic performance saved successfully!`;
+        addToast('success', msg);
         setIsModalOpen(false);
         await fetchAcademics();
         setSelectedSemester(formData.semester);
-        // Refresh global profile so updated CGPA and backlogs sync with dashboard and scholarship eligibility
         await refreshProfile();
       }
     } catch (err: any) {
       console.error(err);
-      addToast('error', err.response?.data?.message || 'Failed to save academic record.');
+      addToast('error', err.response?.data?.message || 'Failed to submit academic record.');
     } finally {
       setSaving(false);
     }
@@ -389,17 +497,17 @@ export const AcademicRecordPage: React.FC = () => {
             Academic Performance & Marksheets
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Record semester marks, credit weightage, and cumulative grade points. Punjab Post-Matric Scholarship mandates a minimum of 6.0 CGPA.
+            Record semester marks, credit weightage, and grade points with <strong>Gemini AI Marksheet OCR</strong>. Submitting attaches your marksheet scan and manual entries for faculty scrutiny.
           </p>
         </div>
 
         <div className="relative z-10 flex items-center gap-2.5 self-start sm:self-auto shrink-0 flex-wrap">
           <button
             onClick={handleOpenNewModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer hover:scale-[1.01]"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-800 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer hover:scale-[1.01]"
           >
-            <Plus className="h-4 w-4" />
-            <span>+ Add Marksheet / Manual Entry</span>
+            <Sparkles className="h-4 w-4 text-amber-300" />
+            <span>Upload Marksheet & Enter Details</span>
           </button>
         </div>
       </div>
@@ -560,6 +668,41 @@ export const AcademicRecordPage: React.FC = () => {
         </div>
       )}
 
+      {/* Uploaded Marksheet Verification Status Banner */}
+      {activeRecord?.fileUrl && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-xs font-extrabold text-blue-950">
+                  Attached Scanned Marksheet (Semester {activeRecord.semester})
+                </h4>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                  Under Faculty Verification ⏳
+                </span>
+              </div>
+              <p className="text-[11px] text-blue-800 mt-0.5">
+                Both your manual course entries and this uploaded marksheet are queued for examination cell committee sign-off.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href={activeRecord.fileUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-blue-300 text-blue-700 font-bold text-xs hover:bg-blue-50 shadow-2xs transition-colors shrink-0 self-start sm:self-auto"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            <span>View Uploaded Marksheet</span>
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      )}
+
       {/* Subject Marks Table */}
       <div className="rounded-3xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="p-5 sm:p-6 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-slate-50/90 via-slate-50/50 to-slate-50/90">
@@ -599,23 +742,16 @@ export const AcademicRecordPage: React.FC = () => {
                 No Academic Marksheets Recorded Yet
               </h4>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Add your semester marksheet manually below with pre-filled placeholders, or upload your official scanned marksheets in the Document Vault.
+                Upload your marksheet using <strong>Gemini AI OCR</strong> to auto-fill your grades, or enter your subjects manually below.
               </p>
             </div>
             <div className="pt-2 flex items-center justify-center gap-3 flex-wrap">
               <button
                 onClick={handleOpenNewModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-800 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
               >
-                <Plus className="h-4 w-4" />
-                <span>+ Enter Semester Marksheet Manually</span>
-              </button>
-              <button
-                onClick={() => navigate('/student/documents')}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition-all cursor-pointer"
-              >
-                <span>Upload in Document Vault</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                <span>Upload Marksheet (Gemini OCR) & Enter Marks</span>
               </button>
             </div>
           </div>
@@ -700,46 +836,148 @@ export const AcademicRecordPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-indigo-600 shrink-0" />
           <span>
-            Transcripts recorded here are evaluated against scholarship criteria: <strong>Minimum CGPA ≥ 6.0</strong> and <strong>Clear Backlogs</strong>.
+            Transcripts recorded here are verified by the examination committee. Requirement: <strong>Minimum CGPA ≥ 6.0</strong> and <strong>Clear Backlogs</strong>.
           </span>
         </div>
         <button
           onClick={() => navigate('/student/documents')}
           className="text-indigo-600 hover:text-indigo-800 font-bold shrink-0 self-start sm:self-auto hover:underline flex items-center gap-1"
         >
-          <span>Vault Marksheets</span>
+          <span>Vault Documents</span>
           <ArrowRight className="h-3 w-3" />
         </button>
       </div>
 
       {/* ======================================================== */}
-      {/* MANUAL ENTRY MODAL WITH PREDEFINED DATA PLACEHOLDERS      */}
+      {/* MANUAL ENTRY MODAL WITH GEMINI OCR & PREDEFINED DATA     */}
       {/* ======================================================== */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Manual Academic Performance & Marksheet Entry"
-        subtitle="Enter semester transcript details, credit weightage, and subject scores with live CGPA calculation."
+        title="Academic Performance & Marksheet Verification"
+        subtitle="Upload your marksheet scan with Gemini AI OCR to auto-fill grades, or enter manually."
         maxWidth="4xl"
       >
         <form onSubmit={handleSaveAcademicRecord} className="space-y-5">
-          {/* Top Quick Actions Bar */}
-          <div className="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
-            <div className="flex items-center gap-2 text-indigo-950 font-semibold">
-              <Sparkles className="h-4 w-4 text-indigo-600 shrink-0" />
-              <span>Need help? Load standard GNDEC B.Tech Engineering course template as a starter.</span>
+          {/* GEMINI AI OCR MARKSHEET UPLOAD DROPZONE */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 text-white shadow-sm space-y-3 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center font-black shadow-md shadow-amber-500/20 shrink-0">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-black tracking-tight text-white">
+                      Gemini AI Marksheet OCR Scanner
+                    </h4>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 uppercase tracking-wider">
+                      Auto-Fill
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    Upload your marksheet scan (PNG, JPG, PDF). Gemini AI extracts semester marks & fills entries automatically.
+                  </p>
+                </div>
+              </div>
+
+              {/* Upload Trigger Button & Sample Template Trigger */}
+              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleMarksheetFileUpload}
+                  accept=".png,.jpg,.jpeg,.webp,.pdf"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={ocrLoading}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {ocrLoading ? (
+                    <>
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      <span>Scanning Marksheet...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Scan className="h-3.5 w-3.5" />
+                      <span>Upload Marksheet (Gemini OCR)</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleLoadSampleTemplate}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-blue-300" />
+                  <span>Sample Template</span>
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={handleLoadSampleTemplate}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-100/70 font-bold text-xs shadow-2xs transition-colors shrink-0 cursor-pointer"
-            >
-              <FileSpreadsheet className="h-3.5 w-3.5" />
-              <span>Load GNDEC Sample Template</span>
-            </button>
+
+            {/* OCR Progress or Status Pill */}
+            {ocrLoading && (
+              <div className="p-3 rounded-xl bg-white/10 border border-white/20 flex items-center gap-2.5 text-xs text-amber-200 animate-pulse">
+                <RefreshCw className="h-4 w-4 animate-spin text-amber-400" />
+                <span>
+                  Gemini AI is reading marksheet image, identifying course codes, and calculating credit points...
+                </span>
+              </div>
+            )}
+
+            {/* Attached Uploaded File Preview Badge */}
+            {uploadedFile && (
+              <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 flex items-center justify-between gap-2 text-xs text-emerald-200">
+                <div className="flex items-center gap-2 truncate">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span className="font-semibold truncate">
+                    Attached Marksheet: <strong>{uploadedFile.originalName}</strong>
+                  </span>
+                  <span className="text-[10px] bg-emerald-900/90 text-emerald-300 px-2 py-0.5 rounded font-mono">
+                    {(uploadedFile.fileSize / 1024).toFixed(1)} KB
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={uploadedFile.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-blue-300 hover:text-white underline flex items-center gap-1 font-bold"
+                  >
+                    <span>View File</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedFile(null);
+                      setOcrSuccessMsg('');
+                    }}
+                    className="p-1 text-slate-400 hover:text-rose-300 transition-colors"
+                    title="Remove file"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {ocrSuccessMsg && !ocrLoading && !uploadedFile && (
+              <div className="p-2.5 rounded-xl bg-indigo-950/80 border border-indigo-400/50 flex items-center gap-2 text-xs text-indigo-200">
+                <Check className="h-4 w-4 text-indigo-400 shrink-0" />
+                <span>{ocrSuccessMsg}</span>
+              </div>
+            )}
           </div>
 
-          {/* Semester & Session Meta Grid with Clear Placeholders */}
+          {/* Semester & Session Meta Grid with Predefined Placeholders */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -858,15 +1096,15 @@ export const AcademicRecordPage: React.FC = () => {
           </div>
 
           {/* Subjects Entry Table */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between pb-1 border-b border-slate-100">
               <div>
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
                   <FileSpreadsheet className="h-4 w-4 text-indigo-600" />
-                  <span>Subject-wise Marks & Credits ({formData.subjects.length} Subjects)</span>
+                  <span>Subject-wise Marks & Credits ({formData.subjects.length} Courses)</span>
                 </h4>
                 <p className="text-[11px] text-slate-400">
-                  Total marks and letter grades are auto-computed as you enter internal and external marks.
+                  Review extracted course codes and internal/external scores. You can manually adjust any score.
                 </p>
               </div>
 
@@ -876,11 +1114,11 @@ export const AcademicRecordPage: React.FC = () => {
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Add Subject</span>
+                <span>Add Subject Row</span>
               </button>
             </div>
 
-            <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
               {formData.subjects.map((sub, idx) => (
                 <div
                   key={idx}
@@ -985,7 +1223,7 @@ export const AcademicRecordPage: React.FC = () => {
                         onClick={() => handleRemoveSubjectRow(idx)}
                         disabled={formData.subjects.length <= 1}
                         title="Delete Course"
-                        className="p-1.5 text-slate-400 hover:text-rose-600 disabled:opacity-30 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 disabled:opacity-30 transition-colors cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -999,9 +1237,13 @@ export const AcademicRecordPage: React.FC = () => {
           {/* Modal Footer */}
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="text-xs text-slate-500">
-              Estimated Semester SGPA:{' '}
-              <strong className="font-mono text-indigo-700">{formData.sgpa.toFixed(2)}</strong> •
+              Estimated SGPA: <strong className="font-mono text-indigo-700">{formData.sgpa.toFixed(2)}</strong> •
               Cumulative CGPA: <strong className="font-mono text-slate-800">{formData.cgpa.toFixed(2)}</strong>
+              {uploadedFile && (
+                <span className="text-emerald-700 font-bold ml-2">
+                  (Attached: {uploadedFile.originalName})
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2.5 self-end sm:self-auto">
@@ -1015,17 +1257,21 @@ export const AcademicRecordPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
               >
                 {saving ? (
                   <>
                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                    <span>Saving Academic Record...</span>
+                    <span>Submitting for Verification...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="h-4 w-4" />
-                    <span>Save Academic Record ✓</span>
+                    <span>
+                      {uploadedFile
+                        ? 'Submit Marksheet & Entries for Verification ✓'
+                        : 'Submit Academic Record for Verification ✓'}
+                    </span>
                   </>
                 )}
               </button>

@@ -7,6 +7,7 @@ import {
   getMyAcademicRecords,
   saveMyAcademicRecord,
   deleteMyAcademicRecord,
+  ocrAcademicMarksheet,
   getStudentDashboardData,
 } from '../controllers/studentController.js';
 import {
@@ -93,6 +94,13 @@ router.get(
 router.get('/students/me/academics', authenticate, authorize(ROLES.STUDENT), getMyAcademicRecords);
 router.post('/students/me/academics', authenticate, authorize(ROLES.STUDENT), saveMyAcademicRecord);
 router.delete('/students/me/academics/:id', authenticate, authorize(ROLES.STUDENT), deleteMyAcademicRecord);
+router.post(
+  '/students/me/academics/ocr',
+  authenticate,
+  authorize(ROLES.STUDENT),
+  upload.single('file'),
+  ocrAcademicMarksheet
+);
 
 // ==========================================
 // 3. SCHOLARSHIP ROUTES (Public Listing & Detail Allowed)

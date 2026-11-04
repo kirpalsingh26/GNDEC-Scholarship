@@ -22,6 +22,9 @@ export interface IAcademicRecord extends Document {
     gradePoints: number;
     status: 'PASS' | 'FAIL' | 'ABSENT';
   }>;
+  documentId?: mongoose.Types.ObjectId;
+  fileUrl?: string;
+  verificationStatus?: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'NOT_SUBMITTED';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +54,13 @@ const AcademicRecordSchema = new Schema<IAcademicRecord>(
         status: { type: String, enum: ['PASS', 'FAIL', 'ABSENT'], default: 'PASS' },
       },
     ],
+    documentId: { type: Schema.Types.ObjectId, ref: 'StudentDocument' },
+    fileUrl: { type: String },
+    verificationStatus: {
+      type: String,
+      enum: ['PENDING', 'VERIFIED', 'REJECTED', 'NOT_SUBMITTED'],
+      default: 'PENDING',
+    },
   },
   { timestamps: true }
 );
