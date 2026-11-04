@@ -19,6 +19,7 @@ import {
   Sparkles,
   AlertCircle,
   Check,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import api from '../../services/api.js';
@@ -185,7 +186,7 @@ const getSchemeTheme = (code?: string) => {
         badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-300',
         consoleBg: 'from-[#07241f] via-[#0b3831] to-[#07241f] border-emerald-900/40',
         glowColor: 'bg-emerald-400/10',
-        benefitPill: '100% Tuition & Development Exemption',
+        benefitPill: '100% Tuition & Dev Fee Waiver',
         benefitPillColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
         btnBg: 'bg-[#07241f] hover:bg-[#0e423a]',
         accentText: 'text-emerald-700',
@@ -196,7 +197,7 @@ const getSchemeTheme = (code?: string) => {
         badgeBg: 'bg-indigo-50 text-indigo-800 border-indigo-300',
         consoleBg: 'from-[#101c3d] via-[#162754] to-[#101c3d] border-indigo-900/40',
         glowColor: 'bg-indigo-400/10',
-        benefitPill: 'Hosteller Mess & Boarding DBT (₹4,000 / Mo)',
+        benefitPill: 'Hosteller Boarding DBT (₹4,000/mo)',
         benefitPillColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
         btnBg: 'bg-[#101c3d] hover:bg-[#1a2f69]',
         accentText: 'text-indigo-700',
@@ -207,7 +208,7 @@ const getSchemeTheme = (code?: string) => {
         badgeBg: 'bg-purple-50 text-purple-800 border-purple-300',
         consoleBg: 'from-[#231238] via-[#331a52] to-[#231238] border-purple-900/40',
         glowColor: 'bg-purple-400/10',
-        benefitPill: 'Textbooks, Laptop & Lab Tool Equipment Grant',
+        benefitPill: 'Books, Laptop & Study Equipment Grant',
         benefitPillColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
         btnBg: 'bg-[#231238] hover:bg-[#3b1e5e]',
         accentText: 'text-purple-700',
@@ -218,7 +219,7 @@ const getSchemeTheme = (code?: string) => {
         badgeBg: 'bg-amber-50 text-amber-900 border-amber-300',
         consoleBg: 'from-[#0b1f3a] via-[#102d54] to-[#0b1f3a] border-blue-900/40',
         glowColor: 'bg-amber-400/10',
-        benefitPill: '100% Tuition Fee Exemption + Annual Maintenance',
+        benefitPill: '100% Tuition Fee Exemption + DBT',
         benefitPillColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
         btnBg: 'bg-[#0b2341] hover:bg-[#12335c]',
         accentText: 'text-amber-700',
@@ -841,43 +842,54 @@ export const LandingPage: React.FC = () => {
                     </div>
 
                     {/* Card Action Footer */}
-                    <div className="pt-4 border-t border-slate-100 mt-auto flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl">
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                        <span>Approved grants active for 6 months • Direct DBT</span>
+                    <div className="pt-3.5 border-t border-slate-100 mt-auto bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl space-y-2.5">
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 gap-2">
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate">Active for 6 months • Direct DBT</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                          Official Scheme
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                        {!user && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                        {!user ? (
+                          <>
+                            <button
+                              onClick={() => handleRegisterClick(sch)}
+                              className="w-full py-2.5 px-3 rounded-xl border border-slate-300 hover:border-slate-400 hover:bg-white text-slate-700 font-bold text-xs transition-all shadow-2xs text-center cursor-pointer flex items-center justify-center gap-1.5"
+                            >
+                              <User className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                              <span>Register</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleApplyClick(sch)}
+                              className={`w-full py-2.5 px-3 rounded-xl ${theme.btnBg} text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer`}
+                            >
+                              <Lock className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                              <span>Apply (Sign In)</span>
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            onClick={() => handleRegisterClick(sch)}
-                            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-300 hover:border-slate-400 hover:bg-white text-slate-700 font-bold text-xs transition-all shadow-2xs cursor-pointer"
+                            onClick={() => handleApplyClick(sch)}
+                            className={`col-span-1 sm:col-span-2 w-full py-2.5 px-4 rounded-xl ${theme.btnBg} text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer`}
                           >
-                            New Student? Register
+                            {user.role === 'STUDENT' ? (
+                              <>
+                                <span>Apply for Scholarship Now</span>
+                                <ArrowRight className="h-4 w-4 text-amber-400 shrink-0" />
+                              </>
+                            ) : (
+                              <>
+                                <span>Review Application Queue</span>
+                                <ArrowRight className="h-4 w-4 shrink-0" />
+                              </>
+                            )}
                           </button>
                         )}
-
-                        <button
-                          onClick={() => handleApplyClick(sch)}
-                          className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl ${theme.btnBg} text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98] cursor-pointer`}
-                        >
-                          {!user ? (
-                            <>
-                              <Lock className="h-3.5 w-3.5 text-amber-400" />
-                              <span>Apply for Scholarship (Sign In)</span>
-                            </>
-                          ) : user.role === 'STUDENT' ? (
-                            <>
-                              <span>Apply for Scholarship</span>
-                              <ArrowRight className="h-4 w-4 text-amber-400" />
-                            </>
-                          ) : (
-                            <>
-                              <span>Review Scheme Queue</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </>
-                          )}
-                        </button>
                       </div>
                     </div>
                   </div>
