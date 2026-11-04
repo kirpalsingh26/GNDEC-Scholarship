@@ -219,6 +219,12 @@ export const ScholarshipCatalog: React.FC = () => {
             const hasApplied = Boolean(appliedApp);
             const isFaded = hasAppliedAnywhere && !hasApplied;
 
+            const appliedDate = appliedApp?.appliedDate ? new Date(appliedApp.appliedDate) : new Date();
+            const appliedExpiryDate = appliedApp?.expiryDate
+              ? new Date(appliedApp.expiryDate)
+              : new Date(appliedDate.getTime() + 180 * 24 * 60 * 60 * 1000);
+            const appliedExpiryDateStr = appliedExpiryDate.toLocaleDateString('en-IN');
+
             return (
               <div
                 key={sch._id}
@@ -275,37 +281,48 @@ export const ScholarshipCatalog: React.FC = () => {
                     )}
                   </div>
 
-                  <div
-                    className={`mb-2 flex items-center justify-between text-[11px] px-2.5 py-1 rounded-lg border ${
-                      hasApplied
-                        ? 'bg-indigo-50/70 text-indigo-900 border-indigo-200/70 font-semibold'
-                        : isFaded
-                        ? 'bg-slate-200/60 text-slate-500 border-slate-300'
-                        : isExp
-                        ? 'bg-rose-50/50 text-rose-800 border-rose-200/60'
-                        : 'bg-slate-50 text-slate-500 border-slate-100'
-                    }`}
-                  >
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3 text-slate-400" />
-                      Deadline: {new Date(sch.deadline).toLocaleDateString('en-IN')}
-                    </span>
-                    {isExp ? (
-                      <span className="font-bold text-rose-700 flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-rose-600" />
-                        Deadline Passed
+                  {hasApplied ? (
+                    <div className="mb-2 flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-lg border bg-indigo-50/90 text-indigo-950 border-indigo-200 font-semibold shadow-2xs">
+                      <span className="flex items-center gap-1.5 font-bold">
+                        <Calendar className="h-3.5 w-3.5 text-indigo-600" />
+                        <span>Validity: {appliedExpiryDateStr}</span>
                       </span>
-                    ) : (
-                      <span className={`font-bold flex items-center gap-1 ${hasApplied ? 'text-indigo-700' : 'text-emerald-700'}`}>
-                        <Clock className={`h-3 w-3 ${hasApplied ? 'text-indigo-600' : 'text-emerald-600 animate-pulse'}`} />
-                        {Math.max(
-                          0,
-                          Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-                        )}{' '}
-                        days left
+                      <span className="font-black text-indigo-700 flex items-center gap-1 bg-indigo-100/90 px-2 py-0.5 rounded-md border border-indigo-200">
+                        <Clock className="h-3 w-3 text-indigo-600" />
+                        6 months
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={`mb-2 flex items-center justify-between text-[11px] px-2.5 py-1 rounded-lg border ${
+                        isFaded
+                          ? 'bg-slate-200/60 text-slate-500 border-slate-300'
+                          : isExp
+                          ? 'bg-rose-50/50 text-rose-800 border-rose-200/60'
+                          : 'bg-slate-50 text-slate-500 border-slate-100'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-slate-400" />
+                        Deadline: {new Date(sch.deadline).toLocaleDateString('en-IN')}
+                      </span>
+                      {isExp ? (
+                        <span className="font-bold text-rose-700 flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-rose-600" />
+                          Deadline Passed
+                        </span>
+                      ) : (
+                        <span className="font-bold text-emerald-700 flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-emerald-600 animate-pulse" />
+                          {Math.max(
+                            0,
+                            Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                          )}{' '}
+                          days left
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   <h3
                     className={`text-base font-extrabold transition-colors leading-snug ${

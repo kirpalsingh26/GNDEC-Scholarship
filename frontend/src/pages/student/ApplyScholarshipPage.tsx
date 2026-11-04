@@ -189,7 +189,17 @@ export const ApplyScholarshipPage: React.FC = () => {
             <span>•</span>
             <span>Academic Cycle: <strong className="text-slate-900">{scholarship.academicYear || '2025-26'}</strong></span>
             <span>•</span>
-            <span>Deadline: <strong className="text-amber-800">{new Date(scholarship.deadline).toLocaleDateString('en-IN')}</strong></span>
+            <span>
+              {existingApplication ? (
+                <>
+                  Grant Validity: <strong className="text-blue-900 font-bold">6 Months (Until {new Date(new Date(existingApplication.appliedDate || Date.now()).getTime() + 180 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN')})</strong>
+                </>
+              ) : (
+                <>
+                  Deadline: <strong className="text-amber-800">{new Date(scholarship.deadline).toLocaleDateString('en-IN')}</strong>
+                </>
+              )}
+            </span>
           </div>
         </div>
       </div>
