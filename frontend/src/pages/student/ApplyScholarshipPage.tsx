@@ -29,6 +29,7 @@ export const ApplyScholarshipPage: React.FC = () => {
 
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [existingApplication, setExistingApplication] = useState<ScholarshipApplication | null>(null);
+  const [otherApplication, setOtherApplication] = useState<ScholarshipApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -58,6 +59,18 @@ export const ApplyScholarshipPage: React.FC = () => {
           if (found) {
             setExistingApplication(found);
           }
+
+          // Check if user has applied for any OTHER active scholarship
+          const other = apps.find((a: any) => {
+            const sId =
+              typeof a.scholarshipId === 'object' && a.scholarshipId !== null
+                ? a.scholarshipId._id
+                : a.scholarshipId;
+            return String(sId) !== String(id) && a.status !== 'REJECTED' && a.status !== 'CANCELLED';
+          });
+          if (other) {
+            setOtherApplication(other);
+          }
         }
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to load scholarship details.');
@@ -73,6 +86,13 @@ export const ApplyScholarshipPage: React.FC = () => {
   const isCgpaQualified = studentCgpa >= minRequiredCgpa;
 
   const handleSubmitApplication = async () => {
+    if (otherApplication) {
+      const msg = 'Under Punjab State guidelines, a candidate may only apply for one single scholarship scheme per academic cycle.';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
     if (!isCgpaQualified) {
       const msg = `Minimum CGPA of ${minRequiredCgpa.toFixed(2)} is required for this scholarship. Your registered CGPA is ${studentCgpa.toFixed(2)}.`;
       setError(msg);
@@ -201,6 +221,31 @@ export const ApplyScholarshipPage: React.FC = () => {
         </div>
       )}
 
+      {/* Single Scholarship Policy Lock Notice */}
+      {otherApplication && !existingApplication && (
+        <div className="rounded-3xl bg-amber-50/95 border-2 border-amber-300 p-6 text-amber-950 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-amber-800 shrink-0" />
+              <h3 className="text-sm font-black text-amber-950">
+                Single Scholarship Policy Active (Application Locked)
+              </h3>
+              <Badge status={otherApplication.status} size="sm" />
+            </div>
+            <p className="text-xs text-amber-900 leading-relaxed max-w-xl">
+              Under Punjab Government and GNDEC guidelines, each student may apply for <strong>only one single scholarship scheme</strong> per academic cycle. You already have an active application on record (Ref: <strong className="font-mono text-amber-950 font-bold">{otherApplication.applicationNumber}</strong>). Submitting another application is not permitted.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate(`/student/applications/${otherApplication._id}`)}
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition-all hover:scale-105 shrink-0 cursor-pointer"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span>Track Active Application</span>
+          </button>
+        </div>
+      )}
+
       {/* CGPA Eligibility Notice */}
       {!isCgpaQualified && !existingApplication && (
         <div className="rounded-3xl bg-amber-50/90 border border-amber-300 p-5 text-amber-950 shadow-2xs flex items-start gap-3.5">
@@ -306,6 +351,32 @@ export const ApplyScholarshipPage: React.FC = () => {
             <button
               onClick={() => navigate('/student/scholarships')}
               className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+            >
+              Back to Catalog
+            </button>
+          </div>
+        </div>
+      ) : otherApplication ? (
+        <div className="rounded-3xl bg-slate-50 border border-slate-300 p-6 sm:p-8 shadow-xs text-center space-y-4">
+          <div className="h-12 w-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto shadow-2xs">
+            <Lock className="h-6 w-6" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black text-slate-900">Application Locked (Single Scheme Limit)</h4>
+            <p className="text-xs text-slate-600 mt-1 max-w-md mx-auto">
+              Each student is eligible to apply for only <strong>one single scholarship</strong> scheme. You currently have an active application under review (Ref: <strong className="font-mono text-slate-800">{otherApplication.applicationNumber}</strong>). Submitting another application is not permitted under State regulations.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => navigate(`/student/applications/${otherApplication._id}`)}
+              className="w-full sm:w-auto px-6 py-2.5 text-xs font-black text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md transition-all cursor-pointer"
+            >
+              Track Active Application ({otherApplication.applicationNumber})
+            </button>
+            <button
+              onClick={() => navigate('/student/scholarships')}
+              className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 rounded-xl transition-colors border border-slate-200 cursor-pointer"
             >
               Back to Catalog
             </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Sparkles, Lock } from 'lucide-react';
 import { Modal } from './Modal.js';
 import { Badge } from './Badge.js';
 
@@ -24,6 +24,8 @@ interface ExplainableEligibilityModalProps {
   } | null;
   hasApplied?: boolean;
   appliedApplicationNumber?: string;
+  isLockedByOtherScheme?: boolean;
+  otherSchemeApplicationNumber?: string;
   onViewApplication?: () => void;
   onApply?: () => void;
 }
@@ -34,6 +36,8 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
   evaluation,
   hasApplied,
   appliedApplicationNumber,
+  isLockedByOtherScheme,
+  otherSchemeApplicationNumber,
   onViewApplication,
   onApply,
 }) => {
@@ -53,6 +57,8 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
           className={`rounded-xl p-4 border flex items-start gap-3.5 ${
             hasApplied
               ? 'bg-blue-50/80 border-blue-200 text-blue-950'
+              : isLockedByOtherScheme
+              ? 'bg-amber-50/90 border-amber-300 text-amber-950'
               : evaluation.isEligible
               ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
               : 'bg-rose-50/80 border-rose-200 text-rose-950'
@@ -60,6 +66,8 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
         >
           {hasApplied ? (
             <CheckCircle2 className="h-6 w-6 text-blue-600 shrink-0 mt-0.5" />
+          ) : isLockedByOtherScheme ? (
+            <Lock className="h-6 w-6 text-amber-700 shrink-0 mt-0.5" />
           ) : evaluation.isEligible ? (
             <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
           ) : (
@@ -70,6 +78,8 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
               <h4 className="font-bold text-sm">
                 {hasApplied
                   ? `Already Applied (${appliedApplicationNumber || 'On Record'})`
+                  : isLockedByOtherScheme
+                  ? `Application Locked • Single Scheme Limit (${otherSchemeApplicationNumber || 'Active Scheme'})`
                   : evaluation.isEligible
                   ? 'Eligible to Apply'
                   : 'Ineligible Under Current Criteria'}
@@ -81,6 +91,8 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
             <p className="mt-1 text-xs opacity-90 leading-relaxed">
               {hasApplied
                 ? 'You have already submitted an application for this scholarship scheme in this academic cycle. Re-applying is disabled.'
+                : isLockedByOtherScheme
+                ? 'Under Punjab Post-Matric SC regulations, each candidate can apply for only one single scholarship scheme per academic cycle. You already hold an active application.'
                 : evaluation.summaryMessage}
             </p>
           </div>
@@ -156,6 +168,14 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
             >
               <CheckCircle2 className="h-4 w-4 text-blue-600" />
               <span>Applied • View Application</span>
+            </button>
+          ) : isLockedByOtherScheme ? (
+            <button
+              disabled
+              className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-slate-500 bg-slate-200 cursor-not-allowed rounded-lg border border-slate-300"
+            >
+              <Lock className="h-4 w-4 text-slate-500" />
+              <span>Application Locked (Single Scheme Limit)</span>
             </button>
           ) : evaluation.isEligible && onApply ? (
             <button

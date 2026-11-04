@@ -8,6 +8,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Calendar,
+  Lock,
+  Sparkles,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
@@ -61,6 +63,17 @@ export const ScholarshipCatalog: React.FC = () => {
     });
   };
 
+  // Check for any active application to enforce single-scholarship policy
+  const activeApplication = userApplications.find(
+    (app) => app.status !== 'REJECTED'
+  );
+  const activeScholarshipId = activeApplication
+    ? typeof activeApplication.scholarshipId === 'object' && activeApplication.scholarshipId !== null
+      ? (activeApplication.scholarshipId as any)._id
+      : activeApplication.scholarshipId
+    : null;
+  const hasAppliedAnywhere = Boolean(activeApplication);
+
   const handleOpenExplainability = (sch: Scholarship) => {
     setSelectedScholarship(sch);
     setIsModalOpen(true);
@@ -84,6 +97,14 @@ export const ScholarshipCatalog: React.FC = () => {
       );
     })
     .sort((a, b) => {
+      // Applied scholarship takes absolute #1 precedence at top of list
+      if (hasAppliedAnywhere && activeScholarshipId) {
+        const isAApplied = String(a._id) === String(activeScholarshipId);
+        const isBApplied = String(b._id) === String(activeScholarshipId);
+        if (isAApplied && !isBApplied) return -1;
+        if (!isAApplied && isBApplied) return 1;
+      }
+
       const aExpired = isExpired(a);
       const bExpired = isExpired(b);
       // Available (non-expired) on top
@@ -122,6 +143,38 @@ export const ScholarshipCatalog: React.FC = () => {
           <span>Category: <strong className="text-amber-800">SC Only</strong> • Ceiling: <strong className="text-slate-900">≤ ₹2.50L</strong> • Min CGPA: <strong className="text-emerald-700 font-mono">≥ 6.0</strong></span>
         </div>
       </div>
+
+      {/* Single Scholarship Policy Notice Banner */}
+      {hasAppliedAnywhere && activeApplication && (
+        <div className="rounded-2xl bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 border-2 border-indigo-500/40 p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex items-start sm:items-center gap-4">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] uppercase font-black tracking-wider text-amber-300 bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-300/30">
+                  Single Scholarship Policy Enforced
+                </span>
+                <span className="text-xs text-indigo-200">
+                  Application Ref: <strong className="font-mono text-white">{activeApplication.applicationNumber}</strong>
+                </span>
+              </div>
+              <p className="text-xs text-slate-200 mt-1.5 leading-relaxed max-w-2xl">
+                Under Punjab Government regulations, each candidate can apply for only <strong>one single scholarship scheme</strong> per academic cycle. Your applied scheme is highlighted below with full tracking access, and other schemes are locked.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate(`/student/applications/${activeApplication._id}`)}
+            className="relative z-10 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs shadow-md transition-all hover:scale-105 shrink-0 cursor-pointer"
+          >
+            <span>Track Active Application</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
@@ -164,25 +217,38 @@ export const ScholarshipCatalog: React.FC = () => {
             const isExp = isExpired(sch);
             const appliedApp = getAppliedApplication(sch._id);
             const hasApplied = Boolean(appliedApp);
+            const isFaded = hasAppliedAnywhere && !hasApplied;
 
             return (
               <div
                 key={sch._id}
-                className={`rounded-2xl border p-6 transition-all flex flex-col justify-between group ${
+                className={`rounded-2xl p-6 transition-all flex flex-col justify-between relative group ${
                   hasApplied
-                    ? 'bg-blue-50/20 border-blue-200 shadow-xs hover:shadow-md hover:border-blue-300'
+                    ? 'border-2 border-indigo-600 bg-gradient-to-br from-indigo-50/95 via-blue-50/50 to-white shadow-xl ring-4 ring-indigo-500/20'
+                    : isFaded
+                    ? 'border border-slate-300 bg-slate-100/70 opacity-40 grayscale-[45%] hover:opacity-60 hover:grayscale-[20%]'
                     : isExp
-                    ? 'opacity-55 grayscale-[35%] bg-slate-100/80 border-slate-300 hover:opacity-75'
-                    : 'bg-white border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400'
+                    ? 'border border-slate-300 opacity-55 grayscale-[35%] bg-slate-100/80 hover:opacity-75'
+                    : 'bg-white border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400'
                 }`}
               >
+                {/* Active Scheme Ribbon for Applied Card */}
+                {hasApplied && (
+                  <div className="absolute top-0 right-0 bg-gradient-to-l from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-bl-xl shadow-xs flex items-center gap-1.5 z-10">
+                    <Sparkles className="h-3 w-3 text-amber-300" />
+                    <span>Your Active Scheme</span>
+                  </div>
+                )}
+
                 <div>
                   {/* Scheme Header Badges */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span
                       className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${
                         hasApplied
-                          ? 'text-blue-900 bg-blue-50 border-blue-200'
+                          ? 'text-indigo-900 bg-indigo-100/80 border-indigo-300 font-extrabold'
+                          : isFaded
+                          ? 'text-slate-500 bg-slate-200 border-slate-300'
                           : isExp
                           ? 'text-slate-600 bg-slate-200/80 border-slate-300'
                           : 'text-amber-900 bg-amber-50 border-amber-300'
@@ -191,9 +257,14 @@ export const ScholarshipCatalog: React.FC = () => {
                       {sch.code}
                     </span>
                     {hasApplied ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 shadow-2xs">
-                        <CheckCircle2 className="h-3 w-3 text-blue-600" />
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-950 border border-indigo-300 shadow-2xs">
+                        <CheckCircle2 className="h-3 w-3 text-indigo-600" />
                         Applied
+                      </span>
+                    ) : isFaded ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 border border-slate-300">
+                        <Lock className="h-3 w-3 text-slate-500" />
+                        Locked
                       </span>
                     ) : isExp ? (
                       <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
@@ -206,7 +277,11 @@ export const ScholarshipCatalog: React.FC = () => {
 
                   <div
                     className={`mb-2 flex items-center justify-between text-[11px] px-2.5 py-1 rounded-lg border ${
-                      isExp
+                      hasApplied
+                        ? 'bg-indigo-50/70 text-indigo-900 border-indigo-200/70 font-semibold'
+                        : isFaded
+                        ? 'bg-slate-200/60 text-slate-500 border-slate-300'
+                        : isExp
                         ? 'bg-rose-50/50 text-rose-800 border-rose-200/60'
                         : 'bg-slate-50 text-slate-500 border-slate-100'
                     }`}
@@ -221,8 +296,8 @@ export const ScholarshipCatalog: React.FC = () => {
                         Deadline Passed
                       </span>
                     ) : (
-                      <span className="font-bold text-emerald-700 flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-emerald-600 animate-pulse" />
+                      <span className={`font-bold flex items-center gap-1 ${hasApplied ? 'text-indigo-700' : 'text-emerald-700'}`}>
+                        <Clock className={`h-3 w-3 ${hasApplied ? 'text-indigo-600' : 'text-emerald-600 animate-pulse'}`} />
                         {Math.max(
                           0,
                           Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -234,7 +309,13 @@ export const ScholarshipCatalog: React.FC = () => {
 
                   <h3
                     className={`text-base font-extrabold transition-colors leading-snug ${
-                      isExp ? 'text-slate-600' : 'text-[#0b2341] group-hover:text-amber-700'
+                      hasApplied
+                        ? 'text-indigo-950 text-lg'
+                        : isFaded
+                        ? 'text-slate-600'
+                        : isExp
+                        ? 'text-slate-600'
+                        : 'text-[#0b2341] group-hover:text-amber-700'
                     }`}
                   >
                     {sch.title}
@@ -244,21 +325,23 @@ export const ScholarshipCatalog: React.FC = () => {
                   {/* Financial Grant Award Banner */}
                   <div
                     className={`mt-4 p-3.5 rounded-xl border flex items-center justify-between ${
-                      isExp
+                      hasApplied
+                        ? 'bg-indigo-50/80 border-indigo-200 text-indigo-950'
+                        : isFaded || isExp
                         ? 'bg-slate-200/50 border-slate-300 text-slate-500'
                         : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <div>
                       <p className="text-[10px] uppercase font-bold text-slate-400">Award Benefits</p>
-                      <p className={`text-base font-black ${isExp ? 'text-slate-600' : 'text-slate-900'}`}>
+                      <p className={`text-base font-black ${hasApplied ? 'text-indigo-950' : isExp || isFaded ? 'text-slate-700' : 'text-slate-900'}`}>
                         100% Fee Exemption
                         <span className="block text-[10px] font-normal text-slate-500">+ DBT Maintenance Allowance</span>
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] uppercase font-bold text-slate-400">Academic Term</p>
-                      <p className={`text-xs font-bold ${isExp ? 'text-slate-500' : 'text-slate-700'}`}>
+                      <p className={`text-xs font-bold ${hasApplied ? 'text-indigo-900' : isExp || isFaded ? 'text-slate-500' : 'text-slate-700'}`}>
                         {sch.academicYear || 'Session 2025–26'}
                       </p>
                     </div>
@@ -283,17 +366,32 @@ export const ScholarshipCatalog: React.FC = () => {
                   {/* Scheme Eligibility Verification Status */}
                   <div className="mt-4">
                     {hasApplied ? (
-                      <div className="p-3 rounded-xl bg-blue-50/90 border border-blue-200 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
+                      <div className="p-3.5 rounded-xl bg-indigo-50/90 border border-indigo-200 flex items-center justify-between text-xs shadow-2xs">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-7 w-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="h-4 w-4" />
+                          </div>
                           <div>
-                            <span className="font-bold text-blue-950 block">Application Submitted</span>
-                            <span className="text-[11px] text-blue-700 font-mono">
+                            <span className="font-extrabold text-indigo-950 block">Application Enrolled</span>
+                            <span className="text-[11px] text-indigo-700 font-mono font-semibold">
                               Ref: {appliedApp?.applicationNumber || 'On Record'}
                             </span>
                           </div>
                         </div>
                         <Badge status={appliedApp?.status || 'SUBMITTED'} size="sm" />
+                      </div>
+                    ) : isFaded ? (
+                      <div className="p-3 rounded-xl bg-slate-200/70 border border-slate-300 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Lock className="h-4 w-4 text-slate-500 shrink-0" />
+                          <div>
+                            <span className="font-bold text-slate-700 block">Application Locked</span>
+                            <span className="text-[10px] text-slate-500">Single Scheme Policy Active</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-300 text-slate-600">
+                          Locked
+                        </span>
                       </div>
                     ) : isExp ? (
                       <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
@@ -341,10 +439,18 @@ export const ScholarshipCatalog: React.FC = () => {
                   {hasApplied ? (
                     <button
                       onClick={() => navigate(`/student/applications/${appliedApp?._id}`)}
-                      className="flex-1 py-2 px-2.5 text-xs font-black text-blue-950 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 border border-blue-300 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="flex-1 py-2.5 px-3 text-xs font-black text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 rounded-xl transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-amber-300" />
                       <span>Applied • View Status</span>
+                    </button>
+                  ) : isFaded ? (
+                    <button
+                      disabled
+                      className="flex-1 py-2 text-xs font-bold text-slate-400 bg-slate-200/90 cursor-not-allowed rounded-xl text-center border border-slate-300 flex items-center justify-center gap-1.5"
+                    >
+                      <Lock className="h-3.5 w-3.5 text-slate-400" />
+                      <span>Application Locked</span>
                     </button>
                   ) : isExp ? (
                     <button
@@ -377,6 +483,10 @@ export const ScholarshipCatalog: React.FC = () => {
           onClose={() => setIsModalOpen(false)}
           hasApplied={Boolean(getAppliedApplication(selectedScholarship._id))}
           appliedApplicationNumber={getAppliedApplication(selectedScholarship._id)?.applicationNumber}
+          isLockedByOtherScheme={Boolean(
+            hasAppliedAnywhere && !getAppliedApplication(selectedScholarship._id)
+          )}
+          otherSchemeApplicationNumber={activeApplication?.applicationNumber}
           onViewApplication={() => {
             const app = getAppliedApplication(selectedScholarship._id);
             if (app) {

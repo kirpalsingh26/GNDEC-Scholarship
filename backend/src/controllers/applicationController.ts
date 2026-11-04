@@ -31,20 +31,17 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       return res.status(404).json({ success: false, message: 'Student profile not found.' });
     }
 
-    // Check if application already exists for this scholarship
-    const existing = await ScholarshipApplication.findOne({
+    // Enforce single-scholarship rule: One student can apply for only one single scholarship scheme
+    const existingAnyApp = await ScholarshipApplication.findOne({
       studentId: profile._id,
-      scholarshipId: scholarship._id,
-      $or: [
-        { academicYear: scholarship.academicYear || '2025-2026' },
-        { status: { $ne: 'REJECTED' } },
-      ],
-    });
+      status: { $nin: ['REJECTED', 'CANCELLED'] },
+    }).populate('scholarshipId');
 
-    if (existing) {
+    if (existingAnyApp) {
+      const existingSchTitle = (existingAnyApp.scholarshipId as any)?.title || 'another scholarship scheme';
       return res.status(400).json({
         success: false,
-        message: 'You have already submitted an application for this scholarship program in this academic cycle.',
+        message: `Under Punjab State guidelines, a candidate may only apply for one single scholarship scheme per academic cycle. You have already applied for "${existingSchTitle}" (Application Ref: ${existingAnyApp.applicationNumber}).`,
       });
     }
 
