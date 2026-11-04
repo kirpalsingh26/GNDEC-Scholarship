@@ -107,18 +107,41 @@ export const getStudentDashboardData = async (
       .populate('scholarshipId')
       .sort({ appliedDate: -1 });
 
-    const documents = await StudentDocument.find({ studentId: profile._id });
+    const documents = await StudentDocument.find({ studentId: profile._id }).sort({ updatedAt: -1 });
     const verifiedDocuments = documents.filter((d) => d.status === 'VERIFIED').length;
+    const hasReuploadRequired = documents.some((d) => d.status === 'REUPLOAD_REQUIRED');
+    const hasSubmittedApplication = applications.length > 0;
+    const latestApplication = applications[0] || null;
+    const isApproved = latestApplication?.status === 'APPROVED' && profile.isProfileComplete === true;
+
+    let onboardingStage: 'DOCUMENTS_REQUIRED' | 'PENDING_VERIFICATION' | 'ACTION_REQUIRED' | 'APPROVED' =
+      'PENDING_VERIFICATION';
+
+    if (documents.length === 0 || !hasSubmittedApplication) {
+      onboardingStage = 'DOCUMENTS_REQUIRED';
+    } else if (hasReuploadRequired || latestApplication?.status === 'ADDITIONAL_DOCUMENTS_REQUIRED') {
+      onboardingStage = 'ACTION_REQUIRED';
+    } else if (isApproved) {
+      onboardingStage = 'APPROVED';
+    } else {
+      onboardingStage = 'PENDING_VERIFICATION';
+    }
 
     return res.status(200).json({
       success: true,
       data: {
         profile,
         applications,
+        documents,
+        latestApplication,
+        onboardingStage,
+        isVerified: isApproved,
         kpis: {
           activeApplications: applications.filter((a) => a.status !== 'REJECTED').length,
           verifiedDocuments,
-          totalDocuments: documents.length || 5,
+          totalDocuments: documents.length,
+          requiredDocumentsCount: 6,
+          isVerified: isApproved,
         },
       },
     });

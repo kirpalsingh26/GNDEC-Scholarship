@@ -84,7 +84,7 @@ export const registerStudent = async (req: Request, res: Response, next: NextFun
       activeBacklogs: 0,
       totalBacklogs: 0,
       qrVerificationToken: qrToken,
-      isProfileComplete: true,
+      isProfileComplete: false,
     });
 
     await logAudit({

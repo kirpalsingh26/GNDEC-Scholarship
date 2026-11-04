@@ -150,6 +150,18 @@ export interface ScholarshipApplication {
   documents?: StudentDocument[];
 }
 
+export type DocumentType =
+  | 'IDENTITY_PROOF'
+  | 'INCOME_CERTIFICATE'
+  | 'CASTE_CERTIFICATE'
+  | 'RESIDENCE_CERTIFICATE'
+  | 'ACADEMIC_MARKSHEET'
+  | 'BANK_PROOF'
+  | 'FEE_RECEIPT'
+  | 'BONAFIDE_CERTIFICATE'
+  | 'SCHOLARSHIP_FORM'
+  | 'OTHER';
+
 export interface DocumentVersion {
   _id?: string;
   versionNumber: number;

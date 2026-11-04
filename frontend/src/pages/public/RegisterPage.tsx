@@ -93,7 +93,20 @@ export const RegisterPage: React.FC = () => {
         year: Number(formData.year),
         semester: Number(formData.semester),
       });
-      navigate('/student/dashboard');
+
+      // Explicitly redirect new student to login page per workflow requirements
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('profile');
+
+      navigate('/login', {
+        state: {
+          registered: true,
+          email: formData.email,
+          message:
+            'Account created successfully! Please sign in with your email and password to upload your mandatory documents.',
+        },
+      });
     } catch (err: any) {
       setError(
         err.response?.data?.message || 'Registration failed. Please review your details and try again.'

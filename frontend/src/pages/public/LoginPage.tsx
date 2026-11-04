@@ -1,34 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import api from '../../services/api.js';
 import {
   GraduationCap,
   Lock,
   Mail,
   ArrowRight,
-  Sparkles,
   AlertCircle,
   Eye,
   EyeOff,
   ShieldCheck,
   CheckCircle2,
   FileCheck2,
-  Building2,
-  Users,
   Award,
-  Zap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, quickSwitchDemo } = useAuth();
+  const location = useLocation();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [registrationMsg, setRegistrationMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'DEMO' | 'CUSTOM'>('DEMO');
+
+  useEffect(() => {
+    if (location.state && (location.state as any).registered) {
+      if ((location.state as any).email) setEmail((location.state as any).email);
+      if ((location.state as any).message) setRegistrationMsg((location.state as any).message);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,24 +41,33 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       await login(email, password);
+      
+      const userStr = localStorage.getItem('user');
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+
+      if (currentUser?.role === 'OFFICER') {
+        navigate('/officer/dashboard');
+        return;
+      }
+      if (currentUser?.role === 'ADMIN') {
+        navigate('/admin/dashboard');
+        return;
+      }
+
+      // Check student onboarding status
+      try {
+        const dashRes = await api.get('/students/dashboard');
+        if (dashRes.data.success && dashRes.data.data.onboardingStage === 'DOCUMENTS_REQUIRED') {
+          navigate('/student/submit-documents');
+          return;
+        }
+      } catch (dashErr) {
+        console.warn('Dashboard check:', dashErr);
+      }
+
       navigate('/student/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickDemo = async (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => {
-    setError('');
-    setLoading(true);
-    try {
-      await quickSwitchDemo(role);
-      if (role === 'STUDENT') navigate('/student/dashboard');
-      else if (role === 'OFFICER') navigate('/officer/dashboard');
-      else if (role === 'ADMIN') navigate('/admin/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Demo login failed');
     } finally {
       setLoading(false);
     }
@@ -122,26 +136,37 @@ export const LoginPage: React.FC = () => {
             <span>GNDEC Ludhiana, Punjab</span>
             <span className="text-emerald-400 font-bold flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Secure Portal v1.0
+              Secure Institutional Portal
             </span>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Interactive Login Container (7 cols) */}
+        {/* RIGHT COLUMN: Official Login Container (7 cols) */}
         <div className="lg:col-span-7 rounded-3xl bg-white text-slate-900 p-8 sm:p-10 shadow-2xl border border-slate-100 flex flex-col justify-between">
           <div>
             {/* Header Title */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Sign In</h2>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Institutional Sign In</h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Select a demo account for instant access or enter credentials
+                  Enter your registered institutional credentials to access your account
                 </p>
               </div>
               <div className="h-10 w-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
                 <Lock className="h-5 w-5" />
               </div>
             </div>
+
+            {/* Registration Success Banner */}
+            {registrationMsg && (
+              <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-300 p-4 text-xs text-emerald-800 flex items-start gap-3 shadow-2xs">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-emerald-950">Registration Complete!</p>
+                  <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">{registrationMsg}</p>
+                </div>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
@@ -151,179 +176,60 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tabs: One-Click Demo Mode vs Direct Credentials */}
-            <div className="mt-6 flex p-1 rounded-2xl bg-slate-100 border border-slate-200/80">
-              <button
-                type="button"
-                onClick={() => setActiveTab('DEMO')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === 'DEMO'
-                    ? 'bg-white text-indigo-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                1-Click Demo Personas
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('CUSTOM')}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === 'CUSTOM'
-                    ? 'bg-white text-indigo-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                <Mail className="h-3.5 w-3.5" />
-                Official Email & Password
-              </button>
-            </div>
-
-            {/* TAB 1: 1-CLICK DEMO CARDS */}
-            {activeTab === 'DEMO' ? (
-              <div className="mt-6 space-y-3">
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  Select a predefined role to sign in immediately:
-                </p>
-
-                {/* Student Demo Persona */}
-                <div
-                  onClick={() => handleQuickDemo('STUDENT')}
-                  className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition-all hover:scale-[1.01] flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-emerald-500/20">
-                      👨‍🎓
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-emerald-800 transition-colors">
-                          Harpreet Singh
-                        </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                          STUDENT
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Roll: <span className="font-mono font-bold text-slate-700">2104501</span> • CSE 5th Sem (8.65 CGPA)
-                      </p>
-                    </div>
+            {/* EMAIL & PASSWORD FORM */}
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Official Institutional Email</label>
+                <div className="mt-1 relative rounded-xl shadow-2xs">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="h-4 w-4" />
                   </div>
-                  <div className="h-8 w-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </div>
-
-                {/* Scholarship Officer Persona */}
-                <div
-                  onClick={() => handleQuickDemo('OFFICER')}
-                  className="p-4 rounded-2xl border border-blue-200 bg-blue-50/40 hover:bg-blue-50 cursor-pointer transition-all hover:scale-[1.01] flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="h-11 w-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-blue-500/20">
-                      🛡️
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-blue-800 transition-colors">
-                          Dr. Rajesh Sharma
-                        </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                          OFFICER
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Head of Scholarship Cell • Document Verification Desk
-                      </p>
-                    </div>
-                  </div>
-                  <div className="h-8 w-8 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </div>
-
-                {/* Super Administrator Persona */}
-                <div
-                  onClick={() => handleQuickDemo('ADMIN')}
-                  className="p-4 rounded-2xl border border-purple-200 bg-purple-50/40 hover:bg-purple-50 cursor-pointer transition-all hover:scale-[1.01] flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="h-11 w-11 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-purple-500/20">
-                      ⚙️
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-purple-800 transition-colors">
-                          Super Administrator
-                        </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
-                          ADMIN
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Central Governance, Scheme Rules & Audit Logs
-                      </p>
-                    </div>
-                  </div>
-                  <div className="h-8 w-8 rounded-xl bg-white border border-purple-200 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="e.g. 2104501@gndec.ac.in or officer.rajesh@gndec.ac.in"
+                    className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
                 </div>
               </div>
-            ) : (
-              /* TAB 2: EMAIL & PASSWORD FORM */
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">Official Email</label>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="h-4 w-4" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. student@gndec.ac.in"
-                      className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
 
-                <div>
+              <div>
+                <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-700">Password</label>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="h-4 w-4" />
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="block w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
                 </div>
+                <div className="mt-1 relative rounded-xl shadow-2xs">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="block w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-all hover:scale-[1.01]"
-                >
-                  {loading ? 'Authenticating...' : 'Sign In'}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </form>
-            )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-all hover:scale-[1.01]"
+              >
+                {loading ? 'Authenticating...' : 'Sign In'}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
           </div>
 
           {/* Registration Navigation Footer */}
@@ -333,7 +239,7 @@ export const LoginPage: React.FC = () => {
               to="/register"
               className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
             >
-              Create Enrolled Account
+              Register Enrolled SC Candidate
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>

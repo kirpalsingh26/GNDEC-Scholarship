@@ -30,7 +30,7 @@ interface CommandPaletteProps {
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { user, quickSwitchDemo } = useAuth();
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [scholarships, setScholarships] = useState<any[]>([]);
 
@@ -121,14 +121,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     } else {
       navigate(`/student/scholarships`);
     }
-    onClose();
-  };
-
-  const handleSwitchPersona = async (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => {
-    await quickSwitchDemo(role);
-    if (role === 'STUDENT') navigate('/student/dashboard');
-    else if (role === 'OFFICER') navigate('/officer/dashboard');
-    else navigate('/admin/dashboard');
     onClose();
   };
 
@@ -232,36 +224,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               </div>
             </div>
           )}
-
-          {/* Persona Switch Quick Shortcuts */}
-          <div>
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider px-3 mb-1.5">
-              Instant Demo Persona Switch
-            </p>
-            <div className="grid grid-cols-3 gap-2 px-1">
-              <button
-                onClick={() => handleSwitchPersona('STUDENT')}
-                className="p-2.5 rounded-2xl border border-emerald-100 bg-emerald-50/60 hover:bg-emerald-100 text-left text-xs font-bold text-emerald-900 flex items-center gap-2 transition-colors"
-              >
-                <span>👨‍🎓</span>
-                <span>Student Mode</span>
-              </button>
-              <button
-                onClick={() => handleSwitchPersona('OFFICER')}
-                className="p-2.5 rounded-2xl border border-blue-100 bg-blue-50/60 hover:bg-blue-100 text-left text-xs font-bold text-blue-900 flex items-center gap-2 transition-colors"
-              >
-                <span>🛡️</span>
-                <span>Officer Desk</span>
-              </button>
-              <button
-                onClick={() => handleSwitchPersona('ADMIN')}
-                className="p-2.5 rounded-2xl border border-purple-100 bg-purple-50/60 hover:bg-purple-100 text-left text-xs font-bold text-purple-900 flex items-center gap-2 transition-colors"
-              >
-                <span>⚙️</span>
-                <span>Admin Suite</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Footer Shortcut Helper */}

@@ -44,6 +44,15 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       });
     }
 
+    // Require at least one uploaded document before allowing submission
+    const userDocs = await StudentDocument.find({ studentId: profile._id });
+    if (userDocs.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload your mandatory documents before submitting your scholarship application.',
+      });
+    }
+
     // Evaluate live eligibility
     const evalResult = await EligibilityService.evaluateStudent(profile, scholarship);
 
@@ -90,6 +99,12 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       isRenewal,
       previousApplicationId,
     });
+
+    // Link unlinked uploaded documents to this newly created application
+    await StudentDocument.updateMany(
+      { studentId: profile._id, applicationId: { $exists: false } },
+      { applicationId: application._id }
+    );
 
     // Notify student
     await Notification.create({
@@ -226,6 +241,21 @@ export const updateApplicationStatus = async (
     });
 
     await application.save();
+
+    if (status === APPLICATION_STATUS.APPROVED) {
+      await StudentProfile.findByIdAndUpdate(application.studentId, {
+        isProfileComplete: true,
+      });
+      // Automatically verify student documents that are under review
+      await StudentDocument.updateMany(
+        { studentId: application.studentId, status: { $ne: DOCUMENT_STATUS.REJECTED } },
+        { status: DOCUMENT_STATUS.VERIFIED, latestVerifiedVersion: 1 }
+      );
+    } else if (status === APPLICATION_STATUS.REJECTED) {
+      await StudentProfile.findByIdAndUpdate(application.studentId, {
+        isProfileComplete: false,
+      });
+    }
 
     // Notify student
     await Notification.create({

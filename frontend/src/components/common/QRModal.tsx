@@ -1,5 +1,5 @@
 import React from 'react';
-import { QrCode, ShieldCheck, CheckCircle2, ExternalLink } from 'lucide-react';
+import { QrCode, ShieldCheck, CheckCircle2, Clock, AlertTriangle, ExternalLink } from 'lucide-react';
 import { Modal } from './Modal.js';
 import { StudentProfile } from '../../types/index.js';
 
@@ -12,11 +12,12 @@ interface QRModalProps {
 export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) => {
   if (!profile) return null;
 
+  const isVerified = profile.isProfileComplete === true;
   const verifyUrl = `${window.location.origin}/verify/${profile.qrVerificationToken}`;
   // Generate safe SVG QR representation
   const qrSvgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
     verifyUrl
-  )}&bgcolor=FFFFFF&color=1E3A8A&margin=2`;
+  )}&bgcolor=FFFFFF&color=${isVerified ? '1E3A8A' : 'D97706'}&margin=2`;
 
   return (
     <Modal
@@ -28,17 +29,29 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
     >
       <div className="flex flex-col items-center text-center">
         {/* Pass Card */}
-        <div className="w-full rounded-2xl bg-gradient-to-b from-indigo-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
+        <div
+          className={`w-full rounded-2xl p-6 text-white shadow-xl relative overflow-hidden transition-all ${
+            isVerified
+              ? 'bg-gradient-to-b from-[#0b2341] to-slate-900'
+              : 'bg-gradient-to-b from-amber-950 via-slate-900 to-slate-900 border border-amber-500/40'
+          }`}
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3 text-left">
             <div>
-              <p className="text-[10px] font-bold tracking-wider uppercase text-indigo-300">
+              <p className="text-[10px] font-bold tracking-wider uppercase text-amber-300">
                 Guru Nanak Dev Engineering College
               </p>
-              <h4 className="text-base font-black tracking-tight">SCHOLARSHIP VERIFIED PASS</h4>
+              <h4 className="text-base font-black tracking-tight">
+                {isVerified ? 'SCHOLARSHIP VERIFIED PASS' : 'ID PASS — PENDING VERIFICATION'}
+              </h4>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div
+              className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                isVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+              }`}
+            >
+              {isVerified ? <ShieldCheck className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
             </div>
           </div>
 
@@ -71,14 +84,35 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
               <span className="font-semibold">{profile.department}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Current CGPA:</span>
-              <span className="font-bold text-emerald-400">{profile.cgpa} / 10.0</span>
+              <span className="text-slate-400">Social Category:</span>
+              <span className="font-bold text-amber-300">SC (Scheduled Caste)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Verification Status:</span>
+              <span className={`font-bold ${isVerified ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {isVerified ? 'Officially Certified ✓' : 'Documents Under Review ⏳'}
+              </span>
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-center gap-1 text-[10px] text-emerald-400 font-bold">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Active Certified Enrolled Candidate
+          <div
+            className={`mt-4 flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 px-3 rounded-lg ${
+              isVerified
+                ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
+                : 'text-amber-300 bg-amber-500/10 border border-amber-500/20'
+            }`}
+          >
+            {isVerified ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Active Certified PMS SC Scholar
+              </>
+            ) : (
+              <>
+                <Clock className="h-4 w-4" />
+                Pending Verification by GNDEC Scholarship Cell
+              </>
+            )}
           </div>
         </div>
 
@@ -94,7 +128,7 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
             Open Public Safe Verification Page
           </a>
           <p className="mt-2 text-[10px] text-slate-400 leading-relaxed">
-            Privacy Guaranteed: This QR code exposes only non-sensitive institutional status verification. Bank accounts, Aadhaar, phone numbers, and private documents remain protected.
+            Privacy Guaranteed: This QR code exposes non-sensitive institutional status verification. Bank accounts, Aadhaar, and private certificates remain protected.
           </p>
         </div>
       </div>

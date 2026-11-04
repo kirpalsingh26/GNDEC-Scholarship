@@ -22,27 +22,12 @@ import api from '../../services/api.js';
 
 export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
-  const { user, profile, logout, quickSwitchDemo } = useAuth();
+  const { user, profile, logout } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const handleSwitchRole = async (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => {
-    try {
-      await quickSwitchDemo(role);
-      if (role === 'STUDENT') {
-        navigate('/student/dashboard');
-      } else if (role === 'OFFICER') {
-        navigate('/officer/dashboard');
-      } else if (role === 'ADMIN') {
-        navigate('/admin/dashboard');
-      }
-    } catch (err) {
-      console.error('Failed to switch panel demo persona:', err);
-    }
-  };
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -96,51 +81,38 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
               </kbd>
             </button>
 
-            {/* Quick Demo Persona Switcher Pill */}
-            <div className="hidden md:flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100/90 border border-slate-200 text-xs">
-              <span className="px-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Demo Switch:
-              </span>
-              <button
-                onClick={() => handleSwitchRole('STUDENT')}
-                className={`px-3 py-1 rounded-xl font-bold transition-all ${
-                  user?.role === 'STUDENT'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                👨‍🎓 Student
-              </button>
-              <button
-                onClick={() => handleSwitchRole('OFFICER')}
-                className={`px-3 py-1 rounded-xl font-bold transition-all ${
-                  user?.role === 'OFFICER'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                🛡️ Officer
-              </button>
-              <button
-                onClick={() => handleSwitchRole('ADMIN')}
-                className={`px-3 py-1 rounded-xl font-bold transition-all ${
-                  user?.role === 'ADMIN'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                ⚙️ Admin
-              </button>
+            {/* Authenticated User Role Badge */}
+            <div className="hidden md:flex items-center text-xs font-bold">
+              {user?.role === 'STUDENT' ? (
+                <span className="text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Student Scholar
+                </span>
+              ) : user?.role === 'OFFICER' ? (
+                <span className="text-blue-800 bg-blue-50 border border-blue-200/80 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  Verification Officer
+                </span>
+              ) : (
+                <span className="text-purple-800 bg-purple-50 border border-purple-200/80 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                  <span className="h-2 w-2 rounded-full bg-purple-500" />
+                  System Administrator
+                </span>
+              )}
             </div>
 
             {/* Student Public Digital QR Pass Button */}
             {user?.role === 'STUDENT' && (
               <button
                 onClick={() => setIsQRModalOpen(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-bold transition-all hover:scale-105"
+                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 ${
+                  profile?.isProfileComplete
+                    ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800'
+                    : 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-800'
+                }`}
               >
                 <QrCode className="h-4 w-4" />
-                Digital Pass
+                <span>{profile?.isProfileComplete ? 'Verified Pass ✓' : 'ID Pass (Pending)'}</span>
               </button>
             )}
 

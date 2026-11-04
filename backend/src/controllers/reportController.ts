@@ -71,6 +71,12 @@ export const getPublicQRVerification = async (
       status: DOCUMENT_STATUS.VERIFIED,
     });
 
+    const isApproved =
+      student.isProfileComplete === true &&
+      applications.some((app: any) => app.status === 'APPROVED');
+
+    const verificationStatus = isApproved ? 'VERIFIED_PMS_SCHOLAR' : 'PENDING_VERIFICATION';
+
     return res.status(200).json({
       success: true,
       message: 'Official Student Scholarship Verification Record',
@@ -85,10 +91,14 @@ export const getPublicQRVerification = async (
           year: student.year,
           semester: student.semester,
         },
-        verificationStatus: 'GENUINE_ENROLLED_STUDENT',
+        verificationStatus,
+        isVerified: isApproved,
         verifiedDocumentsCount: totalVerifiedDocs,
         scholarshipApplications: applications,
-        issuedBy: 'ScholarSphere Central Financial Aid Committee',
+        issuedBy: 'GNDEC Central Scholarship & Verification Cell',
+        statusMessage: isApproved
+          ? 'Officially Certified Enrolled Student — Post-Matric SC Scholarship Verified'
+          : 'Candidate Registered — Document & Eligibility Verification In Progress',
         timestamp: new Date(),
       },
     });

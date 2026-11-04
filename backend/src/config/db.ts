@@ -4,14 +4,24 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 let mongod: MongoMemoryServer | null = null;
 
 export const connectDB = async (): Promise<void> => {
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/scholarsphere';
+  const isProduction = process.env.NODE_ENV === 'production';
+  const uri = process.env.MONGODB_URI || (isProduction ? '' : 'mongodb://127.0.0.1:27017/scholarsphere');
+
+  if (isProduction && !process.env.MONGODB_URI) {
+    throw new Error('❌ MONGODB_URI environment variable is required in production mode.');
+  }
+
   try {
-    // Attempt connecting to configured MongoDB (e.g. local or Atlas)
-    console.log(`Connecting to MongoDB at: ${uri}...`);
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 2500 });
+    console.log(`Connecting to MongoDB...`);
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
     console.log('✅ Connected to MongoDB successfully.');
   } catch (err: any) {
-    console.warn(`⚠️ Could not connect to local MongoDB (${err.message}). Initializing embedded In-Memory MongoDB for seamless demo/development...`);
+    if (isProduction) {
+      console.error('❌ Failed to connect to production MongoDB:', err.message);
+      throw err;
+    }
+
+    console.warn(`⚠️ Could not connect to local MongoDB (${err.message}). Initializing embedded In-Memory MongoDB for development...`);
     try {
       mongod = await MongoMemoryServer.create();
       const memoryUri = mongod.getUri();

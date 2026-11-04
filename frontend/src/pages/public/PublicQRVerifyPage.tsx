@@ -49,16 +49,31 @@ export const PublicQRVerifyPage: React.FC = () => {
           </div>
         ) : (
           <div>
-            {/* Valid Badge Banner */}
-            <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-center mb-6">
-              <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                Officially Certified Enrolled Student
+            {/* Status Badge Banner */}
+            {data?.isVerified || data?.verificationStatus === 'VERIFIED_PMS_SCHOLAR' ? (
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-center mb-6">
+                <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  Officially Certified Enrolled Student (PMS SC)
+                </div>
+                <p className="text-[11px] text-emerald-800 mt-1">
+                  Guru Nanak Dev Engineering College (GNDEC), Ludhiana
+                </p>
               </div>
-              <p className="text-[11px] text-emerald-800 mt-1">
-                Guru Nanak Dev Engineering College (GNDEC), Ludhiana
-              </p>
-            </div>
+            ) : (
+              <div className="rounded-2xl bg-amber-50 border border-amber-300 p-4 text-center mb-6">
+                <div className="flex items-center justify-center gap-2 text-amber-800 font-bold text-sm">
+                  <ShieldCheck className="h-5 w-5 text-amber-600" />
+                  Verification In Progress — Pending Committee Approval
+                </div>
+                <p className="text-[11px] text-amber-900 mt-1">
+                  Guru Nanak Dev Engineering College (GNDEC), Ludhiana
+                </p>
+                <p className="text-[10px] text-amber-700 mt-0.5 font-medium">
+                  Candidate certificates are actively undergoing scrutiny by the Scholarship Cell.
+                </p>
+              </div>
+            )}
 
             {/* Public Profile Details */}
             <div className="space-y-3 divide-y divide-slate-100 text-xs">

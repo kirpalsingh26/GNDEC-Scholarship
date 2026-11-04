@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Sliders,
   LogOut,
+  Upload,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
@@ -32,7 +33,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
-    { name: 'PMS Scholarship', path: '/student/scholarships', icon: GraduationCap },
+    { name: 'Submit Documents', path: '/student/submit-documents', icon: Upload },
+    { name: 'PMS Scheme', path: '/student/scholarships', icon: GraduationCap },
     { name: 'My Applications', path: '/student/applications', icon: FileCheck2 },
     { name: 'Document Vault', path: '/student/documents', icon: FolderLock },
     { name: 'Academic Records', path: '/student/academics', icon: Award },

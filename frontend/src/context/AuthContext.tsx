@@ -10,7 +10,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (payload: any) => Promise<void>;
   logout: () => void;
-  quickSwitchDemo: (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => Promise<void>;
   refreshUser: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -86,19 +85,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const quickSwitchDemo = async (role: 'STUDENT' | 'OFFICER' | 'ADMIN') => {
-    const credentials = {
-      STUDENT: { email: 'student@gndec.ac.in', password: 'Student@123' },
-      OFFICER: { email: 'officer.rajesh@gndec.ac.in', password: 'Officer@123' },
-      ADMIN: { email: 'admin@gndec.ac.in', password: 'Admin@123' },
-    };
-
-    const target = credentials[role];
-    if (target) {
-      await login(target.email, target.password);
-    }
-  };
-
   const logout = () => {
     setUser(null);
     setProfile(null);
@@ -119,7 +105,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
-        quickSwitchDemo,
         refreshUser,
         refreshProfile: refreshUser,
       }}

@@ -21,6 +21,7 @@ import { AcademicRecordPage } from './pages/student/AcademicRecordPage.js';
 import { RenewScholarshipPage } from './pages/student/RenewScholarshipPage.js';
 import { StudentTicketsPage } from './pages/student/StudentTicketsPage.js';
 import { StudentProfilePage } from './pages/student/StudentProfilePage.js';
+import { SubmitDocumentsPage } from './pages/student/SubmitDocumentsPage.js';
 
 // Officer Pages
 import { OfficerDashboard } from './pages/officer/OfficerDashboard.js';
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
             >
               {/* Student Routes */}
               <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/student/submit-documents" element={<SubmitDocumentsPage />} />
               <Route path="/student/scholarships" element={<ScholarshipCatalog />} />
               <Route path="/student/apply/:id" element={<ApplyScholarshipPage />} />
               <Route path="/student/applications" element={<StudentApplicationsPage />} />

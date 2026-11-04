@@ -69,6 +69,42 @@ export const ApplicationReviewPage: React.FC = () => {
     }
   };
 
+  const handleVerifyDoc = async (docId: string) => {
+    try {
+      const res = await api.post(`/documents/${docId}/verify`, {
+        comments: 'Certified by scrutiny officer against issuing authority records.',
+      });
+      if (res.data.success) {
+        addToast('success', 'Document marked as VERIFIED ✓');
+        await fetchApplication();
+      }
+    } catch (err) {
+      addToast('error', 'Failed to verify document.');
+    }
+  };
+
+  const handleRequestReuploadDoc = async (docId: string) => {
+    const reason = window.prompt(
+      'Enter specific reason for certificate rejection / re-upload request:',
+      'Certificate scan is blurry or expired. Please upload current financial year certificate.'
+    );
+    if (!reason) return;
+
+    try {
+      const res = await api.post(`/documents/${docId}/reject`, {
+        rejectionReason: reason,
+        comments: reason,
+        requestReupload: true,
+      });
+      if (res.data.success) {
+        addToast('warning', 'Re-upload requested. Notification sent to student.');
+        await fetchApplication();
+      }
+    } catch (err) {
+      addToast('error', 'Failed to update document status.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="py-20 text-center text-xs text-slate-400">
@@ -175,6 +211,78 @@ export const ApplicationReviewPage: React.FC = () => {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Candidate Attached Certificates & Scrutiny Table */}
+      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+              <FileCheck2 className="h-4 w-4 text-emerald-600" />
+              Candidate Uploaded Certificates ({application.documents?.length || 0})
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review and authenticate the student's mandatory certificates before approving the scholarship
+            </p>
+          </div>
+        </div>
+
+        {(!application.documents || application.documents.length === 0) ? (
+          <p className="text-xs text-slate-400 italic py-4 text-center">
+            No certificates attached to this application record yet.
+          </p>
+        ) : (
+          <div className="divide-y divide-slate-100 text-xs">
+            {application.documents.map((doc: any) => {
+              const latestVer = doc.versions?.find((v: any) => v.versionNumber === doc.currentVersion);
+              return (
+                <div key={doc._id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900">{doc.title}</span>
+                      <span className="font-mono text-[10px] text-slate-400">v{doc.currentVersion}</span>
+                      <Badge status={doc.status} size="sm" />
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Type: <strong className="text-slate-700">{doc.documentType.replace(/_/g, ' ')}</strong>
+                      {latestVer?.fileSize && (
+                        <span> • {(latestVer.fileSize / 1024).toFixed(0)} KB</span>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {latestVer?.fileUrl && (
+                      <a
+                        href={latestVer.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl flex items-center gap-1"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View Certificate
+                      </a>
+                    )}
+                    {doc.status !== 'VERIFIED' && (
+                      <button
+                        onClick={() => handleVerifyDoc(doc._id)}
+                        className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 rounded-xl"
+                      >
+                        ✓ Verify
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleRequestReuploadDoc(doc._id)}
+                      className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-xl"
+                    >
+                      ↻ Request Re-upload
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Officer Decision Panel */}

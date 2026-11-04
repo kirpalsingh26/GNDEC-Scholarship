@@ -7,7 +7,7 @@ import path from 'path';
 import { connectDB } from './config/db.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { seedDatabase } from './seed/seedData.js';
+import { initProductionData } from './seed/seedData.js';
 
 dotenv.config();
 
@@ -55,8 +55,8 @@ const startServer = async () => {
   try {
     await connectDB();
     
-    // Auto-seed demo dataset if empty
-    await seedDatabase();
+    // Initialize essential production system data (departments, admin, officer, PMS scheme)
+    await initProductionData();
 
     app.listen(PORT, () => {
       console.log(`🚀 ScholarSphere Backend API running on port ${PORT}`);
