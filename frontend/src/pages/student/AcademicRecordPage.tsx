@@ -620,20 +620,37 @@ export const AcademicRecordPage: React.FC = () => {
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">
               Transcripts:
             </span>
-            {records.map((rec) => (
-              <button
-                key={rec._id}
-                type="button"
-                onClick={() => setSelectedSemester(rec.semester)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                  selectedSemester === rec.semester
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-white'
-                }`}
-              >
-                Semester {rec.semester} ({rec.sgpa.toFixed(2)} SGPA)
-              </button>
-            ))}
+            {records.map((rec) => {
+              const semStatus = rec.documentId?.status || rec.verificationStatus;
+              const isSemVerified = semStatus === 'VERIFIED';
+              const isSelected = selectedSemester === rec.semester;
+
+              return (
+                <button
+                  key={rec._id}
+                  type="button"
+                  onClick={() => setSelectedSemester(rec.semester)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                      : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-white'
+                  }`}
+                >
+                  {isSemVerified && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold ${
+                        isSelected ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      ✓ Verified
+                    </span>
+                  )}
+                  <span>
+                    Semester {rec.semester} ({rec.sgpa.toFixed(2)} SGPA)
+                  </span>
+                </button>
+              );
+            })}
             <button
               type="button"
               onClick={handleOpenNewModal}
@@ -670,37 +687,126 @@ export const AcademicRecordPage: React.FC = () => {
 
       {/* Uploaded Marksheet Verification Status Banner */}
       {activeRecord?.fileUrl && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs font-extrabold text-blue-950">
-                  Attached Scanned Marksheet (Semester {activeRecord.semester})
-                </h4>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                  Under Faculty Verification ⏳
-                </span>
-              </div>
-              <p className="text-[11px] text-blue-800 mt-0.5">
-                Both your manual course entries and this uploaded marksheet are queued for examination cell committee sign-off.
-              </p>
-            </div>
-          </div>
+        (() => {
+          const docStatus = activeRecord.documentId?.status || activeRecord.verificationStatus || 'PENDING';
+          const isDocVerified = docStatus === 'VERIFIED';
+          const isDocRejected = docStatus === 'REJECTED' || docStatus === 'REUPLOAD_REQUIRED';
 
-          <a
-            href={activeRecord.fileUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-blue-300 text-blue-700 font-bold text-xs hover:bg-blue-50 shadow-2xs transition-colors shrink-0 self-start sm:self-auto"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            <span>View Uploaded Marksheet</span>
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        </div>
+          if (isDocVerified) {
+            return (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-extrabold text-emerald-950">
+                        Official Marksheet Transcript (Semester {activeRecord.semester})
+                      </h4>
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1 shadow-2xs">
+                        <Check className="h-3 w-3 text-emerald-700" />
+                        Verified by Faculty ✓
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 mt-0.5">
+                      Official marksheet transcript certified by the GNDEC Faculty Examination Committee. Academic credits and grade points are officially authenticated.
+                    </p>
+                  </div>
+                </div>
+
+                <a
+                  href={activeRecord.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-emerald-300 text-emerald-800 font-bold text-xs hover:bg-emerald-50 shadow-2xs transition-colors shrink-0 self-start sm:self-auto"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>View Certified Marksheet</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            );
+          }
+
+          if (isDocRejected) {
+            return (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-amber-50 to-rose-50 border border-rose-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-600 to-amber-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <AlertCircle className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-extrabold text-rose-950">
+                        Marksheet Revision Requested (Semester {activeRecord.semester})
+                      </h4>
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 flex items-center gap-1">
+                        Re-upload Required ↻
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-rose-800 mt-0.5">
+                      The faculty scrutiny committee requested revisions for this marksheet. Click 'Edit Semester' to upload a clear scan.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    onClick={() => handleOpenEditModal(activeRecord)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-2xs transition-colors shrink-0 cursor-pointer"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span>Re-upload Marksheet</span>
+                  </button>
+                  <a
+                    href={activeRecord.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white border border-rose-200 text-rose-700 font-bold text-xs hover:bg-rose-50 transition-colors"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>Previous File</span>
+                  </a>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-extrabold text-blue-950">
+                      Attached Scanned Marksheet (Semester {activeRecord.semester})
+                    </h4>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                      Under Faculty Verification ⏳
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-blue-800 mt-0.5">
+                    Both your manual course entries and this uploaded marksheet are queued for examination cell committee sign-off.
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href={activeRecord.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-blue-300 text-blue-700 font-bold text-xs hover:bg-blue-50 shadow-2xs transition-colors shrink-0 self-start sm:self-auto"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                <span>View Uploaded Marksheet</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          );
+        })()
       )}
 
       {/* Subject Marks Table */}

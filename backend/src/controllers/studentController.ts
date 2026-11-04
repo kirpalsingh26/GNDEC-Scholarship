@@ -88,8 +88,54 @@ export const getMyAcademicRecords = async (
       return res.status(404).json({ success: false, message: 'Student profile not found.' });
     }
 
-    const records = await AcademicRecord.find({ studentId: profile._id }).sort({ semester: 1 });
-    return res.status(200).json({ success: true, data: records });
+    const records = await AcademicRecord.find({ studentId: profile._id })
+      .populate('documentId')
+      .sort({ semester: 1 });
+
+    // Look for any ACADEMIC_MARKSHEET document for this student
+    const marksheetDoc = await StudentDocument.findOne({
+      studentId: profile._id,
+      documentType: 'ACADEMIC_MARKSHEET',
+    });
+
+    if (marksheetDoc) {
+      for (const rec of records) {
+        let changed = false;
+        if (!rec.documentId) {
+          rec.documentId = marksheetDoc._id as any;
+          changed = true;
+        }
+        if (!rec.fileUrl && marksheetDoc.versions && marksheetDoc.versions.length > 0) {
+          const latest =
+            marksheetDoc.versions.find((v) => v.versionNumber === marksheetDoc.currentVersion) ||
+            marksheetDoc.versions[marksheetDoc.versions.length - 1];
+          rec.fileUrl = latest.fileUrl;
+          changed = true;
+        }
+
+        const expectedStatus =
+          marksheetDoc.status === 'VERIFIED'
+            ? 'VERIFIED'
+            : marksheetDoc.status === 'REUPLOAD_REQUIRED' || marksheetDoc.status === 'REJECTED'
+            ? 'REJECTED'
+            : 'PENDING';
+
+        if (rec.verificationStatus !== expectedStatus) {
+          rec.verificationStatus = expectedStatus;
+          changed = true;
+        }
+
+        if (changed) {
+          await rec.save();
+        }
+      }
+    }
+
+    const freshRecords = await AcademicRecord.find({ studentId: profile._id })
+      .populate('documentId')
+      .sort({ semester: 1 });
+
+    return res.status(200).json({ success: true, data: freshRecords });
   } catch (error) {
     next(error);
   }

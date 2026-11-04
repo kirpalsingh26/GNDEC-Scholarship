@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { StudentDocument, IDocumentVersion } from '../models/Document.js';
 import { StudentProfile } from '../models/StudentProfile.js';
+import { AcademicRecord } from '../models/AcademicRecord.js';
 import { notifyUser } from '../services/pushNotificationService.js';
 import { DOCUMENT_STATUS, DocumentType } from '../config/constants.js';
 import { AuthRequest } from '../middleware/auth.js';
@@ -144,6 +145,25 @@ export const verifyDocument = async (req: AuthRequest, res: Response, next: Next
     doc.latestVerifiedVersion = doc.currentVersion;
     await doc.save();
 
+    // If verifying an academic marksheet, synchronize AcademicRecord verification status
+    if (doc.documentType === 'ACADEMIC_MARKSHEET') {
+      const studentProfileId = (doc.studentId as any)?._id || doc.studentId;
+      await AcademicRecord.updateMany(
+        {
+          $or: [
+            { documentId: doc._id },
+            { studentId: studentProfileId },
+          ],
+        },
+        {
+          $set: {
+            verificationStatus: 'VERIFIED',
+            documentId: doc._id,
+          },
+        }
+      );
+    }
+
     // Notify student via in-app notification and web push
     await notifyUser({
       recipientId: doc.userId,
@@ -206,6 +226,25 @@ export const rejectDocument = async (req: AuthRequest, res: Response, next: Next
       : DOCUMENT_STATUS.REJECTED;
 
     await doc.save();
+
+    // If rejecting/requesting reupload for an academic marksheet, synchronize AcademicRecord
+    if (doc.documentType === 'ACADEMIC_MARKSHEET') {
+      const studentProfileId = (doc.studentId as any)?._id || doc.studentId;
+      await AcademicRecord.updateMany(
+        {
+          $or: [
+            { documentId: doc._id },
+            { studentId: studentProfileId },
+          ],
+        },
+        {
+          $set: {
+            verificationStatus: requestReupload ? 'REUPLOAD_REQUIRED' : 'REJECTED',
+            documentId: doc._id,
+          },
+        }
+      );
+    }
 
     // Notify student with clear guidance via in-app and web push
     await notifyUser({
