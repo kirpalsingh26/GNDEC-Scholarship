@@ -16,8 +16,12 @@ import {
   Award,
   BookOpen,
   Phone,
-  Layers,
-  ChevronRight,
+  HelpCircle,
+  X,
+  Eye,
+  EyeOff,
+  Loader2,
+  Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
@@ -44,8 +48,11 @@ export const RegisterPage: React.FC = () => {
     semester: 5,
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +68,7 @@ export const RegisterPage: React.FC = () => {
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match.');
+        setError('Passwords do not match. Please re-enter your password.');
         return;
       }
       setStep(2);
@@ -104,7 +111,7 @@ export const RegisterPage: React.FC = () => {
           registered: true,
           email: formData.email,
           message:
-            'Account created successfully! Please sign in with your email and password to upload your mandatory documents.',
+            'Registration successful! Please sign in with your email and password to upload your mandatory documents (Freeship Card & Income Certificate).',
         },
       });
     } catch (err: any) {
@@ -117,441 +124,626 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 font-sans relative overflow-hidden selection:bg-indigo-500 selection:text-white">
-      {/* Background Ambient Glows */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#070e1b] text-slate-100 flex flex-col font-sans relative selection:bg-amber-500 selection:text-slate-950 overflow-x-hidden">
+      {/* Background Subtle Grid Pattern & Ambient Glows */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-600/15 rounded-full blur-[90px]" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-amber-500/10 rounded-full blur-[90px]" />
+      </div>
 
-      <div className="max-w-5xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch z-10">
-        {/* LEFT COLUMN: Benefits & Instructions Showcase (4 cols) */}
-        <div className="lg:col-span-4 rounded-3xl bg-white/5 border border-white/10 p-8 backdrop-blur-xl flex flex-col justify-between shadow-2xl relative overflow-hidden">
-          <div>
-            {/* Brand Logo */}
-            <div
-              onClick={() => navigate('/')}
-              className="flex items-center gap-3 cursor-pointer group"
+      {/* Top Compact Navigation Bar */}
+      <header className="relative z-10 border-b border-white/5 bg-[#070e1b]/70 backdrop-blur-md px-4 sm:px-6 py-2.5 shrink-0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors group"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 text-amber-400" />
+            <span>Back to Portal Homepage</span>
+          </Link>
+
+          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <span className="hidden sm:flex items-center gap-1.5 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              256-Bit SSL Encrypted
+            </span>
+            <span className="hidden sm:inline text-slate-600">•</span>
+            <button
+              type="button"
+              onClick={() => setIsHelpOpen(true)}
+              className="inline-flex items-center gap-1 text-slate-300 hover:text-amber-400 transition-colors font-medium cursor-pointer"
             >
-              <div className="h-11 w-11 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-md group-hover:scale-105 transition-transform">
-                <GraduationCap className="h-6 w-6" />
-              </div>
-              <div>
-                <h1 className="font-black text-lg tracking-tight text-white flex items-center gap-2">
-                  GNDEC Ludhiana
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-500/30">
-                    PMS SC
-                  </span>
-                </h1>
-                <p className="text-[10px] text-amber-200">Post-Matric SC Registration</p>
-              </div>
-            </div>
-
-            {/* Registration Perks */}
-            <div className="mt-8 space-y-4">
-              <h2 className="text-xl font-black tracking-tight text-white">
-                100% Tuition Fee Exemption & DBT Maintenance
-              </h2>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Register with your official GNDEC University Roll Number to submit your Freeship Card and claim complete fee exemption under the Punjab Post-Matric Scholarship Scheme.
-              </p>
-            </div>
-
-            {/* Step Progress Checklist */}
-            <div className="mt-8 space-y-3">
-              <div
-                className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
-                  step === 1
-                    ? 'bg-indigo-600/30 border-indigo-400/50 text-white'
-                    : step > 1
-                    ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-200'
-                    : 'bg-white/5 border-white/10 text-slate-400'
-                }`}
-              >
-                <div className="h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs bg-white/10 shrink-0">
-                  {step > 1 ? '✓' : '1'}
-                </div>
-                <div className="text-xs">
-                  <p className="font-bold">Account Credentials</p>
-                  <p className="text-[10px] opacity-75">Name, email & security password</p>
-                </div>
-              </div>
-
-              <div
-                className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
-                  step === 2
-                    ? 'bg-indigo-600/30 border-indigo-400/50 text-white'
-                    : step > 2
-                    ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-200'
-                    : 'bg-white/5 border-white/10 text-slate-400'
-                }`}
-              >
-                <div className="h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs bg-white/10 shrink-0">
-                  {step > 2 ? '✓' : '2'}
-                </div>
-                <div className="text-xs">
-                  <p className="font-bold">Academic Hierarchy</p>
-                  <p className="text-[10px] opacity-75">Roll number, branch & semester</p>
-                </div>
-              </div>
-
-              <div
-                className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
-                  step === 3
-                    ? 'bg-indigo-600/30 border-indigo-400/50 text-white'
-                    : 'bg-white/5 border-white/10 text-slate-400'
-                }`}
-              >
-                <div className="h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs bg-white/10 shrink-0">
-                  3
-                </div>
-                <div className="text-xs">
-                  <p className="font-bold">Income & Social Category</p>
-                  <p className="text-[10px] opacity-75">Welfare grants & income brackets</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-4 border-t border-white/10 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Official GNDEC Portal</span>
-            <span className="text-emerald-400 font-bold">256-bit Encrypted</span>
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span>Need Help?</span>
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* RIGHT COLUMN: Multi-Step Interactive Form (8 cols) */}
-        <div className="lg:col-span-8 rounded-3xl bg-white text-slate-900 p-8 sm:p-10 shadow-2xl border border-slate-100 flex flex-col justify-between">
-          <div>
-            {/* Top Step Breadcrumb */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
-                  Step {step} of 3
-                </span>
-                <h3 className="text-xl font-black text-slate-900 mt-1">
-                  {step === 1 && 'Create Student Account'}
-                  {step === 2 && 'University Academic Details'}
-                  {step === 3 && 'Eligibility & Income Profiling'}
-                </h3>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col justify-center py-4 sm:py-6 px-4 sm:px-6 relative z-10 my-auto">
+        <div className="max-w-5xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-center">
+          
+          {/* LEFT COLUMN: Benefits & Progress Showcase (5 cols) */}
+          <div className="lg:col-span-5 rounded-2xl bg-white/[0.04] border border-white/10 p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div>
+              {/* College Logo & Accreditation */}
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/40 flex items-center justify-center text-amber-400 shadow-md shadow-amber-500/10 shrink-0">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="font-extrabold text-base tracking-tight text-white truncate">
+                      GNDEC Ludhiana
+                    </h1>
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 uppercase tracking-wider shrink-0">
+                      PMS SC
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 font-medium truncate">
+                    Guru Nanak Dev Engineering College
+                  </p>
+                  <p className="text-[10px] text-amber-300/80 font-mono">
+                    Candidate Registration • Estd. 1956
+                  </p>
+                </div>
               </div>
-              <p className="text-xs font-bold text-slate-400 font-mono">
-                {step === 1 && '33%'}
-                {step === 2 && '66%'}
-                {step === 3 && '100%'}
-              </p>
+
+              {/* Mission Statement */}
+              <div className="mt-4 space-y-1.5">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] font-semibold text-amber-300">
+                  <Sparkles className="h-2.5 w-2.5" />
+                  Dr. B.R. Ambedkar SC Welfare
+                </div>
+                <h2 className="text-lg sm:text-xl font-black tracking-tight text-white leading-snug">
+                  100% Tuition Fee Exemption & DBT Allowance
+                </h2>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Register with your official GNDEC University Roll Number to claim your 100% tuition waiver under the Punjab State Post-Matric Scholarship Scheme.
+                </p>
+              </div>
+
+              {/* Visual Step Progress Timeline */}
+              <div className="mt-4 space-y-2">
+                {/* Step 1 Pill */}
+                <div
+                  className={`flex items-center gap-2.5 py-2 px-3 rounded-xl border transition-all ${
+                    step === 1
+                      ? 'bg-indigo-600/25 border-indigo-400/50 text-white shadow-xs'
+                      : step > 1
+                      ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-200'
+                      : 'bg-white/5 border-white/10 text-slate-400'
+                  }`}
+                >
+                  <div
+                    className={`h-6 w-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                      step > 1 ? 'bg-emerald-500 text-slate-950' : step === 1 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'
+                    }`}
+                  >
+                    {step > 1 ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : '1'}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-xs truncate">Basic Student Credentials</p>
+                    <p className="text-[10px] opacity-75 truncate">Candidate name, email & password</p>
+                  </div>
+                </div>
+
+                {/* Step 2 Pill */}
+                <div
+                  className={`flex items-center gap-2.5 py-2 px-3 rounded-xl border transition-all ${
+                    step === 2
+                      ? 'bg-indigo-600/25 border-indigo-400/50 text-white shadow-xs'
+                      : step > 2
+                      ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-200'
+                      : 'bg-white/5 border-white/10 text-slate-400'
+                  }`}
+                >
+                  <div
+                    className={`h-6 w-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                      step > 2 ? 'bg-emerald-500 text-slate-950' : step === 2 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'
+                    }`}
+                  >
+                    {step > 2 ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : '2'}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-xs truncate">University Academic Details</p>
+                    <p className="text-[10px] opacity-75 truncate">URN, department, branch & semester</p>
+                  </div>
+                </div>
+
+                {/* Step 3 Pill */}
+                <div
+                  className={`flex items-center gap-2.5 py-2 px-3 rounded-xl border transition-all ${
+                    step === 3
+                      ? 'bg-indigo-600/25 border-indigo-400/50 text-white shadow-xs'
+                      : 'bg-white/5 border-white/10 text-slate-400'
+                  }`}
+                >
+                  <div
+                    className={`h-6 w-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                      step === 3 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'
+                    }`}
+                  >
+                    3
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-xs truncate">Social Category & Income</p>
+                    <p className="text-[10px] opacity-75 truncate">Punjab SC quota & family income</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 rounded-2xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-700 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
+            {/* Helpline Footer */}
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+              <span className="flex items-center gap-1 font-medium">
+                <Building2 className="h-3.5 w-3.5 text-amber-400" />
+                GNDEC Scholarship Cell
+              </span>
+              <span className="text-slate-300 font-mono text-[10px]">Room 102, Admin Block</span>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Multi-Step Interactive Form (7 cols) */}
+          <div className="lg:col-span-7 rounded-2xl bg-white text-slate-900 p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col justify-between">
+            <div>
+              {/* Top Step Header with Progress Bar */}
+              <div className="pb-3 border-b border-slate-100 mb-3.5">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    Step {step} of 3
+                  </div>
+                  <span className="text-xs font-bold text-slate-400 font-mono">
+                    {step === 1 && '33% Completed'}
+                    {step === 2 && '66% Completed'}
+                    {step === 3 && 'Final Step'}
+                  </span>
+                </div>
+
+                {/* Progress Fill Bar */}
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-600 to-amber-500 transition-all duration-300 rounded-full"
+                    style={{ width: step === 1 ? '33.3%' : step === 2 ? '66.6%' : '100%' }}
+                  />
+                </div>
+
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2.5">
+                  {step === 1 && 'Create Student Account'}
+                  {step === 2 && 'University Academic Hierarchy'}
+                  {step === 3 && 'Eligibility & Income Profiling'}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {step === 1 && 'Enter your full legal name and official college email address.'}
+                  {step === 2 && 'Specify your GNDEC enrollment details and current academic year.'}
+                  {step === 3 && 'Confirm your Scheduled Caste (SC) category and Tehsildar income bracket.'}
+                </p>
               </div>
-            )}
 
-            {/* STEP 1: Basic Account */}
-            {step === 1 && (
-              <form onSubmit={handleNext} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">Full Name</label>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g. Jaspreet Kaur"
-                      className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+              {/* Error Message Alert */}
+              {error && (
+                <div className="mb-3.5 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-start gap-2.5 shadow-2xs">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-extrabold text-rose-950">Registration Notice</p>
+                    <p className="text-[11px] text-rose-700 mt-0.5">{error}</p>
                   </div>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">Official Email</label>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="h-4 w-4" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="e.g. jaspreet.kaur@gndec.ac.in"
-                      className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* STEP 1: Basic Account Credentials */}
+              {step === 1 && (
+                <form onSubmit={handleNext} className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">Password</label>
-                    <div className="mt-1 relative rounded-xl shadow-2xs">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <input
-                        type="password"
-                        required
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder="••••••••"
-                        className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700">Confirm Password</label>
-                    <div className="mt-1 relative rounded-xl shadow-2xs">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <input
-                        type="password"
-                        required
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        placeholder="••••••••"
-                        className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 flex justify-end">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-2 px-6 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all hover:scale-[1.01]"
-                  >
-                    Proceed to Academic Details
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 2: Academic Details */}
-            {step === 2 && (
-              <form onSubmit={handleNext} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700">
-                      University Roll No. (URN)
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Full Legal Name
                     </label>
-                    <div className="mt-1 relative rounded-xl shadow-2xs">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <BookOpen className="h-4 w-4" />
+                    <div className="relative rounded-xl shadow-2xs">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <User className="h-4 w-4" />
                       </div>
                       <input
                         type="text"
                         required
-                        value={formData.rollNumber}
-                        onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
-                        placeholder="e.g. 2104520"
-                        className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 font-mono"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. Jaspreet Kaur"
+                        className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">Contact Phone</label>
-                    <div className="mt-1 relative rounded-xl shadow-2xs">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <Phone className="h-4 w-4" />
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Institutional Email Address
+                    </label>
+                    <div className="relative rounded-xl shadow-2xs">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="h-4 w-4" />
                       </div>
                       <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="e.g. 9876543210"
-                        className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="e.g. jaspreet.kaur@gndec.ac.in"
+                        className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
                       />
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">Academic Department</label>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Building2 className="h-4 w-4" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">
+                        Password
+                      </label>
+                      <div className="relative rounded-xl shadow-2xs">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="h-4 w-4" />
+                        </div>
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          placeholder="••••••••"
+                          className="block w-full pl-9 pr-9 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
                     </div>
-                    <select
-                      value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">
+                        Confirm Password
+                      </label>
+                      <div className="relative rounded-xl shadow-2xs">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                          <Lock className="h-4 w-4" />
+                        </div>
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          required
+                          value={formData.confirmPassword}
+                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                          placeholder="••••••••"
+                          className="block w-full pl-9 pr-9 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 py-2.5 px-5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 rounded-xl shadow-md transition-all transform active:scale-[0.99] cursor-pointer"
                     >
-                      <option value="Computer Science and Engineering">Computer Science & Engineering (CSE)</option>
-                      <option value="Information Technology">Information Technology (IT)</option>
-                      <option value="Electronics and Communication Engineering">Electronics & Communication (ECE)</option>
-                      <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
-                      <option value="Civil Engineering">Civil Engineering (CE)</option>
-                      <option value="Electrical Engineering">Electrical Engineering (EE)</option>
-                    </select>
+                      <span>Proceed to Academic Details</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
-                </div>
+                </form>
+              )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700">Course / Degree</label>
-                    <input
-                      type="text"
-                      disabled
-                      value={formData.course}
-                      className="mt-1 block w-full px-3 py-2.5 text-xs border border-slate-200 bg-slate-50 rounded-xl font-semibold text-slate-600"
-                    />
+              {/* STEP 2: University Academic Details */}
+              {step === 2 && (
+                <form onSubmit={handleNext} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">
+                        University Roll No. (URN)
+                      </label>
+                      <div className="relative rounded-xl shadow-2xs">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                          <BookOpen className="h-4 w-4" />
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={formData.rollNumber}
+                          onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
+                          placeholder="e.g. 2104520"
+                          className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none font-mono font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">
+                        Contact Phone Number
+                      </label>
+                      <div className="relative rounded-xl shadow-2xs">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                          <Phone className="h-4 w-4" />
+                        </div>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="e.g. 9876543210"
+                          className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">Year of Study</label>
-                    <select
-                      value={formData.year}
-                      onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
-                      className="mt-1 block w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Academic Department / Engineering Branch
+                    </label>
+                    <div className="relative rounded-xl shadow-2xs">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Building2 className="h-4 w-4" />
+                      </div>
+                      <select
+                        value={formData.department}
+                        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                        className="block w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                      >
+                        <option value="Computer Science and Engineering">Computer Science & Engineering (CSE)</option>
+                        <option value="Information Technology">Information Technology (IT)</option>
+                        <option value="Electronics and Communication Engineering">Electronics & Communication (ECE)</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
+                        <option value="Civil Engineering">Civil Engineering (CE)</option>
+                        <option value="Electrical Engineering">Electrical Engineering (EE)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">Course / Degree</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={formData.course}
+                        className="block w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 bg-slate-100 rounded-xl font-bold text-slate-600"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">Year of Study</label>
+                      <select
+                        value={formData.year}
+                        onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
+                        className="block w-full px-3 py-2 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                      >
+                        <option value={1}>1st Year</option>
+                        <option value={2}>2nd Year</option>
+                        <option value={3}>3rd Year</option>
+                        <option value={4}>4th Year</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1">Active Semester</label>
+                      <select
+                        value={formData.semester}
+                        onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
+                        className="block w-full px-3 py-2 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                      >
+                        <option value={1}>Semester 1</option>
+                        <option value={2}>Semester 2</option>
+                        <option value={3}>Semester 3</option>
+                        <option value={4}>Semester 4</option>
+                        <option value={5}>Semester 5</option>
+                        <option value={6}>Semester 6</option>
+                        <option value={7}>Semester 7</option>
+                        <option value={8}>Semester 8</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
                     >
-                      <option value={1}>1st Year</option>
-                      <option value={2}>2nd Year</option>
-                      <option value={3}>3rd Year</option>
-                      <option value={4}>4th Year</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700">Active Semester</label>
-                    <select
-                      value={formData.semester}
-                      onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
-                      className="mt-1 block w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                      Back to Step 1
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 py-2.5 px-5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 rounded-xl shadow-md transition-all transform active:scale-[0.99] cursor-pointer"
                     >
-                      <option value={1}>Semester 1</option>
-                      <option value={2}>Semester 2</option>
-                      <option value={3}>Semester 3</option>
-                      <option value={4}>Semester 4</option>
-                      <option value={5}>Semester 5</option>
-                      <option value={6}>Semester 6</option>
-                      <option value={7}>Semester 7</option>
-                      <option value={8}>Semester 8</option>
-                    </select>
+                      <span>Proceed to Income & Category</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
-                </div>
+                </form>
+              )}
 
-                <div className="pt-4 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-2 px-6 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all hover:scale-[1.01]"
-                  >
-                    Proceed to Income & Category
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 3: Income & Social Category */}
-            {step === 3 && (
-              <form onSubmit={handleFinalSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700">
-                    Social Reservation Category
-                  </label>
-                  <p className="text-[11px] text-amber-700 font-semibold mb-2">
-                    Notice: This portal is exclusively dedicated to the Dr. B.R. Ambedkar Post-Matric Scholarship (PMS) Scheme for Scheduled Caste (SC) Students of Punjab.
-                  </p>
-                  <div className="grid grid-cols-1 gap-2">
+              {/* STEP 3: Income & Social Category */}
+              {step === 3 && (
+                <form onSubmit={handleFinalSubmit} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Social Reservation Category
+                    </label>
+                    <p className="text-[10px] text-amber-700 font-semibold mb-1.5">
+                      Notice: Dedicated exclusively to the Dr. B.R. Ambedkar Post-Matric SC Scholarship Scheme.
+                    </p>
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, category: 'SC' })}
-                      className="py-3 px-4 text-xs font-bold rounded-xl border border-amber-500 bg-amber-50/80 text-amber-900 shadow-xs flex items-center justify-between"
+                      className="w-full py-2.5 px-3.5 text-xs font-bold rounded-xl border border-amber-400 bg-amber-50 text-amber-950 shadow-2xs flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-amber-600" />
-                        <span>SC — Scheduled Caste (Punjab State PMS Scheme Eligible)</span>
+                        <CheckCircle2 className="h-4 w-4 text-amber-600 shrink-0" />
+                        <span>SC — Scheduled Caste (Punjab State PMS Eligible)</span>
                       </span>
-                      <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-extrabold">
-                        Verified Scheme
+                      <span className="text-[9px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-extrabold uppercase">
+                        Verified
                       </span>
                     </button>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1.5">
-                    *Non-SC candidates and other caste categories are not eligible under the Post-Matric SC Scholarship Scheme.
-                  </p>
-                </div>
 
-                <div className="pt-2">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Annual Gross Family Income (₹)
-                  </label>
-                  <p className="text-[11px] text-slate-500 mb-1">
-                    Punjab Post-Matric (PMS) requires total annual income ≤ ₹2,50,000/yr (certified by Tehsildar/SDM).
-                  </p>
-                  <div className="mt-1 relative rounded-xl shadow-2xs">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
-                      ₹
-                    </div>
-                    <input
-                      type="number"
-                      required
-                      value={formData.familyIncome}
-                      onChange={(e) => setFormData({ ...formData, familyIncome: Number(e.target.value) })}
-                      className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 font-bold text-slate-900"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 text-xs text-indigo-900 flex items-start gap-3">
-                  <ShieldCheck className="h-5 w-5 text-indigo-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold">Student Honor Declaration</p>
-                    <p className="text-[11px] text-indigo-800 mt-0.5 leading-relaxed">
-                      By submitting this registration, I certify that I am a bonafide student of GNDEC and all academic/income details are true to the best of my knowledge.
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-800">
+                        Annual Gross Family Income (₹)
+                      </label>
+                      <span className="text-[10px] text-slate-500 font-medium">Tehsildar Certified</span>
+                    </div>
+                    <div className="relative rounded-xl shadow-2xs">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                        ₹
+                      </div>
+                      <input
+                        type="number"
+                        required
+                        value={formData.familyIncome}
+                        onChange={(e) => setFormData({ ...formData, familyIncome: Number(e.target.value) })}
+                        className="block w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      *Punjab State PMS mandates total annual income ≤ ₹2,50,000/year issued by Tehsildar/SDM.
                     </p>
                   </div>
-                </div>
 
-                <div className="pt-4 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="inline-flex items-center gap-2 px-7 py-3 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all hover:scale-[1.01]"
-                  >
-                    {loading ? 'Creating Student Profile...' : 'Complete Registration ✓'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+                  {/* Student Honor Declaration */}
+                  <div className="p-3 rounded-xl bg-indigo-50/80 border border-indigo-100 text-xs text-indigo-900 flex items-start gap-2.5">
+                    <ShieldCheck className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-[11px] text-indigo-950">Student Honor Declaration</p>
+                      <p className="text-[10px] text-indigo-800 mt-0.5 leading-relaxed">
+                        I hereby declare that I am an enrolled SC student at GNDEC and the provided income & academic credentials are authentic.
+                      </p>
+                    </div>
+                  </div>
 
-          {/* Login Navigation Footer */}
-          <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Already registered on GNDEC PMS Portal?</span>
-            <Link
-              to="/login"
-              className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
-            >
-              Sign In to Your Account
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+                  <div className="pt-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                      Back to Step 2
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 py-2.5 px-5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 rounded-xl shadow-md transition-all transform active:scale-[0.99] cursor-pointer disabled:opacity-75"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Creating Student Profile...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Complete Registration</span>
+                          <CheckCircle2 className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* Login Navigation Footer */}
+            <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500">Already have an enrolled account?</span>
+              <Link
+                to="/login"
+                className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+              >
+                <span>Sign In to Account</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Help Desk Modal */}
+      {isHelpOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-100 text-slate-900 relative">
+            <button
+              type="button"
+              onClick={() => setIsHelpOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-3.5">
+              <div className="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center font-bold">
+                <HelpCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-sm sm:text-base text-slate-900">Scholarship Support Desk</h3>
+                <p className="text-[11px] text-slate-500">Guru Nanak Dev Engineering College</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-600 mt-3 leading-relaxed">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <GraduationCap className="h-3.5 w-3.5 text-indigo-600" />
+                  SC Registration Guidance:
+                </p>
+                <p className="mt-0.5 text-slate-600 text-[11px]">
+                  All Scheduled Caste students of GNDEC are eligible for 100% tuition waiver under the Dr. B.R. Ambedkar Scheme provided family annual income is ≤ ₹2.50 Lakh. Have your URN and Tehsildar Income Certificate ready.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+                  Physical Support Office:
+                </p>
+                <p className="mt-0.5 text-slate-600 text-[11px]">
+                  Scholarship Section, Room 102, Administrative Block, GNDEC Gill Park, Ludhiana.
+                </p>
+              </div>
+
+              <div className="pt-1 flex flex-col gap-1.5 text-[10px] text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-3 w-3 text-amber-500" />
+                  <span>Email: <strong>scholarship@gndec.ac.in</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3 w-3 text-amber-500" />
+                  <span>Helpline: <strong>0161-5064500 (Ext. 204)</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsHelpOpen(false)}
+                className="px-3.5 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              >
+                Close Support Desk
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
