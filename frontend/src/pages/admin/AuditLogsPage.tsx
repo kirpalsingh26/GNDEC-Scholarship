@@ -172,7 +172,7 @@ export const AuditLogsPage: React.FC = () => {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 text-xs">{log.actorName || 'System'}</p>
-                          <span className="inline-block font-mono text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                          <span className="inline-block font-mono text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">
                             {log.actorRole || 'SYSTEM'}
                           </span>
                         </div>

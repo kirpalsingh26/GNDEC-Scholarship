@@ -270,7 +270,7 @@ export const ApplicationsQueuePage: React.FC = () => {
             }`}
           >
             <span>{tab.label}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
               statusFilter === tab.value
                 ? 'bg-white/20 text-white'
                 : 'bg-slate-100 text-slate-600'
