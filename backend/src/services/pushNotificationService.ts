@@ -36,7 +36,12 @@ export const sendPushNotificationToUser = async (
   payload: PushPayload
 ): Promise<void> => {
   try {
-    const subscriptions = await PushSubscription.find({ userId });
+    const subscriptions = await PushSubscription.find({
+      $or: [
+        { userId: userId },
+        { userId: String(userId) },
+      ],
+    });
     if (!subscriptions || subscriptions.length === 0) {
       return;
     }

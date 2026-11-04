@@ -61,16 +61,16 @@ export const PublicQRVerifyPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="rounded-2xl bg-amber-50 border border-amber-300 p-4 text-center mb-6">
-                <div className="flex items-center justify-center gap-2 text-amber-800 font-bold text-sm">
-                  <ShieldCheck className="h-5 w-5 text-amber-600" />
-                  Verification In Progress — Pending Committee Approval
+              <div className="rounded-2xl bg-indigo-50 border border-indigo-200 p-4 text-center mb-6">
+                <div className="flex items-center justify-center gap-2 text-indigo-950 font-bold text-sm">
+                  <ShieldCheck className="h-5 w-5 text-indigo-600" />
+                  Authenticated Enrolled Student (Digital ID Pass Active ✓)
                 </div>
-                <p className="text-[11px] text-amber-900 mt-1">
+                <p className="text-[11px] text-indigo-800 mt-1">
                   Guru Nanak Dev Engineering College (GNDEC), Ludhiana
                 </p>
-                <p className="text-[10px] text-amber-700 mt-0.5 font-medium">
-                  Candidate certificates are actively undergoing scrutiny by the Scholarship Cell.
+                <p className="text-[10px] text-indigo-600 mt-1.5 font-medium bg-white/70 py-1 px-2.5 rounded-lg border border-indigo-100">
+                  PMS Scholarship documents are currently undergoing verification by the Scrutiny Committee.
                 </p>
               </div>
             )}

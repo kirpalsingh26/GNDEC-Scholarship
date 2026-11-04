@@ -81,7 +81,16 @@ export const subscribeToWebPush = async (): Promise<{
       return { success: false, message: 'Could not retrieve VAPID public key from server.' };
     }
 
-    // 4. Subscribe via PushManager
+    // 4. Subscribe via PushManager (clear existing stale subscription if any)
+    try {
+      const existingSub = await reg.pushManager.getSubscription();
+      if (existingSub) {
+        await existingSub.unsubscribe();
+      }
+    } catch (e) {
+      console.warn('Could not reset existing subscription:', e);
+    }
+
     const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
     const subscription = await reg.pushManager.subscribe({
       userVisibleOnly: true,

@@ -678,7 +678,13 @@ export const getStudentDashboardData = async (
     const hasReuploadRequired = documents.some((d) => d.status === 'REUPLOAD_REQUIRED');
     const hasSubmittedApplication = applications.length > 0;
     const latestApplication = applications[0] || null;
-    const isApproved = latestApplication?.status === 'APPROVED' && profile.isProfileComplete === true;
+    const hasApprovedApp = latestApplication?.status === 'APPROVED' && !latestApplication?.isExpired;
+    const isApproved = hasApprovedApp || (profile.isProfileComplete === true && verifiedDocuments >= 3);
+
+    if (!profile.isProfileComplete && profile.rollNumber) {
+      profile.isProfileComplete = true;
+      await profile.save();
+    }
 
     let onboardingStage: 'DOCUMENTS_REQUIRED' | 'PENDING_VERIFICATION' | 'ACTION_REQUIRED' | 'APPROVED' =
       'PENDING_VERIFICATION';

@@ -20,6 +20,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
+import { useToast } from '../../context/ToastContext.js';
 import { QRModal } from './QRModal.js';
 import { CommandPalette } from './CommandPalette.js';
 import api from '../../services/api.js';
@@ -33,6 +34,7 @@ import { getPortalMode, PORTALS } from '../../utils/portalConfig.js';
 export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -104,7 +106,12 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
       const res = await subscribeToWebPush();
       if (res.success) {
         setIsPushSubscribed(true);
+        toast.success(res.message || 'Web push notifications enabled successfully!');
+      } else {
+        toast.error(res.message || 'Could not enable push notifications.');
       }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to enable web push.');
     } finally {
       setPushLoading(false);
     }
@@ -194,14 +201,15 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
             {user?.role === 'STUDENT' && (
               <button
                 onClick={() => setIsQRModalOpen(true)}
-                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 ${
+                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 cursor-pointer ${
                   profile?.isProfileComplete
                     ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800'
-                    : 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-800'
+                    : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-800'
                 }`}
+                title="Student Digital Scholarship ID & Verification Pass"
               >
                 <QrCode className="h-4 w-4" />
-                <span>{profile?.isProfileComplete ? 'Verified Pass ✓' : 'ID Pass (Pending)'}</span>
+                <span>{profile?.isProfileComplete ? 'Verified Pass ✓' : 'Digital ID Pass ✓'}</span>
               </button>
             )}
 

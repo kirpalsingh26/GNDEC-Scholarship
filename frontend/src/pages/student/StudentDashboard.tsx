@@ -179,7 +179,7 @@ export const StudentDashboard: React.FC = () => {
               className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white shadow-indigo-600/20 transform active:scale-[0.99]"
             >
               <ShieldCheck className="h-4 w-4" />
-              <span>{isVerified ? 'Verified Digital ID' : 'Check ID Pass Status'}</span>
+              <span>{isVerified ? 'Verified Digital ID' : 'Digital Student ID Pass'}</span>
             </button>
 
             <button

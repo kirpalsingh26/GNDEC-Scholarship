@@ -164,15 +164,20 @@ export const verifyDocument = async (req: AuthRequest, res: Response, next: Next
       );
     }
 
+    const studentProfile = await StudentProfile.findById(doc.studentId);
+    const recipientUserId = doc.userId || studentProfile?.userId;
+
     // Notify student via in-app notification and web push
-    await notifyUser({
-      recipientId: doc.userId,
-      title: 'Document Verified ✓',
-      message: `Your document '${doc.title}' has been successfully verified by ${req.user?.name}.`,
-      type: 'DOCUMENT',
-      link: '/student/documents',
-      relatedEntityId: doc._id as any,
-    });
+    if (recipientUserId) {
+      await notifyUser({
+        recipientId: recipientUserId,
+        title: 'Document Verified ✓',
+        message: `Your document '${doc.title}' has been successfully verified by ${req.user?.name}.`,
+        type: 'DOCUMENT',
+        link: '/student/documents',
+        relatedEntityId: doc._id as any,
+      });
+    }
 
     await logAudit({
       req,
@@ -246,15 +251,20 @@ export const rejectDocument = async (req: AuthRequest, res: Response, next: Next
       );
     }
 
+    const studentProfile = await StudentProfile.findById(doc.studentId);
+    const recipientUserId = doc.userId || studentProfile?.userId;
+
     // Notify student with clear guidance via in-app and web push
-    await notifyUser({
-      recipientId: doc.userId,
-      title: requestReupload ? 'Document Re-upload Required' : 'Document Rejected',
-      message: `Your document '${doc.title}' requires attention. Reason: ${rejectionReason || comments}. Please upload a new copy.`,
-      type: 'DOCUMENT',
-      link: '/student/documents',
-      relatedEntityId: doc._id as any,
-    });
+    if (recipientUserId) {
+      await notifyUser({
+        recipientId: recipientUserId,
+        title: requestReupload ? 'Document Re-upload Required' : 'Document Rejected',
+        message: `Your document '${doc.title}' requires attention. Reason: ${rejectionReason || comments}. Please upload a new copy.`,
+        type: 'DOCUMENT',
+        link: '/student/documents',
+        relatedEntityId: doc._id as any,
+      });
+    }
 
     await logAudit({
       req,

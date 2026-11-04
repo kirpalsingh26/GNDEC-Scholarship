@@ -32,8 +32,8 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
         <div
           className={`w-full rounded-2xl p-6 text-white shadow-xl relative overflow-hidden transition-all ${
             isVerified
-              ? 'bg-gradient-to-b from-[#0b2341] to-slate-900'
-              : 'bg-gradient-to-b from-amber-950 via-slate-900 to-slate-900 border border-amber-500/40'
+              ? 'bg-gradient-to-b from-[#0b2341] via-indigo-950 to-slate-900 border border-emerald-500/30'
+              : 'bg-gradient-to-b from-[#0b2341] via-slate-900 to-slate-900 border border-indigo-500/40'
           }`}
         >
           {/* Header */}
@@ -43,15 +43,15 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
                 Guru Nanak Dev Engineering College
               </p>
               <h4 className="text-base font-black tracking-tight">
-                {isVerified ? 'SCHOLARSHIP VERIFIED PASS' : 'ID PASS — PENDING VERIFICATION'}
+                {isVerified ? 'SCHOLARSHIP VERIFIED PASS' : 'DIGITAL STUDENT ID PASS'}
               </h4>
             </div>
             <div
               className={`h-8 w-8 rounded-lg flex items-center justify-center ${
-                isVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                isVerified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-indigo-500/20 text-indigo-300'
               }`}
             >
-              {isVerified ? <ShieldCheck className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
+              <ShieldCheck className="h-5 w-5" />
             </div>
           </div>
 
@@ -84,11 +84,13 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
               <span className="font-semibold">{profile.department}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Social Category:</span>
-              <span className="font-bold text-amber-300">SC (Scheduled Caste)</span>
+              <span className="text-slate-400">Digital Pass Status:</span>
+              <span className="font-bold text-emerald-400">
+                Generated & Active ✓
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Verification Status:</span>
+              <span className="text-slate-400">Scholarship Scrutiny:</span>
               <span className={`font-bold ${isVerified ? 'text-emerald-400' : 'text-amber-400'}`}>
                 {isVerified ? 'Officially Certified ✓' : 'Documents Under Review ⏳'}
               </span>
@@ -99,7 +101,7 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
             className={`mt-4 flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 px-3 rounded-lg ${
               isVerified
                 ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
-                : 'text-amber-300 bg-amber-500/10 border border-amber-500/20'
+                : 'text-indigo-200 bg-indigo-500/10 border border-indigo-500/20'
             }`}
           >
             {isVerified ? (
@@ -109,8 +111,8 @@ export const QRModal: React.FC<QRModalProps> = ({ isOpen, onClose, profile }) =>
               </>
             ) : (
               <>
-                <Clock className="h-4 w-4" />
-                Pending Verification by GNDEC Scholarship Cell
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                Active GNDEC Student ID Pass • PMS Scrutiny In-Progress
               </>
             )}
           </div>

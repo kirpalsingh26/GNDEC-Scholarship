@@ -84,7 +84,7 @@ export const registerStudent = async (req: Request, res: Response, next: NextFun
       activeBacklogs: 0,
       totalBacklogs: 0,
       qrVerificationToken: qrToken,
-      isProfileComplete: false,
+      isProfileComplete: true,
     });
 
     await logAudit({
@@ -156,9 +156,13 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     user.lastLogin = new Date();
     await user.save();
 
-    let studentProfile = null;
+    let studentProfile: any = null;
     if (user.role === ROLES.STUDENT) {
       studentProfile = await StudentProfile.findOne({ userId: user._id });
+      if (studentProfile && !studentProfile.isProfileComplete && studentProfile.rollNumber) {
+        studentProfile.isProfileComplete = true;
+        await studentProfile.save();
+      }
     }
 
     const token = generateToken((user._id as any).toString(), user.email, user.role);
@@ -200,9 +204,13 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
-    let profile = null;
+    let profile: any = null;
     if (req.user.role === ROLES.STUDENT) {
       profile = await StudentProfile.findOne({ userId: req.user._id });
+      if (profile && !profile.isProfileComplete && profile.rollNumber) {
+        profile.isProfileComplete = true;
+        await profile.save();
+      }
     }
 
     return res.status(200).json({

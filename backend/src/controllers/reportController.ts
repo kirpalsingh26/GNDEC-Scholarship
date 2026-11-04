@@ -71,9 +71,9 @@ export const getPublicQRVerification = async (
       status: DOCUMENT_STATUS.VERIFIED,
     });
 
-    const isApproved =
-      student.isProfileComplete === true &&
-      applications.some((app: any) => app.status === 'APPROVED' && !app.isExpired);
+    const hasApprovedApp = applications.some((app: any) => app.status === 'APPROVED' && !app.isExpired);
+    const isApproved = hasApprovedApp || (student.isProfileComplete === true && totalVerifiedDocs >= 3);
+    const isPassActive = Boolean(student.rollNumber && student.qrVerificationToken);
 
     const verificationStatus = isApproved ? 'VERIFIED_PMS_SCHOLAR' : 'PENDING_VERIFICATION';
 
@@ -93,12 +93,13 @@ export const getPublicQRVerification = async (
         },
         verificationStatus,
         isVerified: isApproved,
+        isPassActive,
         verifiedDocumentsCount: totalVerifiedDocs,
         scholarshipApplications: applications,
         issuedBy: 'GNDEC Central Scholarship & Verification Cell',
         statusMessage: isApproved
           ? 'Officially Certified Enrolled Student — Post-Matric SC Scholarship Verified'
-          : 'Candidate Registered — Document & Eligibility Verification In Progress',
+          : 'Enrolled GNDEC Student — Digital ID Pass Active (PMS Verification In-Progress)',
         timestamp: new Date(),
       },
     });
