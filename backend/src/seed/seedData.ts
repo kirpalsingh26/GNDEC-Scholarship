@@ -54,7 +54,7 @@ export const initProductionData = async () => {
   }
 
   // 2. Super Administrator
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@gndec.ac.in';
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@gndec.ac.in').toLowerCase();
   let adminUser = await User.findOne({ email: adminEmail });
   if (!adminUser) {
     adminUser = await User.create({
@@ -66,14 +66,43 @@ export const initProductionData = async () => {
       phone: '9814001122',
     });
     console.log(`✅ Super Admin created: ${adminEmail}`);
+  } else {
+    adminUser.role = ROLES.ADMIN;
+    adminUser.status = 'ACTIVE';
+    adminUser.password = process.env.ADMIN_PASSWORD || 'Admin@123';
+    await adminUser.save();
+    console.log(`✅ Super Admin verified: ${adminEmail}`);
   }
 
-  // 3. Verification Officers
-  const officer1Email = process.env.OFFICER_EMAIL || 'officer.rajesh@gndec.ac.in';
+  // 3. Teachers & Verification Officers
+  // Primary Teacher Account: teacher@gndec.ac.in / Teacher@123
+  const teacherEmail = (process.env.TEACHER_EMAIL || 'teacher@gndec.ac.in').toLowerCase();
+  let teacherUser = await User.findOne({ email: teacherEmail });
+  if (!teacherUser) {
+    teacherUser = await User.create({
+      name: 'Prof. Rajesh Sharma (Teacher / Verification Officer)',
+      email: teacherEmail,
+      password: process.env.TEACHER_PASSWORD || 'Teacher@123',
+      role: ROLES.OFFICER,
+      status: 'ACTIVE',
+      phone: '9815002233',
+      departmentId: deptMap['CSE']?._id,
+    });
+    console.log(`✅ Teacher Account created: ${teacherEmail}`);
+  } else {
+    teacherUser.role = ROLES.OFFICER;
+    teacherUser.status = 'ACTIVE';
+    teacherUser.password = process.env.TEACHER_PASSWORD || 'Teacher@123';
+    await teacherUser.save();
+    console.log(`✅ Teacher Account verified: ${teacherEmail}`);
+  }
+
+  // Secondary Officer Account: officer.rajesh@gndec.ac.in / Officer@123
+  const officer1Email = (process.env.OFFICER_EMAIL || 'officer.rajesh@gndec.ac.in').toLowerCase();
   let officer1 = await User.findOne({ email: officer1Email });
   if (!officer1) {
     officer1 = await User.create({
-      name: 'Dr. Rajesh Sharma',
+      name: 'Dr. Rajesh Sharma (Head of Scholarship Cell)',
       email: officer1Email,
       password: process.env.OFFICER_PASSWORD || 'Officer@123',
       role: ROLES.OFFICER,
@@ -82,6 +111,11 @@ export const initProductionData = async () => {
       departmentId: deptMap['CSE']?._id,
     });
     console.log(`✅ Verification Officer created: ${officer1Email}`);
+  } else {
+    officer1.role = ROLES.OFFICER;
+    officer1.status = 'ACTIVE';
+    officer1.password = process.env.OFFICER_PASSWORD || 'Officer@123';
+    await officer1.save();
   }
 
   const officer2Email = 'officer.simran@gndec.ac.in';
@@ -95,6 +129,11 @@ export const initProductionData = async () => {
       status: 'ACTIVE',
       phone: '9816003344',
     });
+  } else {
+    officer2.role = ROLES.OFFICER;
+    officer2.status = 'ACTIVE';
+    officer2.password = process.env.OFFICER_PASSWORD || 'Officer@123';
+    await officer2.save();
   }
 
   // 4. Official Post-Matric Scholarship Scheme for SC Students
@@ -282,3 +321,19 @@ export const seedDemoData = async () => {
 
 // Aliased export for compatibility
 export const seedDatabase = initProductionData;
+
+// Direct execution runner (e.g. npm run seed)
+if (process.argv[1]?.includes('seedData')) {
+  import('../config/db.js').then(async ({ connectDB, disconnectDB }) => {
+    try {
+      await connectDB();
+      await initProductionData();
+      console.log('🎉 Seed operations completed successfully.');
+      await disconnectDB();
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ Seeding failed:', err);
+      process.exit(1);
+    }
+  });
+}

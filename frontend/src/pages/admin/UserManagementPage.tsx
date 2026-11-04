@@ -1,15 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Shield, CheckCircle2, UserCheck, ShieldAlert, Sparkles, Filter } from 'lucide-react';
+import {
+  Users,
+  Search,
+  Shield,
+  CheckCircle2,
+  UserCheck,
+  ShieldAlert,
+  Sparkles,
+  Filter,
+  UserPlus,
+  X,
+  Lock,
+  Mail,
+  Phone,
+  Building2,
+  AlertCircle,
+} from 'lucide-react';
 import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
 import { User } from '../../types/index.js';
 
 export const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
+
+  // Create user modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    email: '',
+    password: 'Teacher@123',
+    role: 'OFFICER',
+    departmentId: '',
+    phone: '',
+  });
 
   const fetchUsers = async () => {
     try {
@@ -24,8 +54,20 @@ export const UserManagementPage: React.FC = () => {
     }
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const res = await api.get('/admin/departments');
+      if (res.data.success && res.data.data.departments) {
+        setDepartments(res.data.data.departments);
+      }
+    } catch (err) {
+      console.error('Error fetching departments:', err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchDepartments();
   }, []);
 
   const handleUpdateUser = async (id: string, status?: string, role?: string) => {
@@ -38,6 +80,47 @@ export const UserManagementPage: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    setCreateLoading(true);
+
+    try {
+      const payload: any = {
+        name: createForm.name,
+        email: createForm.email,
+        password: createForm.password,
+        role: createForm.role,
+        phone: createForm.phone || undefined,
+      };
+
+      if (createForm.role === 'OFFICER' && createForm.departmentId) {
+        payload.departmentId = createForm.departmentId;
+      }
+
+      const res = await api.post('/admin/users', payload);
+      if (res.data.success) {
+        setMsg(res.data.message || 'User created successfully.');
+        setIsModalOpen(false);
+        setCreateForm({
+          name: '',
+          email: '',
+          password: 'Teacher@123',
+          role: 'OFFICER',
+          departmentId: '',
+          phone: '',
+        });
+        await fetchUsers();
+      }
+    } catch (err: any) {
+      setCreateError(
+        err.response?.data?.message || 'Failed to create user. Please check your inputs.'
+      );
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -66,9 +149,21 @@ export const UserManagementPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-2xl border border-slate-200/80 shadow-2xs text-xs font-semibold text-slate-600 self-start sm:self-auto">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span>Total Records: <strong className="text-slate-900">{users.length}</strong></span>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-2xl border border-slate-200/80 shadow-2xs text-xs font-semibold text-slate-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span>Total Records: <strong className="text-slate-900">{users.length}</strong></span>
+          </div>
+          <button
+            onClick={() => {
+              setCreateError('');
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <UserPlus className="h-4 w-4" />
+            <span>Create Staff / Admin</span>
+          </button>
         </div>
       </div>
 
@@ -211,6 +306,157 @@ export const UserManagementPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* CREATE STAFF / ADMIN MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 overflow-hidden">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="h-10 w-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                  <UserPlus className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Create Staff / Admin Account</h3>
+                  <p className="text-xs text-slate-500">Add a new Teacher, Verification Officer, or System Administrator</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="h-8 w-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {createError && (
+              <div className="mt-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{createError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateUser} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Full Name & Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Prof. Harpreet Singh or Dr. Sunita Rani"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Official Institutional Email</label>
+                <div className="relative">
+                  <Mail className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. harpreet.cse@gndec.ac.in"
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Role Permission</label>
+                  <select
+                    value={createForm.role}
+                    onChange={(e) => {
+                      const newRole = e.target.value;
+                      setCreateForm({
+                        ...createForm,
+                        role: newRole,
+                        password: newRole === 'ADMIN' ? 'Admin@123' : 'Teacher@123',
+                      });
+                    }}
+                    className="w-full px-3 py-2.5 text-xs font-semibold border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                  >
+                    <option value="OFFICER">🛡️ Teacher / Verification Officer</option>
+                    <option value="ADMIN">⚙️ Super Administrator</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Initial Password</label>
+                  <div className="relative">
+                    <Lock className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Initial Password"
+                      value={createForm.password}
+                      onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                      className="w-full pl-9 pr-3.5 py-2.5 text-xs font-mono border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {createForm.role === 'OFFICER' && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Academic Department (Optional)
+                  </label>
+                  <div className="relative">
+                    <Building2 className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <select
+                      value={createForm.departmentId}
+                      onChange={(e) => setCreateForm({ ...createForm, departmentId: e.target.value })}
+                      className="w-full pl-9 pr-3.5 py-2.5 text-xs font-semibold border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                    >
+                      <option value="">All Departments / Central Cell</option>
+                      {departments.map((dept) => (
+                        <option key={dept._id} value={dept._id}>
+                          {dept.name} ({dept.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Contact Phone (Optional)</label>
+                <div className="relative">
+                  <Phone className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9815002233"
+                    value={createForm.phone}
+                    onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50 hover:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  {createLoading ? 'Provisioning Account...' : 'Create Account'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

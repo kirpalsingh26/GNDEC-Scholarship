@@ -52,6 +52,7 @@ import {
 import {
   getAdminDashboardStats,
   listUsers,
+  createUser,
   updateUserStatus,
   getAuditLogs,
   listDepartments,
@@ -193,6 +194,7 @@ router.get(
   getAdminDashboardStats
 );
 router.get('/admin/users', authenticate, authorize(ROLES.ADMIN), listUsers);
+router.post('/admin/users', authenticate, authorize(ROLES.ADMIN), createUser);
 router.put('/admin/users/:id/status', authenticate, authorize(ROLES.ADMIN), updateUserStatus);
 router.get('/admin/audit-logs', authenticate, authorize(ROLES.ADMIN), getAuditLogs);
 router.get('/admin/departments', authenticate, listDepartments);

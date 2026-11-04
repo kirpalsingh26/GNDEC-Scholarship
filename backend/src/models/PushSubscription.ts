@@ -29,3 +29,4 @@ export const PushSubscription = mongoose.model<IPushSubscription>(
   'PushSubscription',
   PushSubscriptionSchema
 );
+

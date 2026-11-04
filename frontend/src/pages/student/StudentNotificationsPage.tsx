@@ -355,3 +355,4 @@ export const StudentNotificationsPage: React.FC = () => {
     </div>
   );
 };
+

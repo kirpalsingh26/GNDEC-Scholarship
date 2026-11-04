@@ -138,3 +138,4 @@ export const checkIsSubscribed = async (): Promise<boolean> => {
     return false;
   }
 };
+

@@ -122,6 +122,61 @@ export const listUsers = async (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
+export const createUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { name, email, password, role, departmentId, phone } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, password, and role are required.',
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'A user account with this email already exists.',
+      });
+    }
+
+    const newUser = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+      role,
+      status: 'ACTIVE',
+      departmentId: departmentId || undefined,
+      phone: phone ? phone.trim() : undefined,
+    });
+
+    await logAudit({
+      req,
+      action: 'USER_CREATED_BY_ADMIN',
+      entityType: 'User',
+      entityId: (newUser._id as any).toString(),
+      description: `Admin ${req.user?.name} created ${role} account: ${newUser.name} (${newUser.email})`,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `${role} account for ${name} created successfully.`,
+      data: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        status: newUser.status,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUserStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

@@ -208,7 +208,7 @@ export const LoginPage: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. 2104501@gndec.ac.in or officer.rajesh@gndec.ac.in"
+                    placeholder="e.g. teacher@gndec.ac.in, admin@gndec.ac.in, or roll number email"
                     className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -249,6 +249,70 @@ export const LoginPage: React.FC = () => {
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
+
+            {/* Teacher & Admin Quick-Access Credentials */}
+            <div className="mt-5 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
+                  Staff Credentials (Quick Fill)
+                </span>
+                <span className="text-[10px] text-slate-400">1-click fill</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Teacher / Verification Officer */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('teacher@gndec.ac.in');
+                    setPassword('Teacher@123');
+                  }}
+                  className="p-3 rounded-2xl border border-blue-200/90 bg-gradient-to-br from-blue-50/80 to-indigo-50/40 hover:from-blue-100/90 hover:to-indigo-100/60 text-left transition-all group shadow-2xs hover:shadow-xs hover:border-blue-300"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-blue-950 flex items-center gap-1.5">
+                      <span>🛡️</span> Teacher / Officer
+                    </span>
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 group-hover:bg-blue-600 group-hover:text-white px-2 py-0.5 rounded-md transition-colors">
+                      Fill
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-blue-900 font-mono font-medium mt-1.5 truncate">
+                    teacher@gndec.ac.in
+                  </p>
+                  <div className="flex items-center justify-between mt-1 pt-1 border-t border-blue-200/50 text-[10px] text-blue-700 font-mono">
+                    <span>Password:</span>
+                    <strong className="text-blue-900">Teacher@123</strong>
+                  </div>
+                </button>
+
+                {/* Super Admin */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin@gndec.ac.in');
+                    setPassword('Admin@123');
+                  }}
+                  className="p-3 rounded-2xl border border-purple-200/90 bg-gradient-to-br from-purple-50/80 to-violet-50/40 hover:from-purple-100/90 hover:to-violet-100/60 text-left transition-all group shadow-2xs hover:shadow-xs hover:border-purple-300"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-purple-950 flex items-center gap-1.5">
+                      <span>⚙️</span> Super Admin
+                    </span>
+                    <span className="text-[10px] font-bold text-purple-700 bg-purple-100/80 group-hover:bg-purple-600 group-hover:text-white px-2 py-0.5 rounded-md transition-colors">
+                      Fill
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-purple-900 font-mono font-medium mt-1.5 truncate">
+                    admin@gndec.ac.in
+                  </p>
+                  <div className="flex items-center justify-between mt-1 pt-1 border-t border-purple-200/50 text-[10px] text-purple-700 font-mono">
+                    <span>Password:</span>
+                    <strong className="text-purple-900">Admin@123</strong>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Registration Navigation Footer */}
