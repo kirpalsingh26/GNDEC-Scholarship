@@ -41,7 +41,7 @@ export const RegisterPage: React.FC = () => {
     rollNumber: '',
     department: 'Computer Science and Engineering',
     category: 'SC',
-    familyIncome: 180000,
+    familyIncome: '' as any,
     phone: '',
     course: 'B.Tech',
     year: 3,
@@ -88,7 +88,7 @@ export const RegisterPage: React.FC = () => {
     }
 
     // Step 3
-    const hasValidIncome = formData.familyIncome > 0 && formData.familyIncome <= 250000;
+    const hasValidIncome = Boolean(formData.familyIncome) && Number(formData.familyIncome) > 0 && Number(formData.familyIncome) <= 250000;
     if (!hasValidIncome) {
       return { percent: 66, label: '66% Completed (Steps 1 & 2 Done)' };
     }
@@ -127,6 +127,16 @@ export const RegisterPage: React.FC = () => {
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!formData.familyIncome || Number(formData.familyIncome) <= 0) {
+      setError('Please provide your annual family income as certified by Tehsildar/SDM.');
+      return;
+    }
+    if (Number(formData.familyIncome) > 250000) {
+      setError('Punjab Dr. B.R. Ambedkar PMS SC Scheme requires annual family income ≤ ₹2,50,000.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -138,7 +148,7 @@ export const RegisterPage: React.FC = () => {
         department: formData.department,
         category: formData.category,
         familyIncome: Number(formData.familyIncome),
-        phone: formData.phone || '9876543210',
+        phone: formData.phone.trim(),
         course: formData.course,
         year: Number(formData.year),
         semester: Number(formData.semester),
@@ -651,8 +661,9 @@ export const RegisterPage: React.FC = () => {
                       <input
                         type="number"
                         required
-                        value={formData.familyIncome}
-                        onChange={(e) => setFormData({ ...formData, familyIncome: Number(e.target.value) })}
+                        placeholder="e.g. 180000"
+                        value={formData.familyIncome || ''}
+                        onChange={(e) => setFormData({ ...formData, familyIncome: e.target.value === '' ? ('' as any) : Number(e.target.value) })}
                         className="block w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm bg-slate-50/70 border border-slate-200 rounded-xl text-slate-900 font-bold focus:bg-white focus:ring-3 focus:ring-indigo-100 focus:border-indigo-600 transition-all outline-none"
                       />
                     </div>

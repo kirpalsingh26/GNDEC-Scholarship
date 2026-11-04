@@ -250,15 +250,17 @@ export const SubmitDocumentsPage: React.FC = () => {
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Roll Number / URN</span>
-            <span className="font-mono font-bold text-indigo-700">{profile?.rollNumber || '2104501'}</span>
+            <span className="font-mono font-bold text-indigo-700">{profile?.rollNumber || '-'}</span>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Social Category</span>
-            <span className="font-extrabold text-amber-800">SC (Scheduled Caste)</span>
+            <span className="font-extrabold text-amber-800">{profile?.category || 'SC (Scheduled Caste)'}</span>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Family Income</span>
-            <span className="font-bold text-emerald-700">₹{(profile?.familyIncome || 180000).toLocaleString('en-IN')}/yr</span>
+            <span className="font-bold text-emerald-700">
+              {profile?.familyIncome ? `₹${profile.familyIncome.toLocaleString('en-IN')}/yr` : 'Pending Declaration'}
+            </span>
           </div>
         </div>
       </div>

@@ -410,7 +410,7 @@ export const ApplicationsQueuePage: React.FC = () => {
                               </p>
                               <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap">
                                 <span className="text-[10px] text-slate-600 font-mono font-bold bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200/60 whitespace-nowrap">
-                                  Roll: {app.studentId?.rollNumber || '2104501'}
+                                  Roll: {app.studentId?.rollNumber || 'N/A'}
                                 </span>
                                 <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 whitespace-nowrap">
                                   {app.snapshot?.department ? `${app.snapshot.department.split(' ')[0]} • Sem ${app.snapshot.semester || 5}` : 'CSE • Sem 5'}
@@ -527,7 +527,7 @@ export const ApplicationsQueuePage: React.FC = () => {
                         {studentName}
                       </h4>
                       <p className="text-xs text-slate-400 font-mono mt-0.5">
-                        Roll: {app.studentId?.rollNumber || '2104501'} • Sem {app.snapshot?.semester || 5}
+                        Roll: {app.studentId?.rollNumber || 'N/A'} • Sem {app.snapshot?.semester || '-'}
                       </p>
                       <p className="text-[11px] text-indigo-600 font-semibold mt-0.5">
                         {app.snapshot?.department || 'Computer Science and Engineering'}

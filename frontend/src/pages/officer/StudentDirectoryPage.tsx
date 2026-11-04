@@ -133,7 +133,7 @@ export const StudentDirectoryPage: React.FC = () => {
                     <td className="py-4 px-5 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 text-slate-600 font-mono text-xs">
                         <Phone className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <span>{st.phone || '+91 98765-43210'}</span>
+                        <span>{st.phone || 'N/A'}</span>
                       </div>
                     </td>
                     <td className="py-4 px-5 whitespace-nowrap">

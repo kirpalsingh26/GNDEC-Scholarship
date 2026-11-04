@@ -66,7 +66,7 @@ export const RenewScholarshipPage: React.FC = () => {
                 <span className="font-medium text-slate-800">Regular academic progression (No semester year-backs)</span>
               </div>
               <span className="font-mono font-bold text-slate-900 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-lg border border-emerald-200/60">
-                CGPA {profile?.cgpa ? profile.cgpa.toFixed(2) : '8.65'} (Satisfied)
+                CGPA {profile?.cgpa && profile.cgpa > 0 ? profile.cgpa.toFixed(2) : 'Enrolled Regular'} (Satisfied)
               </span>
             </div>
 

@@ -72,20 +72,13 @@ export const StudentDashboard: React.FC = () => {
     fetchDashboard();
   }, []);
 
-  // If new student has not uploaded documents yet, automatically redirect to document submission page
-  useEffect(() => {
-    if (!loading && data && data.onboardingStage === 'DOCUMENTS_REQUIRED') {
-      navigate('/student/submit-documents');
-    }
-  }, [loading, data, navigate]);
-
   const latestApp = data?.latestApplication || data?.applications?.[0];
   const kpis = data?.kpis;
   const documents: any[] = data?.documents || [];
   const isVerified = data?.isVerified === true;
   const onboardingStage = data?.onboardingStage || 'PENDING_VERIFICATION';
 
-  const familyIncome = profile?.familyIncome || 180000;
+  const familyIncome = profile?.familyIncome || 0;
   const isIncomeEligible = familyIncome <= 250000;
 
   // Handle quick re-upload directly from dashboard if officer requested it
@@ -165,15 +158,15 @@ export const StudentDashboard: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-y-1 gap-x-2.5 text-xs text-slate-600">
                 <span className="font-mono text-slate-800 font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
-                  URN: {profile?.rollNumber || '2104520'}
+                  URN: {profile?.rollNumber || 'Pending URN'}
                 </span>
                 <span>•</span>
-                <span className="font-medium text-slate-700">{profile?.department || 'Computer Science & Engineering'}</span>
+                <span className="font-medium text-slate-700">{profile?.department || 'GNDEC Department'}</span>
                 <span>•</span>
-                <span className="font-medium text-slate-700">Semester {profile?.semester || 5}</span>
+                <span className="font-medium text-slate-700">{profile?.semester ? `Semester ${profile.semester}` : 'Enrolled Regular'}</span>
                 <span>•</span>
                 <span className="font-bold text-amber-900 bg-amber-100/70 border border-amber-200/80 px-2 py-0.5 rounded-md text-[11px]">
-                  Category: SC Verified ✓
+                  Category: {profile?.category || 'SC'}
                 </span>
               </div>
             </div>
@@ -224,19 +217,19 @@ export const StudentDashboard: React.FC = () => {
                 PMS Application Status
               </p>
               <h3 className="mt-1 text-xl font-black text-slate-900">
-                {latestApp ? latestApp.status.replace(/_/g, ' ') : isVerified ? 'APPROVED' : 'SUBMITTED'}
+                {latestApp ? latestApp.status.replace(/_/g, ' ') : isVerified ? 'APPROVED' : 'NOT APPLIED'}
               </h3>
               <p className="mt-0.5 text-xs text-slate-500 font-mono">
-                #{latestApp?.applicationNumber || 'GNDEC-PMS-2025'}
+                #{latestApp?.applicationNumber || 'None'}
               </p>
             </div>
-            <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border ${isVerified ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60' : 'bg-amber-50 text-amber-600 border-amber-200/60'}`}>
+            <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border ${isVerified ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60' : latestApp ? 'bg-amber-50 text-amber-600 border-amber-200/60' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
               {isVerified ? <FileCheck2 className="h-5 w-5" /> : <Clock className="h-5 w-5 animate-pulse" />}
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className={isVerified ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>
-              {isVerified ? '✓ Certified by Welfare Officer' : '⏳ Committee Review Pending'}
+            <span className={isVerified ? 'text-emerald-700 font-bold' : latestApp ? 'text-amber-700 font-bold' : 'text-slate-500 font-bold'}>
+              {isVerified ? '✓ Certified by Welfare Officer' : latestApp ? '⏳ Committee Review Pending' : 'No Application Filed'}
             </span>
             <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
           </div>
@@ -280,7 +273,7 @@ export const StudentDashboard: React.FC = () => {
                 Certified Family Income
               </p>
               <h3 className="mt-1 text-xl font-black text-slate-900">
-                ₹{(familyIncome / 100000).toFixed(2)} Lakh
+                {familyIncome > 0 ? `₹${(familyIncome / 100000).toFixed(2)} Lakh` : 'Not Declared'}
               </h3>
               <p className="mt-0.5 text-xs text-slate-500">
                 Limit: ≤ ₹2.50 Lakh / year
@@ -291,7 +284,9 @@ export const StudentDashboard: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-blue-700 font-bold">✓ Income Under Ceiling</span>
+            <span className="text-blue-700 font-bold">
+              {familyIncome > 0 ? '✓ Income Under Ceiling' : 'Pending Income Declaration'}
+            </span>
             <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
           </div>
         </div>
@@ -307,10 +302,10 @@ export const StudentDashboard: React.FC = () => {
                 Mandatory Certificates
               </p>
               <h3 className="mt-1 text-xl font-black text-slate-900">
-                {kpis?.verifiedDocuments ?? (isVerified ? documents.length : 0)} / {documents.length || 6}
+                {kpis?.verifiedDocuments ?? (isVerified ? documents.length : 0)} / {documents.length || 0}
               </h3>
               <p className="mt-0.5 text-xs text-slate-500">
-                {isVerified ? 'All Certificates Certified' : 'Under Officer Inspection'}
+                {documents.length === 0 ? 'Upload Certificates in Vault' : isVerified ? 'All Certificates Certified' : 'Under Officer Inspection'}
               </p>
             </div>
             <div className="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200/60 flex items-center justify-center shrink-0">
@@ -380,16 +375,16 @@ export const StudentDashboard: React.FC = () => {
             {
               step: '2',
               title: 'Certificates Uploaded',
-              desc: `${documents.length || 6} mandatory proofs filed`,
-              done: true,
-              current: false,
+              desc: documents.length > 0 ? `${documents.length} mandatory proof(s) filed` : 'Pending certificate submission',
+              done: documents.length >= 4,
+              current: documents.length < 4,
             },
             {
               step: '3',
               title: 'Faculty Officer Scrutiny',
               desc: isVerified ? 'All certificates certified ✓' : 'Authenticating SDM/Tehsildar seals',
               done: isVerified,
-              current: !isVerified,
+              current: documents.length >= 4 && !isVerified,
             },
             {
               step: '4',

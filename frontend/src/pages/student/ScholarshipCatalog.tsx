@@ -7,13 +7,7 @@ import {
   Clock,
   ArrowRight,
   ShieldCheck,
-  Building2,
   Calendar,
-  Sliders,
-  DollarSign,
-  Award,
-  Wallet,
-  Sparkles,
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
@@ -27,12 +21,6 @@ export const ScholarshipCatalog: React.FC = () => {
 
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [search, setSearch] = useState('');
-  const [showMatcher, setShowMatcher] = useState(false);
-
-  // Matcher Simulation Filters
-  const [simCgpa, setSimCgpa] = useState<number>(profile?.cgpa || 8.65);
-  const [simIncome, setSimIncome] = useState<number>(profile?.familyIncome || 180000);
-  const [simCategory] = useState<string>('SC');
 
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,26 +47,6 @@ export const ScholarshipCatalog: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Compute live match score based on simulated or actual criteria
-  const calculateSimulatedMatch = (sch: Scholarship) => {
-    let score = 100;
-    const rules = sch.rules || {};
-
-    if (rules.minCgpa && simCgpa < rules.minCgpa) {
-      const diff = rules.minCgpa - simCgpa;
-      score -= Math.min(40, Math.round(diff * 20));
-    }
-    if (rules.maxFamilyIncome && simIncome > rules.maxFamilyIncome) {
-      score -= 50;
-    }
-    if (rules.allowedCategories && rules.allowedCategories.length > 0) {
-      if (!rules.allowedCategories.includes(simCategory)) {
-        score -= 50;
-      }
-    }
-    return Math.max(0, Math.min(100, score));
-  };
-
   const filtered = scholarships.filter((s) => {
     return (
       s.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -86,10 +54,6 @@ export const ScholarshipCatalog: React.FC = () => {
       s.code.toLowerCase().includes(search.toLowerCase())
     );
   });
-
-  const eligibleCount = filtered.filter((s) =>
-    showMatcher ? calculateSimulatedMatch(s) >= 80 : s.eligibility?.isEligible
-  ).length;
 
   return (
     <div className="space-y-6">
@@ -108,91 +72,11 @@ export const ScholarshipCatalog: React.FC = () => {
           </p>
         </div>
 
-        {/* Eligibility Calculator Toggle */}
-        <button
-          onClick={() => setShowMatcher(!showMatcher)}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs self-start sm:self-auto ${
-            showMatcher
-              ? 'bg-[#0b2341] text-amber-400 border border-amber-500/40'
-              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-          }`}
-        >
-          <Sliders className={`h-4 w-4 ${showMatcher ? 'text-amber-400' : 'text-slate-600'}`} />
-          <span>{showMatcher ? 'Hide Eligibility Checker' : 'PMS Eligibility Calculator'}</span>
-        </button>
-      </div>
-
-      {/* Interactive Eligibility Sandbox Control Panel */}
-      {showMatcher && (
-        <div className="p-6 rounded-2xl bg-[#0b2341] text-white border border-amber-500/30 shadow-lg animate-in fade-in slide-in-from-top-3 duration-200">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-white/10 mb-5">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
-                <Sliders className="h-4 w-4 text-amber-400" />
-                <span>PMS SC Eligibility Verification Sandbox</span>
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Verify if your annual income and reservation category meet Punjab Government PMS guidelines.
-              </p>
-            </div>
-            <span className="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30">
-              {eligibleCount} of {filtered.length} Schemes Match (100% Eligible)
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs">
-            {/* Category Fixed to SC */}
-            <div className="space-y-2">
-              <label className="block text-slate-300 font-bold">Category & Quota</label>
-              <div className="px-3 py-2 rounded-xl bg-slate-800 border border-amber-500/40 text-amber-300 font-bold flex items-center justify-between">
-                <span>SC (Scheduled Caste)</span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Eligible</span>
-              </div>
-              <span className="text-[10px] text-slate-400">Scheme is dedicated strictly to SC candidates</span>
-            </div>
-
-            {/* Family Income Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between font-bold">
-                <span className="text-slate-300">Annual Family Income</span>
-                <span className="text-amber-400 font-mono font-bold text-sm">
-                  ₹{(simIncome / 100000).toFixed(2)} Lakh
-                </span>
-              </div>
-              <input
-                type="range"
-                min={50000}
-                max={400000}
-                step={10000}
-                value={simIncome}
-                onChange={(e) => setSimIncome(parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-              />
-              <span className="text-[10px] text-slate-400">
-                Mandatory PMS Limit: ≤ ₹2.50 Lakh/year ({simIncome <= 250000 ? '✅ Compliant' : '❌ Exceeds Limit'})
-              </span>
-            </div>
-
-            {/* Academic CGPA Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between font-bold">
-                <span className="text-slate-300">Academic CGPA</span>
-                <span className="text-amber-300 font-mono font-bold text-sm">{simCgpa} / 10</span>
-              </div>
-              <input
-                type="range"
-                min={4.0}
-                max={10.0}
-                step={0.1}
-                value={simCgpa}
-                onChange={(e) => setSimCgpa(parseFloat(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-              />
-              <span className="text-[10px] text-slate-400">Current CGPA: {profile?.cgpa || 8.65} (Enrolled Regular)</span>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs self-start sm:self-auto">
+          <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          <span>Category: <strong className="text-amber-800">SC Only</strong> • Ceiling: <strong className="text-slate-900">≤ ₹2.50L</strong></span>
         </div>
-      )}
+      </div>
 
       {/* Search Bar */}
       <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
@@ -227,9 +111,9 @@ export const ScholarshipCatalog: React.FC = () => {
         ) : (
           filtered.map((sch) => {
             const elig = sch.eligibility;
-            const liveScore = showMatcher ? calculateSimulatedMatch(sch) : elig?.scorePercentage || 100;
-            const isEligible = showMatcher ? liveScore >= 80 : elig?.isEligible ?? true;
-            const rules = sch.rules || {};
+            const isCategoryEligible = !sch.rules?.allowedCategories?.length || sch.rules.allowedCategories.includes(profile?.category || 'SC');
+            const isIncomeEligible = !sch.rules?.maxFamilyIncome || ((profile?.familyIncome || 0) <= sch.rules.maxFamilyIncome);
+            const isEligible = elig ? elig.isEligible : (isCategoryEligible && isIncomeEligible);
 
             return (
               <div
@@ -290,29 +174,29 @@ export const ScholarshipCatalog: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Explainable Match Status */}
-                  <div className="mt-4 space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 flex items-center gap-1 font-semibold">
-                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                        {showMatcher ? 'Simulated Match:' : 'SC Profile Match:'}
-                      </span>
-                      <span
-                        className={`font-black ${
-                          isEligible ? 'text-emerald-600' : 'text-amber-600'
-                        }`}
-                      >
-                        {liveScore}% {isEligible ? '(Eligible ✓)' : '(Ineligible)'}
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-300 ${
-                          isEligible ? 'bg-emerald-500' : 'bg-amber-500'
-                        }`}
-                        style={{ width: `${liveScore}%` }}
-                      />
-                    </div>
+                  {/* Scheme Eligibility Verification Status */}
+                  <div className="mt-4">
+                    {isEligible ? (
+                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                          <span className="font-bold text-emerald-950">Eligible to Apply (PMS SC Verified ✓)</span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-200 text-emerald-900">
+                          Qualified
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                          <span className="font-bold text-amber-950">Ineligible (Criteria Not Met)</span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200 text-amber-900">
+                          Review
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -352,20 +236,22 @@ export const ScholarshipCatalog: React.FC = () => {
               {
                 key: 'CATEGORY',
                 name: 'Social Reservation Category',
-                satisfied: true,
+                satisfied: (profile?.category || 'SC') === 'SC',
                 required: 'SC (Scheduled Caste)',
-                actual: 'SC',
+                actual: profile?.category || 'SC',
                 severity: 'CRITICAL',
                 feedback: 'Student belongs to recognized Scheduled Caste (SC) category.',
               },
               {
                 key: 'INCOME',
                 name: 'Annual Family Income Limit',
-                satisfied: (profile?.familyIncome || 180000) <= 250000,
+                satisfied: (profile?.familyIncome || 0) <= 250000,
                 required: '≤ ₹2,50,000/yr',
-                actual: `₹${(profile?.familyIncome || 180000).toLocaleString('en-IN')}`,
+                actual: profile?.familyIncome ? `₹${profile.familyIncome.toLocaleString('en-IN')}` : 'Pending Declaration',
                 severity: 'CRITICAL',
-                feedback: 'Declared family income is within the ₹2.50 Lakh PMS ceiling.',
+                feedback: (profile?.familyIncome || 0) <= 250000
+                  ? 'Declared family income is within the ₹2.50 Lakh PMS ceiling.'
+                  : 'Declared family income exceeds the ₹2.50 Lakh PMS ceiling.',
               },
               {
                 key: 'DOMICILE',

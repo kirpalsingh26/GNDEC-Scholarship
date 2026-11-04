@@ -338,129 +338,13 @@ export const initProductionData = async () => {
 };
 
 /**
- * Optional Development/Test Mock Dataset Seeder
- * Only generates sample students if explicitly executed.
+ * Production environment: Demo student seeding is completely disabled.
+ * The portal operates exclusively on authentic student accounts, real applications,
+ * and uploaded certificates.
  */
 export const seedDemoData = async () => {
   await initProductionData();
-
-  const studentCount = await User.countDocuments({ role: ROLES.STUDENT });
-  if (studentCount > 0) {
-    console.log(`ℹ️ Database already contains ${studentCount} students. Skipping demo student seeding.`);
-    return;
-  }
-
-  console.log('🌱 Seeding demo student dataset for development...');
-
-  const departments = await Department.find();
-  const deptMap: Record<string, any> = {};
-  departments.forEach((d) => {
-    deptMap[d.code] = d;
-  });
-
-  const sch = await Scholarship.findOne({ code: 'PB-PMS-SC' });
-  const officer1 = await User.findOne({ email: 'officer.rajesh@gndec.ac.in' });
-
-  const studentNames = [
-    { first: 'Harpreet', last: 'Singh', gender: 'MALE', dept: 'CSE', cat: 'SC', income: 180000, cgpa: 8.65 },
-    { first: 'Simran', last: 'Kaur', gender: 'FEMALE', dept: 'CSE', cat: 'SC', income: 195000, cgpa: 9.12 },
-    { first: 'Gursewak', last: 'Singh', gender: 'MALE', dept: 'IT', cat: 'SC', income: 140000, cgpa: 7.45 },
-    { first: 'Manpreet', last: 'Kaur', gender: 'FEMALE', dept: 'ECE', cat: 'SC', income: 190000, cgpa: 8.2 },
-    { first: 'Jaspreet', last: 'Singh', gender: 'MALE', dept: 'ME', cat: 'SC', income: 210000, cgpa: 7.8 },
-  ];
-
-  let count = 0;
-  for (const st of studentNames) {
-    count += 1;
-    const rollNo = `210450${count}`;
-    const email = `${st.first.toLowerCase()}.${st.last.toLowerCase()}@gndec.ac.in`;
-
-    const user = await User.create({
-      name: `${st.first} ${st.last}`,
-      email,
-      password: 'Student@123',
-      role: ROLES.STUDENT,
-      status: 'ACTIVE',
-      phone: `987654321${count}`,
-    });
-
-    const qrToken = `GNDEC-VERIFY-${rollNo}-${Date.now().toString(36).toUpperCase()}`;
-
-    const profile = await StudentProfile.create({
-      userId: user._id,
-      studentId: `GNDEC-${rollNo}`,
-      rollNumber: rollNo,
-      firstName: st.first,
-      lastName: st.last,
-      email: user.email,
-      phone: user.phone || '9876543210',
-      department: st.dept,
-      departmentId: deptMap[st.dept]?._id,
-      course: 'B.Tech',
-      year: 3,
-      semester: 5,
-      category: st.cat,
-      familyIncome: st.income,
-      cgpa: st.cgpa,
-      activeBacklogs: 0,
-      totalBacklogs: 0,
-      bankDetails: {
-        accountHolderName: `${st.first} ${st.last}`,
-        accountNumber: `3892019482${count}`,
-        ifscCode: 'SBIN0050186',
-        bankName: 'State Bank of India',
-        branchName: 'GNDEC Ludhiana Campus',
-      },
-      guardian: {
-        name: `S. Gurmukh Singh`,
-        relation: 'Father',
-        phone: '9814099887',
-        occupation: 'Farmer / Service',
-      },
-      verificationStatus: 'VERIFIED',
-      verifiedBy: officer1?._id,
-      verifiedAt: new Date(),
-      verificationBadge: true,
-      qrVerificationToken: qrToken,
-      qrVerificationUrl: `https://gndec.ac.in/verify/scholar?token=${qrToken}`,
-      remarks: 'Documents fully verified under Punjab PMS SC Scheme guidelines.',
-    });
-
-    // Sample Academic Record
-    await AcademicRecord.create({
-      studentId: profile._id,
-      semester: 4,
-      academicYear: '2024-2025',
-      cgpa: st.cgpa,
-      sgpa: st.cgpa,
-      totalCredits: 22,
-      passedCredits: 22,
-      backlogs: 0,
-    });
-
-    // Sample Application
-    if (sch) {
-      await ScholarshipApplication.create({
-        applicationNumber: `GNDEC-PMS-2025-${rollNo}`,
-        studentId: profile._id,
-        scholarshipId: sch._id,
-        academicYear: '2025-2026',
-        status: APPLICATION_STATUS.APPROVED,
-        appliedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-        cgpaAtApplication: st.cgpa,
-        familyIncomeAtApplication: st.income,
-        verifiedBy: officer1?._id,
-        verifiedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        officerRemarks: 'All Punjab state PMS SC certificates and Freeship card verified.',
-        timeline: [
-          { status: APPLICATION_STATUS.SUBMITTED, updatedBy: user._id, comment: 'Application submitted', timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
-          { status: APPLICATION_STATUS.APPROVED, updatedBy: officer1?._id, comment: 'Verified by Scholarship Officer', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
-        ],
-      });
-    }
-  }
-
-  console.log('✅ Demo dataset generated.');
+  console.log('ℹ️ Demo student seeding is disabled. Platform operates on real student data only.');
 };
 
 // Aliased export for compatibility

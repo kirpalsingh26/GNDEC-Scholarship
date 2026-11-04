@@ -56,7 +56,7 @@ export class OcrService {
     let issuingAuthority = 'Revenue Department, Govt. of Punjab (Tehsil Ludhiana)';
     let issueDate = '15/04/2025';
     let expiryDate = '31/03/2026';
-    let extractedIncome = student.familyIncome || 180000;
+    let extractedIncome = student.familyIncome || 0;
     let extractedCaste = student.category || 'SC';
 
     if (documentType === 'INCOME_CERTIFICATE') {
@@ -71,8 +71,8 @@ export class OcrService {
       issuingAuthority = 'I.K. Gujral Punjab Technical University, Jalandhar';
       expiryDate = 'N/A';
     } else if (documentType === 'BANK_PROOF') {
-      certificateNo = `HDFC/STMT/${student.rollNumber}`;
-      issuingAuthority = student.bankDetails?.bankName || 'State Bank of India, GNDEC Branch';
+      certificateNo = `BANK/STMT/${student.rollNumber}`;
+      issuingAuthority = student.bankDetails?.bankName || 'Direct Beneficiary Bank';
       expiryDate = 'N/A';
     }
 
@@ -87,7 +87,7 @@ export class OcrService {
 Government of Punjab - Official Certificate
 Certificate ID: ${certificateNo}
 Issued To: ${fullName.toUpperCase()}
-Father/Guardian: ${student.guardian?.name || 'S. Gurmukh Singh'}
+Father/Guardian: ${student.guardian?.name || 'Declared Guardian'}
 Roll Number / URN: ${student.rollNumber}
 Department: Guru Nanak Dev Engineering College, Ludhiana
 Status: Verified by Digital Signature Authority

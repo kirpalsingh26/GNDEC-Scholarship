@@ -157,13 +157,15 @@ export class EligibilityService {
       });
     }
 
-    // Overall Eligibility outcome
+    // Overall Eligibility outcome: strictly criteria-based
     const criticalCriteria = criteria.filter((c) => c.severity === 'CRITICAL');
     const isEligible = criticalCriteria.every((c) => c.satisfied);
 
+    // If mandatory criteria are met, the student is 100% eligible to apply.
+    // Document readiness is an application submission requirement, not an eligibility penalty.
     const totalCount = criteria.length;
     const satisfiedCount = criteria.filter((c) => c.satisfied).length;
-    const scorePercentage = totalCount > 0 ? Math.round((satisfiedCount / totalCount) * 100) : 100;
+    const scorePercentage = isEligible ? 100 : (totalCount > 0 ? Math.round((satisfiedCount / totalCount) * 100) : 0);
 
     let summaryMessage = isEligible
       ? '🎉 You meet all core eligibility criteria for this scholarship opportunity!'

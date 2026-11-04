@@ -196,18 +196,28 @@ export const ApplicationReviewPage: React.FC = () => {
 
           <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Cumulative CGPA</span>
-            <span className="font-mono font-extrabold text-emerald-600 text-sm">{application.snapshot?.cgpa || 8.65} / 10.0</span>
+            <span className="font-mono font-extrabold text-emerald-600 text-sm">
+              {application.snapshot?.cgpa && application.snapshot.cgpa > 0
+                ? `${application.snapshot.cgpa.toFixed(2)} / 10.0`
+                : student?.cgpa && student.cgpa > 0
+                ? `${student.cgpa.toFixed(2)} / 10.0`
+                : 'Not Recorded'}
+            </span>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Social Category</span>
-            <span className="font-extrabold text-amber-800 text-sm">SC (Scheduled Caste)</span>
+            <span className="font-extrabold text-amber-800 text-sm">
+              {application.snapshot?.category || student?.category || 'SC'}
+            </span>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs">
             <span className="text-slate-400 block text-[10px] uppercase font-bold">Family Annual Income</span>
             <span className="font-bold text-slate-900 text-sm">
-              ₹{(application.snapshot?.familyIncome || student?.familyIncome || 180000).toLocaleString('en-IN')}/yr
+              {(application.snapshot?.familyIncome ?? student?.familyIncome)
+                ? `₹${(application.snapshot?.familyIncome ?? student?.familyIncome).toLocaleString('en-IN')}/yr`
+                : 'Pending Declaration'}
             </span>
           </div>
         </div>

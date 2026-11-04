@@ -21,9 +21,11 @@ import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
 import { Modal } from '../../components/common/Modal.js';
 import { useToast } from '../../context/ToastContext.js';
+import { useAuth } from '../../context/AuthContext.js';
 import { StudentDocument } from '../../types/index.js';
 
 export const DocumentVault: React.FC = () => {
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const [documents, setDocuments] = useState<StudentDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -480,21 +482,21 @@ export const DocumentVault: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-slate-500">Extracted Certificate ID:</span>
                     <span className="font-mono font-bold text-indigo-700">
-                      {ocr?.extractedCertificateNo || 'PB-INC-2025-884910'}
+                      {ocr?.extractedCertificateNo || 'Pending Extraction'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Extracted Beneficiary Name:</span>
-                    <span className="font-bold text-slate-900">{ocr?.extractedStudentName || 'Harpreet Singh'}</span>
+                    <span className="font-bold text-slate-900">{ocr?.extractedStudentName || `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim() || 'Beneficiary'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Certificate Issue Date:</span>
-                    <span className="font-bold text-emerald-700">{ocr?.extractedIssueDate || '12/04/2025'}</span>
+                    <span className="font-bold text-emerald-700">{ocr?.extractedIssueDate || 'Recent'}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-indigo-200">
                     <span className="text-slate-700 font-bold">Levenshtein Name Match:</span>
                     <span className="font-black text-indigo-600">
-                      {ocr?.nameMatchConfidence || 98}% Confidence
+                      {ocr?.nameMatchConfidence ? `${ocr.nameMatchConfidence}% Confidence` : 'Pending Match'}
                     </span>
                   </div>
                 </div>

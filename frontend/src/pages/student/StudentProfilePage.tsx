@@ -27,21 +27,21 @@ export const StudentProfilePage: React.FC = () => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    firstName: profile?.firstName || 'Harpreet',
-    lastName: profile?.lastName || 'Singh',
-    phone: profile?.phone || '9876534710',
+    firstName: profile?.firstName || '',
+    lastName: profile?.lastName || '',
+    phone: profile?.phone || '',
     category: profile?.category || 'SC',
-    familyIncome: profile?.familyIncome || 180000,
+    familyIncome: profile?.familyIncome || 0,
     // Bank Details
-    accountHolderName: profile?.bankDetails?.accountHolderName || 'Harpreet Singh',
-    accountNumber: profile?.bankDetails?.accountNumber || '38920194821',
-    ifscCode: profile?.bankDetails?.ifscCode || 'SBIN0050186',
-    bankName: profile?.bankDetails?.bankName || 'State Bank of India',
-    branchName: profile?.bankDetails?.branchName || 'GNDEC Ludhiana Campus',
+    accountHolderName: profile?.bankDetails?.accountHolderName || '',
+    accountNumber: profile?.bankDetails?.accountNumber || '',
+    ifscCode: profile?.bankDetails?.ifscCode || '',
+    bankName: profile?.bankDetails?.bankName || '',
+    branchName: profile?.bankDetails?.branchName || '',
     // Guardian
-    guardianName: profile?.guardian?.name || 'S. Gurmukh Singh',
-    guardianRelation: profile?.guardian?.relation || 'Father',
-    guardianPhone: profile?.guardian?.phone || '9814099887',
+    guardianName: profile?.guardian?.name || '',
+    guardianRelation: profile?.guardian?.relation || '',
+    guardianPhone: profile?.guardian?.phone || '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -119,7 +119,7 @@ export const StudentProfilePage: React.FC = () => {
                   URN: {profile?.rollNumber}
                   <button
                     type="button"
-                    onClick={() => copyToClipboard(profile?.rollNumber || '2104501', 'Roll Number', 'urn')}
+                    onClick={() => copyToClipboard(profile?.rollNumber || '', 'Roll Number', 'urn')}
                     className="hover:text-indigo-300 transition-colors ml-1"
                     title="Copy URN"
                   >
