@@ -18,6 +18,7 @@ import {
   Calendar,
   Sparkles,
   AlertCircle,
+  Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import api from '../../services/api.js';
@@ -71,39 +72,39 @@ const LiveCountdownClock: React.FC<{
 
   if (compact) {
     return (
-      <div className="flex items-center gap-1 text-center">
-        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
-          <span className="font-mono font-black text-xs text-amber-300 leading-tight">
+      <div className="flex items-center gap-1.5 text-center">
+        <div className="flex flex-col items-center bg-black/65 border border-white/15 rounded-xl px-2.5 py-1 min-w-[42px] shadow-inner">
+          <span className="font-mono font-black text-sm text-amber-300 leading-tight">
             {timeLeft.days}
           </span>
-          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
             Days
           </span>
         </div>
-        <span className="text-amber-400 font-bold text-xs">:</span>
-        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
-          <span className="font-mono font-black text-xs text-white leading-tight">
+        <span className="text-amber-400/80 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/65 border border-white/15 rounded-xl px-2.5 py-1 min-w-[42px] shadow-inner">
+          <span className="font-mono font-black text-sm text-white leading-tight">
             {String(timeLeft.hours).padStart(2, '0')}
           </span>
-          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
             Hrs
           </span>
         </div>
-        <span className="text-amber-400 font-bold text-xs">:</span>
-        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
-          <span className="font-mono font-black text-xs text-white leading-tight">
+        <span className="text-amber-400/80 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/65 border border-white/15 rounded-xl px-2.5 py-1 min-w-[42px] shadow-inner">
+          <span className="font-mono font-black text-sm text-white leading-tight">
             {String(timeLeft.minutes).padStart(2, '0')}
           </span>
-          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
             Min
           </span>
         </div>
-        <span className="text-amber-400 font-bold text-xs">:</span>
-        <div className="flex flex-col items-center bg-black/60 border border-white/20 rounded-lg px-2 py-0.5 min-w-[36px] shadow-xs">
-          <span className="font-mono font-black text-xs text-emerald-400 leading-tight">
+        <span className="text-amber-400/80 font-bold text-xs">:</span>
+        <div className="flex flex-col items-center bg-black/65 border border-white/15 rounded-xl px-2.5 py-1 min-w-[42px] shadow-inner">
+          <span className="font-mono font-black text-sm text-emerald-400 leading-tight">
             {String(timeLeft.seconds).padStart(2, '0')}
           </span>
-          <span className="text-[8px] font-extrabold text-slate-300 uppercase tracking-wider">
+          <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider">
             Sec
           </span>
         </div>
@@ -175,6 +176,55 @@ const LiveCountdownClock: React.FC<{
 
 // Aliased for backwards compatibility
 const LiveCountdownBadge = LiveCountdownClock;
+
+const getSchemeTheme = (code?: string) => {
+  switch (code) {
+    case 'PB-PMS-FREESHIP':
+      return {
+        topBorder: 'from-emerald-500 via-teal-600 to-emerald-400',
+        badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+        consoleBg: 'from-[#07241f] via-[#0b3831] to-[#07241f] border-emerald-900/40',
+        glowColor: 'bg-emerald-400/10',
+        benefitPill: '100% Tuition & Development Exemption',
+        benefitPillColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        btnBg: 'bg-[#07241f] hover:bg-[#0e423a]',
+        accentText: 'text-emerald-700',
+      };
+    case 'PB-PMS-HOSTEL':
+      return {
+        topBorder: 'from-indigo-500 via-blue-600 to-indigo-400',
+        badgeBg: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+        consoleBg: 'from-[#101c3d] via-[#162754] to-[#101c3d] border-indigo-900/40',
+        glowColor: 'bg-indigo-400/10',
+        benefitPill: 'Hosteller Mess & Boarding DBT (₹4,000 / Mo)',
+        benefitPillColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+        btnBg: 'bg-[#101c3d] hover:bg-[#1a2f69]',
+        accentText: 'text-indigo-700',
+      };
+    case 'PB-PMS-MERIT':
+      return {
+        topBorder: 'from-purple-500 via-violet-600 to-purple-400',
+        badgeBg: 'bg-purple-50 text-purple-800 border-purple-300',
+        consoleBg: 'from-[#231238] via-[#331a52] to-[#231238] border-purple-900/40',
+        glowColor: 'bg-purple-400/10',
+        benefitPill: 'Textbooks, Laptop & Lab Tool Equipment Grant',
+        benefitPillColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        btnBg: 'bg-[#231238] hover:bg-[#3b1e5e]',
+        accentText: 'text-purple-700',
+      };
+    default:
+      return {
+        topBorder: 'from-amber-400 via-[#0b2341] to-amber-500',
+        badgeBg: 'bg-amber-50 text-amber-900 border-amber-300',
+        consoleBg: 'from-[#0b1f3a] via-[#102d54] to-[#0b1f3a] border-blue-900/40',
+        glowColor: 'bg-amber-400/10',
+        benefitPill: '100% Tuition Fee Exemption + Annual Maintenance',
+        benefitPillColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        btnBg: 'bg-[#0b2341] hover:bg-[#12335c]',
+        accentText: 'text-amber-700',
+      };
+  }
+};
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -528,32 +578,32 @@ export const LandingPage: React.FC = () => {
 
           {/* Key Scheme Pillars */}
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <div className="h-10 w-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all group">
+              <div className="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <p className="text-xl font-black text-slate-900">100% Fee Exemption</p>
               <p className="text-xs text-slate-500 mt-1">Full tuition, development, and university examination fees waived.</p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <div className="h-10 w-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-amber-300 transition-all group">
+              <div className="h-11 w-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Wallet className="h-6 w-6" />
               </div>
               <p className="text-xl font-black text-slate-900">≤ ₹2.50 Lakh</p>
               <p className="text-xs text-slate-500 mt-1">Gross annual family income ceiling (certified by Tehsildar/SDM).</p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-blue-300 transition-all group">
+              <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <p className="text-xl font-black text-slate-900">SC Category Only</p>
               <p className="text-xs text-slate-500 mt-1">Dedicated social justice welfare scheme for Scheduled Caste students of Punjab.</p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs">
-              <div className="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center mb-3">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all group">
+              <div className="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Building2 className="h-6 w-6" />
               </div>
               <p className="text-xl font-black text-slate-900">DBT via PFMS</p>
@@ -566,7 +616,7 @@ export const LandingPage: React.FC = () => {
       {/* 4. Active Scholarship Schemes Catalog (Publicly Accessible Without Login) */}
       <section id="scholarships" className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
         <div className="text-center max-w-3xl mx-auto mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold mb-3 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold mb-3 shadow-2xs">
             <Sparkles className="h-3.5 w-3.5 text-amber-600" />
             <span>Public Scholarship Portal • Open for All Enrolled Students</span>
           </div>
@@ -585,6 +635,8 @@ export const LandingPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {scholarships.map((sch) => {
+              const theme = getSchemeTheme(sch.code);
+
               const formattedDeadline = new Date(sch.deadline).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'long',
@@ -599,170 +651,230 @@ export const LandingPage: React.FC = () => {
               return (
                 <div
                   key={sch._id}
-                  className="rounded-3xl bg-white border border-slate-200 shadow-md hover:border-amber-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                  className="relative bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-2xl hover:border-amber-400/80 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
                 >
-                  {/* Header Banner */}
-                  <div className="bg-[#0b2341] text-white p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden border-b border-amber-500/20">
-                    <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+                  {/* Micro Color Brand Stripe */}
+                  <div className={`h-1.5 w-full bg-gradient-to-r ${theme.topBorder}`} />
+
+                  {/* Top Header */}
+                  <div className="p-6 sm:p-7 pb-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-400 text-[11px] font-black uppercase tracking-wider bg-amber-500/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
-                          Code: {sch.code || 'PB-PMS-SC'}
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full border shadow-2xs ${theme.badgeBg}`}
+                        >
+                          <Award className="h-3.5 w-3.5" />
+                          {sch.code || 'PB-PMS-SC'}
                         </span>
-                        <span className="text-[11px] text-slate-300 font-semibold bg-white/5 px-2 py-0.5 rounded">
+                        <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
                           Session {sch.academicYear || '2025–26'}
                         </span>
                       </div>
 
-                      {/* Live Days Left Pill */}
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-400 text-slate-950 shadow-sm shrink-0">
-                        <Clock className="h-3 w-3 shrink-0" />
-                        <span>{diffDays > 0 ? `${diffDays} Days Left` : 'Closing Soon'}</span>
-                      </span>
+                      {/* Live Days Left Pill with Pulsing Status */}
+                      <div
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${
+                          diffDays <= 5
+                            ? 'bg-rose-50 text-rose-700 border-rose-300'
+                            : 'bg-amber-50 text-amber-900 border-amber-300'
+                        }`}
+                      >
+                        <span className="relative flex h-2 w-2">
+                          <span
+                            className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                              diffDays <= 5 ? 'bg-rose-400' : 'bg-amber-400'
+                            }`}
+                          />
+                          <span
+                            className={`relative inline-flex rounded-full h-2 w-2 ${
+                              diffDays <= 5 ? 'bg-rose-500' : 'bg-amber-500'
+                            }`}
+                          />
+                        </span>
+                        <span>{diffDays > 0 ? `${diffDays} Days Left to Apply` : 'Closing Soon'}</span>
+                      </div>
                     </div>
 
-                    <h4 className="text-lg sm:text-xl font-black text-white leading-snug group-hover:text-amber-300 transition-colors line-clamp-2">
+                    <h4 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-[#0b2341] transition-colors leading-snug tracking-tight line-clamp-2">
                       {sch.title}
                     </h4>
 
-                    <p className="text-[11px] text-slate-300 flex items-center gap-1.5 mt-1.5">
-                      <Building2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-2 font-medium">
+                      <Building2 className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                       <span className="line-clamp-1">
-                        {sch.provider || 'Department of Social Justice & Empowerment, Govt. of Punjab'}
+                        {sch.provider || 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab'}
                       </span>
                     </p>
+                  </div>
 
-                    {/* Live Digital Ticking Clock & Grant Value Strip */}
-                    <div className="mt-4 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-black/25 -mx-5 sm:-mx-6 -mb-5 sm:-mb-6 p-4 px-5 sm:px-6">
-                      <div>
-                        <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">
-                          Grant Allowance
-                        </span>
-                        <span className="text-base sm:text-lg font-black text-white">
+                  {/* Central Grant & Live Countdown Console */}
+                  <div
+                    className={`mx-5 sm:mx-6 rounded-2xl bg-gradient-to-br ${theme.consoleBg} text-white p-5 shadow-sm border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden`}
+                  >
+                    <div
+                      className={`absolute -right-8 -bottom-8 w-32 h-32 ${theme.glowColor} rounded-full blur-2xl pointer-events-none`}
+                    />
+
+                    {/* Grant Amount & Benefit */}
+                    <div className="z-10">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <Wallet className="h-3.5 w-3.5 text-amber-400" />
+                        Annual Grant Allowance
+                      </span>
+                      <div className="flex items-baseline gap-1.5 mt-1">
+                        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                           ₹{(sch.amount || 75000).toLocaleString('en-IN')}
-                          <span className="text-xs font-medium text-slate-300 ml-1">
-                            /{sch.frequency?.toLowerCase() || 'annual'}
-                          </span>
+                        </span>
+                        <span className="text-xs font-semibold text-slate-300">
+                          /{sch.frequency?.toLowerCase() || 'annual'}
                         </span>
                       </div>
+                      <span
+                        className={`inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${theme.benefitPillColor}`}
+                      >
+                        {theme.benefitPill}
+                      </span>
+                    </div>
 
-                      <div className="shrink-0 w-full sm:w-auto flex justify-start sm:justify-end">
-                        <LiveCountdownBadge deadline={sch.deadline} compact />
-                      </div>
+                    {/* Live Digital Ticking Countdown Clock */}
+                    <div className="z-10 shrink-0 w-full sm:w-auto flex flex-col items-start sm:items-end gap-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-amber-400" />
+                        Live Deadline Countdown
+                      </span>
+                      <LiveCountdownBadge deadline={sch.deadline} compact />
+                      <span className="text-[10px] text-amber-200/90 font-medium mt-0.5">
+                        Final Deadline: {formattedDeadline}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Body Content */}
-                  <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between space-y-5">
-                    {/* Scheme Description */}
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  {/* Card Details & Highlights */}
+                  <div className="p-5 sm:p-6 pt-4 flex flex-col flex-1 justify-between space-y-4">
+                    {/* Description */}
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                       {sch.description}
                     </p>
 
-                    {/* Eligibility & Conditions 2x2 Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="text-slate-800 text-[11px] block">Community / Caste</strong>
-                          <span className="text-slate-600 text-[11px] leading-tight">
-                            Exclusively for <strong>{sch.rules?.allowedCategories?.join(', ') || 'SC'}</strong> candidates of Punjab.
-                          </span>
-                        </div>
-                      </div>
+                    {/* Eligibility Highlights Grid */}
+                    <div>
+                      <h5 className="text-xs font-extrabold text-[#0b2341] uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
+                        <ShieldCheck className="h-4 w-4 text-amber-600" />
+                        Mandatory Scheme Eligibility:
+                      </h5>
 
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="text-slate-800 text-[11px] block">Annual Family Income</strong>
-                          <span className="text-slate-600 text-[11px] leading-tight">
-                            Gross limit ≤ <strong>₹{(sch.rules?.maxFamilyIncome || 250000).toLocaleString('en-IN')}/-</strong>
-                          </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="h-6 w-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 font-bold text-[11px]">
+                            SC
+                          </div>
+                          <div>
+                            <strong className="text-slate-800 text-[11px] block">Community / Caste</strong>
+                            <span className="text-slate-600 text-[11px]">
+                              Strictly for <strong>SC</strong> candidates of Punjab.
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="text-slate-800 text-[11px] block">Academic Standing</strong>
-                          <span className="text-slate-600 text-[11px] leading-tight">
-                            Min CGPA: {sch.rules?.minCgpa || 0} • Max Backlogs: {sch.rules?.maxBacklogs ?? 3}
-                          </span>
+                        <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="h-6 w-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                            <Wallet className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <strong className="text-slate-800 text-[11px] block">Family Income Cap</strong>
+                            <span className="text-slate-600 text-[11px]">
+                              Gross ≤ <strong>₹{(sch.rules?.maxFamilyIncome || 250000).toLocaleString('en-IN')}/-</strong>
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-100 flex items-start gap-2.5">
-                        <Calendar className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="text-slate-800 text-[11px] block">Application Deadline</strong>
-                          <span className="text-slate-800 font-bold text-[11px] leading-tight text-amber-900">
-                            {formattedDeadline}
-                          </span>
+                        <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="h-6 w-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <strong className="text-slate-800 text-[11px] block">Eligible Programs</strong>
+                            <span className="text-slate-600 text-[11px]">
+                              B.Tech, M.Tech, MCA, MBA programs.
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="h-6 w-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <Calendar className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <strong className="text-slate-800 text-[11px] block">Academic Standing</strong>
+                            <span className="text-slate-600 text-[11px]">
+                              Min CGPA: {sch.rules?.minCgpa || 0} • Max Backlogs: {sch.rules?.maxBacklogs ?? 3}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Required Documents Checklist */}
+                    {/* Required Verification Documents */}
                     <div>
                       <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <FileCheck2 className="h-3.5 w-3.5 text-slate-500" />
-                        Mandatory Document Verification:
+                        Mandatory Document Verification Checklist:
                       </p>
-                      <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-600">
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          SC Caste Certificate
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          Income Proof (≤ ₹2.50L)
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          Punjab Domicile
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          State Freeship Card
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          Academic Marksheet
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-slate-100 border border-slate-200 font-medium">
-                          Aadhaar Bank Book
-                        </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          'SC Caste Certificate',
+                          'Income Proof (≤ ₹2.50L)',
+                          'Punjab Domicile',
+                          'State Freeship Card',
+                          'Academic Marksheet',
+                          'Aadhaar Bank Book',
+                        ].map((doc) => (
+                          <span
+                            key={doc}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-[11px] font-medium text-slate-700 transition-colors"
+                          >
+                            <Check className="h-3 w-3 text-emerald-600 shrink-0" />
+                            {doc}
+                          </span>
+                        ))}
                       </div>
                     </div>
 
                     {/* Card Action Footer */}
-                    <div className="pt-4 border-t border-slate-200 mt-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-                      <p className="text-[10px] text-slate-500 text-center sm:text-left">
-                        Submitted applications save to your profile. Grants remain active for 6 months.
-                      </p>
+                    <div className="pt-4 border-t border-slate-100 mt-auto flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                        <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span>Approved grants active for 6 months • Direct DBT</span>
+                      </div>
 
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-2.5 w-full sm:w-auto">
                         {!user && (
                           <button
                             onClick={() => handleRegisterClick(sch)}
-                            className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all shadow-2xs"
+                            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-300 hover:border-slate-400 hover:bg-white text-slate-700 font-bold text-xs transition-all shadow-2xs cursor-pointer"
                           >
-                            Register
+                            New Student? Register
                           </button>
                         )}
 
                         <button
                           onClick={() => handleApplyClick(sch)}
-                          className="flex-1 sm:flex-none px-5 py-2 rounded-xl bg-[#0b2341] hover:bg-[#12335c] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                          className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl ${theme.btnBg} text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98] cursor-pointer`}
                         >
                           {!user ? (
                             <>
                               <Lock className="h-3.5 w-3.5 text-amber-400" />
-                              <span>Apply (Sign In)</span>
+                              <span>Apply for Scholarship (Sign In)</span>
                             </>
                           ) : user.role === 'STUDENT' ? (
                             <>
-                              <span>Apply for Scheme</span>
-                              <ArrowRight className="h-3.5 w-3.5" />
+                              <span>Apply for Scholarship</span>
+                              <ArrowRight className="h-4 w-4 text-amber-400" />
                             </>
                           ) : (
                             <>
-                              <span>Review Queue</span>
-                              <ArrowRight className="h-3.5 w-3.5" />
+                              <span>Review Scheme Queue</span>
+                              <ArrowRight className="h-4 w-4" />
                             </>
                           )}
                         </button>
