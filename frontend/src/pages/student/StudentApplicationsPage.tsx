@@ -120,23 +120,28 @@ export const StudentApplicationsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Header Banner */}
-      <div className="rounded-3xl bg-[#0b2341] p-6 sm:p-8 text-white shadow-md border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold mb-2">
-            <FileCheck2 className="h-3.5 w-3.5" />
-            <span>Scholarship Application Tracking Hub • Port 5173</span>
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex items-start gap-4 relative z-10">
+          <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-br from-amber-400/25 to-amber-600/10 border border-amber-400/40 flex items-center justify-center text-amber-700 shadow-md shadow-amber-500/10 shrink-0">
+            <FileCheck2 className="h-8 w-8" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-            My Scholarship Applications
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-            Monitor real-time verification stages, faculty reviewer remarks, and export official grant certification receipts.
-          </p>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold shadow-2xs">
+              <span>Scholarship Application Tracking Hub • Port 5173</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              My Scholarship Applications
+            </h1>
+            <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
+              Monitor real-time verification stages, faculty reviewer remarks, and export official grant certification receipts.
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => navigate('/student/scholarships')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition-all hover:scale-105 self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition-all hover:scale-105 self-start sm:self-auto cursor-pointer shrink-0 relative z-10"
         >
           <PlusCircle className="h-4 w-4" />
           <span>Apply for New Scheme</span>

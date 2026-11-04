@@ -33,22 +33,23 @@ export const AcademicRecordPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold mb-1.5 shadow-2xs">
-            <GraduationCap className="h-3.5 w-3.5 text-indigo-600" />
-            <span>Authenticated Academic Record</span>
+      {/* Header Banner */}
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 p-6 sm:p-8 text-slate-900 shadow-sm border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-bold mb-2">
+            <GraduationCap className="h-3.5 w-3.5 text-amber-700" />
+            <span>Authenticated Academic Record • Examination Cell</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             Academic Performance & Marksheets
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
             Official semester transcripts, credit audits, and cumulative grade points certified by GNDEC Examination Cell.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-2xs text-xs font-semibold text-slate-600 self-start sm:self-auto">
+        <div className="relative z-10 flex items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs text-xs font-semibold text-slate-700 self-start sm:self-auto shrink-0">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
           <span>Status: <strong className="text-emerald-700 font-bold">Good Standing</strong></span>
         </div>

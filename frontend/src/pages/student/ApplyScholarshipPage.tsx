@@ -124,20 +124,23 @@ export const ApplyScholarshipPage: React.FC = () => {
       </button>
 
       {/* Scheme Banner */}
-      <div className="rounded-3xl bg-[#0b2341] p-6 sm:p-8 text-white shadow-md border border-amber-500/30">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold mb-2.5 border border-amber-500/30">
-          <GraduationCap className="h-3.5 w-3.5" />
-          <span>{scholarship.provider || 'State Government of Punjab'}</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{scholarship.title}</h1>
-        <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">{scholarship.description}</p>
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-50 text-amber-900 text-xs font-bold mb-2.5 border border-amber-300 shadow-2xs">
+            <GraduationCap className="h-3.5 w-3.5 text-amber-600" />
+            <span>{scholarship.provider || 'State Government of Punjab'}</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{scholarship.title}</h1>
+          <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">{scholarship.description}</p>
 
-        <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-300 bg-white/5 p-3.5 rounded-2xl border border-white/10">
-          <span>Grant Amount: <strong className="text-amber-400 font-mono font-bold">₹{scholarship.amount.toLocaleString('en-IN')}/yr</strong></span>
-          <span>•</span>
-          <span>Academic Cycle: <strong className="text-white">{scholarship.academicYear || '2025-26'}</strong></span>
-          <span>•</span>
-          <span>Deadline: <strong className="text-amber-300">{new Date(scholarship.deadline).toLocaleDateString('en-IN')}</strong></span>
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700 bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
+            <span>Grant Amount: <strong className="text-slate-900 font-mono font-bold">₹{scholarship.amount.toLocaleString('en-IN')}/yr</strong></span>
+            <span>•</span>
+            <span>Academic Cycle: <strong className="text-slate-900">{scholarship.academicYear || '2025-26'}</strong></span>
+            <span>•</span>
+            <span>Deadline: <strong className="text-amber-800">{new Date(scholarship.deadline).toLocaleDateString('en-IN')}</strong></span>
+          </div>
         </div>
       </div>
 

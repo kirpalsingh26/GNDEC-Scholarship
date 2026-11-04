@@ -93,47 +93,51 @@ export const StudentProfilePage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-white/10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-indigo-500 via-blue-500 to-teal-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/30">
+            <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-br from-amber-400/25 to-amber-600/10 border border-amber-400/40 flex items-center justify-center text-amber-700 shadow-md shadow-amber-500/10 shrink-0 text-2xl font-black">
               {profile?.firstName?.charAt(0) || user?.name?.charAt(0) || 'S'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                   {profile?.firstName} {profile?.lastName}
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-extrabold border border-emerald-200 shadow-2xs">
                   Verified Scholar ✓
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-indigo-200 mt-1.5 font-medium">
-                <span className="inline-flex items-center gap-1">
-                  <GraduationCap className="h-3.5 w-3.5 text-indigo-400" />
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1.5 font-medium">
+                <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
+                  <GraduationCap className="h-3.5 w-3.5 text-amber-600" />
                   {profile?.department} (Sem {profile?.semester})
                 </span>
                 <span>•</span>
-                <span className="inline-flex items-center gap-1 font-mono bg-white/10 px-2 py-0.5 rounded-md text-white">
+                <span className="inline-flex items-center gap-1 font-mono bg-slate-100 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200">
                   URN: {profile?.rollNumber}
                   <button
                     type="button"
                     onClick={() => copyToClipboard(profile?.rollNumber || '', 'Roll Number', 'urn')}
-                    className="hover:text-indigo-300 transition-colors ml-1"
+                    className="hover:text-amber-600 transition-colors ml-1 cursor-pointer"
                     title="Copy URN"
                   >
-                    {copiedKey === 'urn' ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                    {copiedKey === 'urn' ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                   </button>
+                </span>
+                <span>•</span>
+                <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
+                  Category: {profile?.category || 'SC'}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 text-right">
-            <p className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">DBT Bank Readiness</p>
-            <p className="text-sm font-black text-emerald-400 flex items-center gap-1 justify-end mt-0.5">
-              <ShieldCheck className="h-4 w-4" /> PFMS Validated
+          <div className="bg-white px-4 py-2.5 rounded-2xl border border-slate-200 text-right shadow-2xs self-start sm:self-auto">
+            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">DBT Bank Readiness</p>
+            <p className="text-xs font-black text-emerald-700 flex items-center gap-1 justify-end mt-0.5">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> PFMS Validated ✓
             </p>
           </div>
         </div>

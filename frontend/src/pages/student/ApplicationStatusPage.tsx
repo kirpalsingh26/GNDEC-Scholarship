@@ -107,20 +107,21 @@ export const ApplicationStatusPage: React.FC = () => {
       </button>
 
       {/* Header Banner */}
-      <div className="rounded-3xl bg-[#0b2341] p-6 sm:p-8 text-white shadow-md border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div>
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 p-6 sm:p-8 text-slate-900 shadow-sm border border-slate-200/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-500/20 px-2.5 py-1 rounded-md border border-amber-500/30">
+            <span className="text-xs font-mono font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-md border border-amber-300">
               {application.applicationNumber}
             </span>
             <Badge status={application.status} />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             {application.scholarshipId?.title || 'Scholarship Application'}
           </h1>
-          <p className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
-            <Building2 className="h-3.5 w-3.5 text-amber-400" />
-            <span>{application.scholarshipId?.provider || 'Government of Punjab'}</span>
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <Building2 className="h-3.5 w-3.5 text-amber-600" />
+            <span className="font-semibold text-slate-700">{application.scholarshipId?.provider || 'Government of Punjab'}</span>
             <span>•</span>
             <span>Applied on {new Date(application.appliedDate).toLocaleDateString('en-IN')}</span>
           </p>
@@ -129,7 +130,7 @@ export const ApplicationStatusPage: React.FC = () => {
         <button
           onClick={handleDownloadPdf}
           disabled={downloading}
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
+          className="relative z-10 inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           <span>{downloading ? 'Exporting PDF...' : 'Download Official Certificate'}</span>

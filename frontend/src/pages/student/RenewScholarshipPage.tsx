@@ -21,18 +21,21 @@ export const RenewScholarshipPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold mb-1.5 shadow-2xs">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-          <span>Session 2025-26 Continuous Aid Cycle</span>
+      {/* Header Banner */}
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 p-6 sm:p-8 text-slate-900 shadow-sm border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-bold mb-2">
+            <Sparkles className="h-3.5 w-3.5 text-amber-700" />
+            <span>Session 2025-26 • Continuous Grant Aid Cycle</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            Annual Scholarship Renewal Hub
+          </h1>
+          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            Fast-track continuous grant disbursement by submitting current academic year marksheet and updated income affidavit.
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-          Annual Scholarship Renewal Hub
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Fast-track continuous grant disbursement by submitting current academic year marksheet and updated income affidavit.
-        </p>
       </div>
 
       <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">

@@ -224,17 +224,26 @@ export const SubmitDocumentsPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Header Banner */}
-      <div className="rounded-2xl bg-[#0b2341] p-6 sm:p-7 text-white shadow-md border border-amber-500/30">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold mb-2.5 border border-amber-500/30">
-          <FolderLock className="h-3.5 w-3.5" />
-          <span>Step 2 of 2: Mandatory Certificates & Application Filing</span>
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 border border-slate-200/90 p-6 sm:p-8 text-slate-900 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-400/25 to-amber-600/10 border border-amber-400/40 flex items-center justify-center text-amber-700 shadow-md shadow-amber-500/10 shrink-0">
+              <FolderLock className="h-8 w-8" />
+            </div>
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-50 text-amber-900 text-xs font-bold border border-amber-300/80 shadow-2xs">
+                <span>Step 2 of 2: Mandatory Certificates & Filing</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+                Upload Documents for PMS SC Scholarship
+              </h1>
+              <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                Dr. B.R. Ambedkar Post-Matric Scholarship Scheme for SC Students (Punjab). Upload all mandatory certificates to submit your application for teacher and administrative committee verification.
+              </p>
+            </div>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-          Upload Documents for PMS SC Scholarship
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-          Dr. B.R. Ambedkar Post-Matric Scholarship Scheme for SC Students (Punjab). Upload all mandatory certificates to submit your application for teacher and administrative committee verification.
-        </p>
       </div>
 
       {/* Candidate Profile Summary Box */}

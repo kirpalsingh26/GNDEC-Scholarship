@@ -186,7 +186,7 @@ export const StudentNotificationsPage: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold mb-1.5">
             <Bell className="h-3.5 w-3.5 text-amber-600" />
-            <span>Student Notification Center • Port 5173</span>
+            <span>Student Notification Center • Official Alerts</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Notifications & Alerts History
@@ -208,24 +208,25 @@ export const StudentNotificationsPage: React.FC = () => {
       </div>
 
       {/* Web Push Notifications Activation Banner */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-[#0b2341] text-white shadow-md border border-amber-500/30 relative overflow-hidden">
+      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 text-slate-900 shadow-sm border border-slate-200/90 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative z-10">
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span className="p-2 rounded-xl bg-amber-100/80 text-amber-800 border border-amber-300">
                 <Bell className="h-5 w-5" />
               </span>
-              <h3 className="text-base font-black text-white">
+              <h3 className="text-base font-black text-slate-900">
                 Browser & Device Web Push Notifications
               </h3>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Stay informed instantly even when you close the tab. Receive automatic notifications for document verification results, faculty action requests, and scheduled Punjab Post-Matric Scholarship deadline reminders.
             </p>
-            <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-400">
-              <span className="flex items-center gap-1">
-                <span className={`h-2 w-2 rounded-full ${isSubscribed ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                Status: {isSubscribed ? 'Active & Subscribed ✓' : 'Not Subscribed'}
+            <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <span className={`h-2 w-2 rounded-full ${isSubscribed ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                <span className="font-semibold text-slate-700">Status: {isSubscribed ? 'Active & Subscribed ✓' : 'Not Subscribed'}</span>
               </span>
               <span>•</span>
               <span>Permission: {permission}</span>
@@ -236,9 +237,9 @@ export const StudentNotificationsPage: React.FC = () => {
             {isSubscribed && (
               <button
                 onClick={handleSendTestPush}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all border border-slate-300 flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-3.5 w-3.5 text-amber-600" />
                 <span>Send Test Push</span>
               </button>
             )}
@@ -248,7 +249,7 @@ export const StudentNotificationsPage: React.FC = () => {
               disabled={pushLoading || !pushSupported}
               className={`px-5 py-2.5 rounded-xl font-black text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 isSubscribed
-                  ? 'bg-rose-600/90 hover:bg-rose-600 text-white'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20'
                   : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20'
               }`}
             >

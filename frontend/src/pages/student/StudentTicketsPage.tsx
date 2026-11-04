@@ -131,24 +131,25 @@ export const StudentTicketsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold mb-1.5">
-            <HelpCircle className="h-3.5 w-3.5 text-amber-600" />
-            <span>Scholarship Cell Helpdesk • Port 5173</span>
+      {/* Header Banner */}
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 p-6 sm:p-8 text-slate-900 shadow-sm border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-bold mb-2">
+            <HelpCircle className="h-3.5 w-3.5 text-amber-700" />
+            <span>Scholarship Cell Helpdesk • Student Inquiries</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             Student Inquiries & Support Desk
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Submit questions directly to GNDEC Scholarship Cell officers with real-time threaded message tracking.
+          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            Submit questions directly to GNDEC Scholarship Cell officers with real-time threaded message tracking and resolution logs.
           </p>
         </div>
 
         <button
           onClick={() => setIsNewOpen(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 self-start sm:self-auto cursor-pointer"
+          className="relative z-10 inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-105 self-start sm:self-auto cursor-pointer shrink-0"
         >
           <Plus className="h-4 w-4" />
           <span>Open New Inquiry</span>

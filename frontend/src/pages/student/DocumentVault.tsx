@@ -139,29 +139,30 @@ export const DocumentVault: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold mb-2">
-            <FolderLock className="h-3.5 w-3.5" />
-            <span>Encrypted Institutional Vault</span>
+      {/* Header Banner */}
+      <div className="rounded-3xl bg-gradient-to-br from-white via-slate-50/90 to-amber-50/40 p-6 sm:p-8 text-slate-900 shadow-sm border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-bold mb-2">
+            <FolderLock className="h-3.5 w-3.5 text-amber-700" />
+            <span>Encrypted Institutional Vault • Secure Audit Trail</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
             Document Vault & Version History
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
             Secure repository for SC caste, income, domicile, Aadhaar, and marksheet certificates with official verification records.
           </p>
         </div>
 
         {/* Vault Stats Summary Pill */}
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200/80 shadow-xs text-xs font-semibold text-slate-700">
-          <span className="flex items-center gap-1 text-emerald-700 font-bold">
+        <div className="relative z-10 flex items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs text-xs font-semibold text-slate-700 self-start sm:self-auto shrink-0">
+          <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
             <Check className="h-3.5 w-3.5 text-emerald-600" />
             {verifiedCount} Verified
           </span>
           <span>•</span>
-          <span className="text-indigo-600 font-bold">{pendingCount} In Review</span>
+          <span className="text-amber-700 font-bold">{pendingCount} In Review</span>
         </div>
       </div>
 
