@@ -79,7 +79,7 @@ export interface Scholarship {
   isRenewable: boolean;
   totalSeats?: number;
   availableSeats?: number;
-  status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
+  status: 'ACTIVE' | 'UPCOMING' | 'CLOSED' | 'EXPIRED' | 'ARCHIVED';
   requiredDocuments: string[];
   rules: ScholarshipRule;
   eligibility?: {

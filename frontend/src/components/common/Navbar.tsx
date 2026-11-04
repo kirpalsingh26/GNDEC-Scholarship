@@ -125,7 +125,7 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSid
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 transition-all">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 py-3 shadow-xs transition-all">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Mobile Menu Trigger + Brand Badge */}
           <div className="flex items-center gap-3">

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import api from '../../services/api.js';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -28,16 +29,56 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [hideSubmitDocs, setHideSubmitDocs] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (user?.role === 'STUDENT') {
+      api
+        .get('/students/dashboard')
+        .then((res) => {
+          if (!isMounted) return;
+          if (res.data.success) {
+            const { documents, onboardingStage, isVerified } = res.data.data;
+            const hasDocs = Array.isArray(documents) && documents.length > 0;
+            const hasReupload =
+              Array.isArray(documents) &&
+              documents.some((d: any) => d.status === 'REUPLOAD_REQUIRED');
+            const allVerified =
+              hasDocs && documents.every((d: any) => d.status === 'VERIFIED');
+
+            // Hide "Submit Documents" once documents are uploaded & verified,
+            // or when all are uploaded and under verification with no re-upload required
+            if (
+              isVerified ||
+              allVerified ||
+              (hasDocs && !hasReupload && onboardingStage !== 'DOCUMENTS_REQUIRED')
+            ) {
+              setHideSubmitDocs(true);
+            }
+          }
+        })
+        .catch(() => {
+          if (profile?.isProfileComplete) {
+            setHideSubmitDocs(true);
+          }
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.role, profile?.isProfileComplete]);
 
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'PMS Scholarships', path: '/student/scholarships', icon: GraduationCap },
     { name: 'My Applications', path: '/student/applications', icon: FileCheck2 },
     { name: 'Document Vault', path: '/student/documents', icon: FolderLock },
-    { name: 'Submit Documents', path: '/student/submit-documents', icon: Upload },
+    ...(!hideSubmitDocs ? [{ name: 'Submit Documents', path: '/student/submit-documents', icon: Upload }] : []),
     { name: 'Academic Records', path: '/student/academics', icon: Award },
     { name: 'Grant Renewal', path: '/student/renewals', icon: RefreshCw },
     { name: 'Inquiry Helpdesk', path: '/student/tickets', icon: HelpCircle },

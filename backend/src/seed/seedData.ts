@@ -314,9 +314,51 @@ export const initProductionData = async () => {
     await meritScheme.save();
   }
 
+  // 4e. Previous Academic Cycle Scheme (Expired / Closed)
+  const expiredDate = new Date('2024-11-30T23:59:59.000Z');
+  let expiredScheme = await Scholarship.findOne({ code: 'PB-PMS-2024-CLOSED' });
+  if (!expiredScheme) {
+    await Scholarship.create({
+      title: 'Dr. B.R. Ambedkar Post-Matric State Grant (Academic Session 2024–25)',
+      code: 'PB-PMS-2024-CLOSED',
+      provider: 'Department of Social Justice, Empowerment & Minorities, Govt. of Punjab',
+      type: 'RESERVATION',
+      description:
+        'Official state scholarship cycle for previous academic year 2024–25. Application submission window has officially expired and closed for new filings.',
+      amount: 62000,
+      frequency: 'ANNUAL',
+      academicYear: '2024-2025',
+      deadline: expiredDate,
+      isRenewable: false,
+      totalSeats: 300,
+      availableSeats: 0,
+      status: 'EXPIRED',
+      requiredDocuments: [
+        DOCUMENT_TYPES.INCOME_CERTIFICATE,
+        DOCUMENT_TYPES.CASTE_CERTIFICATE,
+        DOCUMENT_TYPES.RESIDENCE_CERTIFICATE,
+      ],
+      rules: {
+        minCgpa: 0,
+        maxFamilyIncome: 250000,
+        allowedCategories: ['SC'],
+        maxBacklogs: 4,
+        genderRestriction: 'ALL',
+      },
+      instructions:
+        'Application deadline for academic session 2024–25 passed on 30 November 2024.',
+      contactEmail: 'scholarship@gndec.ac.in',
+    });
+    console.log('✅ Expired PMS Scholarship registered for catalog reference.');
+  } else {
+    expiredScheme.deadline = expiredDate;
+    expiredScheme.status = 'EXPIRED';
+    await expiredScheme.save();
+  }
+
   // Archive any legacy non-PMS test schemes to ensure only current PMS SC schemes are active
   await Scholarship.updateMany(
-    { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP', 'PB-PMS-HOSTEL', 'PB-PMS-MERIT'] } },
+    { code: { $nin: ['PB-PMS-SC', 'PB-PMS-FREESHIP', 'PB-PMS-HOSTEL', 'PB-PMS-MERIT', 'PB-PMS-2024-CLOSED'] } },
     { status: 'ARCHIVED' }
   );
 

@@ -45,10 +45,6 @@ export const DocumentVault: React.FC = () => {
   const [selectedDocForHistory, setSelectedDocForHistory] = useState<StudentDocument | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
-  // OCR Detail Modal
-  const [selectedOcrDoc, setSelectedOcrDoc] = useState<StudentDocument | null>(null);
-  const [isOcrModalOpen, setIsOcrModalOpen] = useState(false);
-
   const fetchDocuments = async () => {
     try {
       const res = await api.get('/documents');
@@ -331,7 +327,6 @@ export const DocumentVault: React.FC = () => {
         ) : (
           filteredDocs.map((doc) => {
             const latestVersion = doc.versions.find((v) => v.versionNumber === doc.currentVersion);
-            const ocr = latestVersion?.ocrData;
 
             return (
               <div
@@ -351,26 +346,6 @@ export const DocumentVault: React.FC = () => {
                   <p className="text-xs text-slate-400 mt-0.5">
                     Type: <span className="font-semibold text-slate-600">{doc.documentType?.replace(/_/g, ' ')}</span>
                   </p>
-
-                  {/* AI OCR Confidence Pill */}
-                  {ocr && (
-                    <div
-                      onClick={() => {
-                        setSelectedOcrDoc(doc);
-                        setIsOcrModalOpen(true);
-                      }}
-                      className="mt-4 p-3 rounded-2xl bg-indigo-50/70 border border-indigo-100 cursor-pointer hover:bg-indigo-100/70 transition-colors flex items-center justify-between text-xs"
-                      title="Click to inspect optical character recognition breakdown"
-                    >
-                      <div className="flex items-center gap-2 text-indigo-900">
-                        <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
-                        <span className="font-bold">AI OCR Extraction</span>
-                      </div>
-                      <span className="font-extrabold text-indigo-700">
-                        {ocr.nameMatchConfidence || 98}% Match
-                      </span>
-                    </div>
-                  )}
 
                   {/* Rejection / Reviewer Feedback */}
                   {latestVersion?.reviewerComments && (
@@ -455,54 +430,6 @@ export const DocumentVault: React.FC = () => {
               </div>
             ))}
           </div>
-        </Modal>
-      )}
-
-      {/* AI OCR Inspection Modal */}
-      {selectedOcrDoc && (
-        <Modal
-          isOpen={isOcrModalOpen}
-          onClose={() => setIsOcrModalOpen(false)}
-          title="AI Optical Character Recognition (OCR) Analysis"
-          subtitle="Automated document authenticity audit against GNDEC enrollment databases"
-        >
-          {(() => {
-            const ver = selectedOcrDoc.versions.find(
-              (v) => v.versionNumber === selectedOcrDoc.currentVersion
-            );
-            const ocr = ver?.ocrData;
-
-            return (
-              <div className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Issuing Authority:</span>
-                    <span className="font-bold text-indigo-950">{ocr?.issuingAuthority || 'Tehsildar Office, Ludhiana'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Extracted Certificate ID:</span>
-                    <span className="font-mono font-bold text-indigo-700">
-                      {ocr?.extractedCertificateNo || 'Pending Extraction'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Extracted Beneficiary Name:</span>
-                    <span className="font-bold text-slate-900">{ocr?.extractedStudentName || `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim() || 'Beneficiary'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Certificate Issue Date:</span>
-                    <span className="font-bold text-emerald-700">{ocr?.extractedIssueDate || 'Recent'}</span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-indigo-200">
-                    <span className="text-slate-700 font-bold">Levenshtein Name Match:</span>
-                    <span className="font-black text-indigo-600">
-                      {ocr?.nameMatchConfidence ? `${ocr.nameMatchConfidence}% Confidence` : 'Pending Match'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
         </Modal>
       )}
     </div>

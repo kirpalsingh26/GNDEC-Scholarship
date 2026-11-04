@@ -47,13 +47,39 @@ export const ScholarshipCatalog: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const filtered = scholarships.filter((s) => {
-    return (
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.provider.toLowerCase().includes(search.toLowerCase()) ||
-      s.code.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const isExpired = (sch: Scholarship) => {
+    if (sch.status === 'EXPIRED' || sch.status === 'CLOSED') return true;
+    if (sch.deadline) {
+      const d = new Date(sch.deadline).getTime();
+      if (!isNaN(d) && d < Date.now()) return true;
+    }
+    return false;
+  };
+
+  const filtered = scholarships
+    .filter((s) => {
+      return (
+        s.title.toLowerCase().includes(search.toLowerCase()) ||
+        s.provider.toLowerCase().includes(search.toLowerCase()) ||
+        s.code.toLowerCase().includes(search.toLowerCase())
+      );
+    })
+    .sort((a, b) => {
+      const aExpired = isExpired(a);
+      const bExpired = isExpired(b);
+      // Available (non-expired) on top
+      if (!aExpired && bExpired) return -1;
+      if (aExpired && !bExpired) return 1;
+
+      const timeA = new Date(a.deadline).getTime() || 0;
+      const timeB = new Date(b.deadline).getTime() || 0;
+      if (!aExpired && !bExpired) {
+        // Nearest deadline first
+        return timeA - timeB;
+      }
+      // Most recently expired first
+      return timeB - timeA;
+    });
 
   return (
     <div className="space-y-6">
@@ -114,50 +140,94 @@ export const ScholarshipCatalog: React.FC = () => {
             const isCategoryEligible = !sch.rules?.allowedCategories?.length || sch.rules.allowedCategories.includes(profile?.category || 'SC');
             const isIncomeEligible = !sch.rules?.maxFamilyIncome || ((profile?.familyIncome || 0) <= sch.rules.maxFamilyIncome);
             const isEligible = elig ? elig.isEligible : (isCategoryEligible && isIncomeEligible);
+            const isExp = isExpired(sch);
 
             return (
               <div
                 key={sch._id}
-                className="rounded-2xl bg-white border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-400"
+                className={`rounded-2xl border p-6 transition-all flex flex-col justify-between group ${
+                  isExp
+                    ? 'opacity-55 grayscale-[35%] bg-slate-100/80 border-slate-300 hover:opacity-75'
+                    : 'bg-white border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400'
+                }`}
               >
                 <div>
                   {/* Scheme Header Badges */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="font-mono text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-300">
-                        {sch.code}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span
+                      className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${
+                        isExp
+                          ? 'text-slate-600 bg-slate-200/80 border-slate-300'
+                          : 'text-amber-900 bg-amber-50 border-amber-300'
+                      }`}
+                    >
+                      {sch.code}
+                    </span>
+                    {isExp ? (
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                        Expired
                       </span>
+                    ) : (
                       <Badge status={sch.status} size="sm" />
-                    </div>
+                    )}
+                  </div>
 
-                    <div className="mb-2 flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-slate-400" />
-                        Deadline: {new Date(sch.deadline).toLocaleDateString('en-IN')}
+                  <div
+                    className={`mb-2 flex items-center justify-between text-[11px] px-2.5 py-1 rounded-lg border ${
+                      isExp
+                        ? 'bg-rose-50/50 text-rose-800 border-rose-200/60'
+                        : 'bg-slate-50 text-slate-500 border-slate-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-slate-400" />
+                      Deadline: {new Date(sch.deadline).toLocaleDateString('en-IN')}
+                    </span>
+                    {isExp ? (
+                      <span className="font-bold text-rose-700 flex items-center gap-1">
+                        <Clock className="h-3 w-3 text-rose-600" />
+                        Deadline Passed
                       </span>
+                    ) : (
                       <span className="font-bold text-emerald-700 flex items-center gap-1">
                         <Clock className="h-3 w-3 text-emerald-600 animate-pulse" />
-                        {Math.max(0, Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days left
+                        {Math.max(
+                          0,
+                          Math.ceil((new Date(sch.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                        )}{' '}
+                        days left
                       </span>
-                    </div>
+                    )}
+                  </div>
 
-                  <h3 className="text-base font-extrabold text-[#0b2341] group-hover:text-amber-700 transition-colors leading-snug">
+                  <h3
+                    className={`text-base font-extrabold transition-colors leading-snug ${
+                      isExp ? 'text-slate-600' : 'text-[#0b2341] group-hover:text-amber-700'
+                    }`}
+                  >
                     {sch.title}
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">{sch.provider}</p>
 
                   {/* Financial Grant Award Banner */}
-                  <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div
+                    className={`mt-4 p-3.5 rounded-xl border flex items-center justify-between ${
+                      isExp
+                        ? 'bg-slate-200/50 border-slate-300 text-slate-500'
+                        : 'bg-slate-50 border-slate-200'
+                    }`}
+                  >
                     <div>
                       <p className="text-[10px] uppercase font-bold text-slate-400">Award Benefits</p>
-                      <p className="text-base font-black text-slate-900">
+                      <p className={`text-base font-black ${isExp ? 'text-slate-600' : 'text-slate-900'}`}>
                         100% Fee Exemption
                         <span className="block text-[10px] font-normal text-slate-500">+ DBT Maintenance Allowance</span>
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] uppercase font-bold text-slate-400">Academic Term</p>
-                      <p className="text-xs font-bold text-slate-700">
-                        Session 2025–26
+                      <p className={`text-xs font-bold ${isExp ? 'text-slate-500' : 'text-slate-700'}`}>
+                        {sch.academicYear || 'Session 2025–26'}
                       </p>
                     </div>
                   </div>
@@ -176,7 +246,17 @@ export const ScholarshipCatalog: React.FC = () => {
 
                   {/* Scheme Eligibility Verification Status */}
                   <div className="mt-4">
-                    {isEligible ? (
+                    {isExp ? (
+                      <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-slate-400 shrink-0" />
+                          <span className="font-bold text-slate-600">Applications Closed (Deadline Elapsed)</span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200 text-slate-600">
+                          Closed
+                        </span>
+                      </div>
+                    ) : isEligible ? (
                       <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -204,18 +284,27 @@ export const ScholarshipCatalog: React.FC = () => {
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2">
                   <button
                     onClick={() => handleOpenExplainability(sch)}
-                    className="flex-1 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/70 rounded-xl transition-colors text-center border border-slate-200"
+                    className="flex-1 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/70 rounded-xl transition-colors text-center border border-slate-200 cursor-pointer"
                   >
                     Check Rules
                   </button>
 
-                  <button
-                    onClick={() => navigate(`/student/apply/${sch._id}`)}
-                    className="flex-1 py-2 text-xs font-bold text-white bg-[#0b2341] hover:bg-[#12335c] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1"
-                  >
-                    Apply Now
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+                  {isExp ? (
+                    <button
+                      disabled
+                      className="flex-1 py-2 text-xs font-bold text-slate-400 bg-slate-200/90 cursor-not-allowed rounded-xl text-center border border-slate-300"
+                    >
+                      Application Closed
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate(`/student/apply/${sch._id}`)}
+                      className="flex-1 py-2 text-xs font-bold text-white bg-[#0b2341] hover:bg-[#12335c] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      Apply Now
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );

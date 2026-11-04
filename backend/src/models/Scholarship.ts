@@ -26,7 +26,7 @@ export interface IScholarship extends Document {
   isRenewable: boolean;
   totalSeats?: number;
   availableSeats?: number;
-  status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
+  status: 'ACTIVE' | 'UPCOMING' | 'CLOSED' | 'EXPIRED' | 'ARCHIVED';
   requiredDocuments: DocumentType[];
   rules: IScholarshipRule;
   instructions?: string;
@@ -55,7 +55,12 @@ const ScholarshipSchema = new Schema<IScholarship>(
     isRenewable: { type: Boolean, default: false },
     totalSeats: { type: Number },
     availableSeats: { type: Number },
-    status: { type: String, enum: ['ACTIVE', 'UPCOMING', 'CLOSED'], default: 'ACTIVE', index: true },
+    status: {
+      type: String,
+      enum: ['ACTIVE', 'UPCOMING', 'CLOSED', 'EXPIRED', 'ARCHIVED'],
+      default: 'ACTIVE',
+      index: true,
+    },
     requiredDocuments: [
       {
         type: String,

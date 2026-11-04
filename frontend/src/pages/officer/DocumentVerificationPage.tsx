@@ -128,7 +128,6 @@ export const DocumentVerificationPage: React.FC = () => {
   });
 
   const latestVer = selectedDoc?.versions?.find((v) => v.versionNumber === selectedDoc.currentVersion);
-  const ocr = latestVer?.ocrData;
   const student = selectedDoc?.studentId;
 
   return (
@@ -144,7 +143,7 @@ export const DocumentVerificationPage: React.FC = () => {
             Document Verification Workspace
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Side-by-side verification console with digital certificate viewer, optical metadata extraction, and committee sign-off.
+            Side-by-side verification console with digital certificate viewer, student dossier records, and committee sign-off.
           </p>
         </div>
 
@@ -366,15 +365,21 @@ export const DocumentVerificationPage: React.FC = () => {
 
                 <div className="my-4 space-y-2 text-xs font-mono">
                   <p className="text-slate-300">
-                    CERTIFICATE ID:{' '}
+                    DOCUMENT TYPE:{' '}
                     <span className="text-amber-300 font-bold">
-                      {ocr?.extractedCertificateNo || 'Pending Optical Scan'}
+                      {selectedDoc?.documentType ? selectedDoc.documentType.replace(/_/g, ' ') : 'CERTIFICATE'}
                     </span>
                   </p>
                   <p className="text-slate-300">
-                    ISSUED TO:{' '}
+                    STUDENT CANDIDATE:{' '}
                     <span className="text-white font-bold">
-                      {ocr?.extractedStudentName || (student ? `${student.firstName} ${student.lastName}` : 'Candidate')}
+                      {student ? `${student.firstName} ${student.lastName}` : 'Candidate'}
+                    </span>
+                  </p>
+                  <p className="text-slate-300">
+                    ROLL NUMBER:{' '}
+                    <span className="text-slate-200 font-bold">
+                      {student?.rollNumber || 'Enrolled Student'}
                     </span>
                   </p>
                   <p className="text-slate-300">
@@ -384,9 +389,9 @@ export const DocumentVerificationPage: React.FC = () => {
                     </span>
                   </p>
                   <p className="text-slate-300">
-                    ISSUING TEHSIL / AUTHORITY:{' '}
+                    UPLOADED AT:{' '}
                     <span className="text-slate-200">
-                      {ocr?.issuingAuthority || 'Revenue / Welfare Department'}
+                      {latestVer?.uploadedAt ? new Date(latestVer.uploadedAt).toLocaleString('en-IN') : 'Recent'}
                     </span>
                   </p>
                 </div>
@@ -398,30 +403,16 @@ export const DocumentVerificationPage: React.FC = () => {
               </div>
             )}
 
-            {/* Optical Validation Box */}
-            {ocr ? (
-              <div className="rounded-2xl bg-blue-50/70 border border-blue-200/70 p-4 space-y-2 text-xs">
-                <div className="flex items-center justify-between font-bold text-blue-950">
-                  <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-blue-700" />
-                    Automated Certificate OCR Analysis
-                  </span>
-                  {ocr.nameMatchConfidence !== undefined && (
-                    <span className="px-2 py-0.5 rounded-full bg-white text-blue-700 font-bold text-[10px] shadow-2xs">
-                      {ocr.nameMatchConfidence}% Name Match
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-blue-800 leading-relaxed">
-                  Optical extract validated against GNDEC student enrollment register.
-                </p>
+            {/* Committee Scrutiny Notice */}
+            <div className="rounded-2xl bg-blue-50/70 border border-blue-200/70 p-4 space-y-1.5 text-xs">
+              <div className="flex items-center gap-1.5 font-bold text-blue-950">
+                <ShieldCheck className="h-4 w-4 text-blue-700" />
+                Official Committee Scrutiny Protocol
               </div>
-            ) : (
-              <div className="rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 text-xs text-slate-500 flex items-center gap-2">
-                <FileText className="h-4 w-4 text-slate-400 shrink-0" />
-                <span>Standard verification mode. Review uploaded scan above against GNDEC enrollment records.</span>
-              </div>
-            )}
+              <p className="text-[11px] text-blue-800 leading-relaxed">
+                Inspect the uploaded document scan above for official seals, issuing signatures, and candidate matching before certifying or requesting re-upload.
+              </p>
+            </div>
           </div>
 
           {/* COLUMN 3 (Right 4 cols): Verification Action & Comment Panel */}

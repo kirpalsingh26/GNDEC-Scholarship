@@ -4,7 +4,6 @@ import fs from 'fs';
 import { StudentDocument, IDocumentVersion } from '../models/Document.js';
 import { StudentProfile } from '../models/StudentProfile.js';
 import { notifyUser } from '../services/pushNotificationService.js';
-import { OcrService } from '../services/ocrService.js';
 import { DOCUMENT_STATUS, DocumentType } from '../config/constants.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { logAudit } from '../utils/auditLogger.js';
@@ -28,13 +27,6 @@ export const uploadDocument = async (req: AuthRequest, res: Response, next: Next
     const fileUrl = `/uploads/${req.file.filename}`;
     const filePath = req.file.path;
 
-    // Run AI OCR Assistant Analysis
-    const ocrResult = await OcrService.analyzeDocument(
-      req.file.originalname,
-      documentType,
-      profile
-    );
-
     let doc = await StudentDocument.findOne({
       studentId: profile._id,
       documentType,
@@ -53,7 +45,6 @@ export const uploadDocument = async (req: AuthRequest, res: Response, next: Next
         fileSize: req.file.size,
         uploadedAt: new Date(),
         status: DOCUMENT_STATUS.UNDER_REVIEW,
-        ocrData: ocrResult,
       };
 
       doc.versions.push(newVersion);
@@ -74,7 +65,6 @@ export const uploadDocument = async (req: AuthRequest, res: Response, next: Next
         fileSize: req.file.size,
         uploadedAt: new Date(),
         status: DOCUMENT_STATUS.UNDER_REVIEW,
-        ocrData: ocrResult,
       };
 
       doc = await StudentDocument.create({

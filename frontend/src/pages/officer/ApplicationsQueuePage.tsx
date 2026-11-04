@@ -137,7 +137,7 @@ export const ApplicationsQueuePage: React.FC = () => {
             Applications Review Queue
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Audit enrolled candidate dossiers, verify credentials with optical OCR assistance, and sanction state & institutional scholarships.
+            Audit enrolled candidate dossiers, verify credentials and submitted proofs, and sanction state & institutional scholarships.
           </p>
         </div>
 

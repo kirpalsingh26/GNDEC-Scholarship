@@ -33,7 +33,11 @@ export const listScholarships = async (req: AuthRequest, res: Response, next: Ne
     const { department, category, type, search, status } = req.query;
 
     const query: any = {};
-    if (status) query.status = status;
+    if (status) {
+      query.status = status;
+    } else {
+      query.status = { $ne: 'ARCHIVED' };
+    }
     if (type) query.type = type;
     if (department) query['rules.allowedDepartments'] = { $in: [department] };
     if (category) query['rules.allowedCategories'] = { $in: [category] };
