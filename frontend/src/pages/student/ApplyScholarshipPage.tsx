@@ -18,7 +18,8 @@ import confetti from 'canvas-confetti';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { useToast } from '../../context/ToastContext.js';
-import { Scholarship } from '../../types/index.js';
+import { Badge } from '../../components/common/Badge.js';
+import { Scholarship, ScholarshipApplication } from '../../types/index.js';
 
 export const ApplyScholarshipPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,18 +28,36 @@ export const ApplyScholarshipPage: React.FC = () => {
   const { toast } = useToast();
 
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
+  const [existingApplication, setExistingApplication] = useState<ScholarshipApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   useEffect(() => {
-    const fetchScholarship = async () => {
+    const fetchScholarshipAndApplication = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/scholarships/${id}`);
-        if (res.data.success) {
-          setScholarship(res.data.data);
+        const [schRes, appRes] = await Promise.allSettled([
+          api.get(`/scholarships/${id}`),
+          api.get('/applications'),
+        ]);
+
+        if (schRes.status === 'fulfilled' && schRes.value.data.success) {
+          setScholarship(schRes.value.data.data);
+        }
+        if (appRes.status === 'fulfilled' && appRes.value.data.success) {
+          const apps = appRes.value.data.data || [];
+          const found = apps.find((a: any) => {
+            const sId =
+              typeof a.scholarshipId === 'object' && a.scholarshipId !== null
+                ? a.scholarshipId._id
+                : a.scholarshipId;
+            return String(sId) === String(id);
+          });
+          if (found) {
+            setExistingApplication(found);
+          }
         }
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to load scholarship details.');
@@ -46,7 +65,7 @@ export const ApplyScholarshipPage: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchScholarship();
+    fetchScholarshipAndApplication();
   }, [id]);
 
   const handleSubmitApplication = async () => {
@@ -144,6 +163,33 @@ export const ApplyScholarshipPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Existing Application Notice */}
+      {existingApplication && (
+        <div className="rounded-3xl bg-blue-50/90 border border-blue-200 p-6 text-blue-950 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-blue-600 shrink-0" />
+              <h3 className="text-sm font-black text-blue-950">
+                Application Already Submitted for This Scheme
+              </h3>
+              <Badge status={existingApplication.status} size="sm" />
+            </div>
+            <p className="text-xs text-blue-800 leading-relaxed max-w-xl">
+              You have already applied for this scholarship program in this academic cycle. Application Ref:{' '}
+              <strong className="font-mono text-blue-950 font-bold">{existingApplication.applicationNumber}</strong> (Applied on{' '}
+              {new Date(existingApplication.appliedDate).toLocaleDateString('en-IN')}). Re-applying is disabled to prevent duplicate submissions.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate(`/student/applications/${existingApplication._id}`)}
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md shadow-blue-500/20 transition-all hover:scale-105 shrink-0 cursor-pointer"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Track Application</span>
+          </button>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-700 flex items-center gap-2 shadow-2xs">
           <AlertCircle className="h-4 w-4 shrink-0" />
@@ -200,28 +246,57 @@ export const ApplyScholarshipPage: React.FC = () => {
       </div>
 
       {/* Declaration & Submission */}
-      <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-5">
-        <label className="flex items-start gap-3 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={agreeTerms}
-            onChange={(e) => setAgreeTerms(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded-sm border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-          />
-          <span className="text-xs text-slate-600 leading-relaxed">
-            I hereby declare that all information provided in this application is genuine and accurate. I certify that I belong to the Scheduled Caste (SC) category of Punjab and our total family annual income from all sources does not exceed ₹2,50,000/-. I authorize Guru Nanak Dev Engineering College and the Punjab Department of Social Justice to verify my certificates and academic records.
-          </span>
-        </label>
+      {existingApplication ? (
+        <div className="rounded-3xl bg-white border border-blue-200 p-6 sm:p-8 shadow-xs text-center space-y-4">
+          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
+            <CheckCircle2 className="h-6 w-6" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black text-slate-900">Application Already Registered</h4>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              Your application for this scholarship scheme is already recorded with reference number{' '}
+              <strong className="font-mono text-slate-800">{existingApplication.applicationNumber}</strong>. Re-application in the same academic cycle is restricted.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => navigate(`/student/applications/${existingApplication._id}`)}
+              className="w-full sm:w-auto px-6 py-2.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition-all cursor-pointer"
+            >
+              Track Application Status ({existingApplication.applicationNumber})
+            </button>
+            <button
+              onClick={() => navigate('/student/scholarships')}
+              className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+            >
+              Back to Catalog
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-5">
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded-sm border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+            />
+            <span className="text-xs text-slate-600 leading-relaxed">
+              I hereby declare that all information provided in this application is genuine and accurate. I certify that I belong to the Scheduled Caste (SC) category of Punjab and our total family annual income from all sources does not exceed ₹2,50,000/-. I authorize Guru Nanak Dev Engineering College and the Punjab Department of Social Justice to verify my certificates and academic records.
+            </span>
+          </label>
 
-        <button
-          onClick={handleSubmitApplication}
-          disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50"
-        >
-          <span>{submitting ? 'Submitting Application...' : 'Confirm & Submit Application'}</span>
-          <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
+          <button
+            onClick={handleSubmitApplication}
+            disabled={submitting}
+            className="w-full flex items-center justify-center gap-2 py-3 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:scale-[1.01] cursor-pointer disabled:opacity-50"
+          >
+            <span>{submitting ? 'Submitting Application...' : 'Confirm & Submit Application'}</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

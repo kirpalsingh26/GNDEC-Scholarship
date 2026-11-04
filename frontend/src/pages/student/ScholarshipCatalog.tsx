@@ -13,13 +13,14 @@ import api from '../../services/api.js';
 import { Badge } from '../../components/common/Badge.js';
 import { ExplainableEligibilityModal } from '../../components/common/ExplainableEligibilityModal.js';
 import { useAuth } from '../../context/AuthContext.js';
-import { Scholarship } from '../../types/index.js';
+import { Scholarship, ScholarshipApplication } from '../../types/index.js';
 
 export const ScholarshipCatalog: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
 
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
+  const [userApplications, setUserApplications] = useState<ScholarshipApplication[]>([]);
   const [search, setSearch] = useState('');
 
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
@@ -27,11 +28,19 @@ export const ScholarshipCatalog: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchScholarships = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get('/scholarships');
-        if (res.data.success) {
-          setScholarships(res.data.data);
+        setLoading(true);
+        const [schRes, appRes] = await Promise.allSettled([
+          api.get('/scholarships'),
+          api.get('/applications'),
+        ]);
+
+        if (schRes.status === 'fulfilled' && schRes.value.data.success) {
+          setScholarships(schRes.value.data.data);
+        }
+        if (appRes.status === 'fulfilled' && appRes.value.data.success) {
+          setUserApplications(appRes.value.data.data || []);
         }
       } catch (err) {
         console.error(err);
@@ -39,8 +48,18 @@ export const ScholarshipCatalog: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchScholarships();
+    fetchData();
   }, []);
+
+  const getAppliedApplication = (scholarshipId: string): ScholarshipApplication | undefined => {
+    return userApplications.find((app) => {
+      const sId =
+        typeof app.scholarshipId === 'object' && app.scholarshipId !== null
+          ? app.scholarshipId._id
+          : app.scholarshipId;
+      return String(sId) === String(scholarshipId);
+    });
+  };
 
   const handleOpenExplainability = (sch: Scholarship) => {
     setSelectedScholarship(sch);
@@ -141,12 +160,16 @@ export const ScholarshipCatalog: React.FC = () => {
             const isIncomeEligible = !sch.rules?.maxFamilyIncome || ((profile?.familyIncome || 0) <= sch.rules.maxFamilyIncome);
             const isEligible = elig ? elig.isEligible : (isCategoryEligible && isIncomeEligible);
             const isExp = isExpired(sch);
+            const appliedApp = getAppliedApplication(sch._id);
+            const hasApplied = Boolean(appliedApp);
 
             return (
               <div
                 key={sch._id}
                 className={`rounded-2xl border p-6 transition-all flex flex-col justify-between group ${
-                  isExp
+                  hasApplied
+                    ? 'bg-blue-50/20 border-blue-200 shadow-xs hover:shadow-md hover:border-blue-300'
+                    : isExp
                     ? 'opacity-55 grayscale-[35%] bg-slate-100/80 border-slate-300 hover:opacity-75'
                     : 'bg-white border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400'
                 }`}
@@ -156,14 +179,21 @@ export const ScholarshipCatalog: React.FC = () => {
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span
                       className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${
-                        isExp
+                        hasApplied
+                          ? 'text-blue-900 bg-blue-50 border-blue-200'
+                          : isExp
                           ? 'text-slate-600 bg-slate-200/80 border-slate-300'
                           : 'text-amber-900 bg-amber-50 border-amber-300'
                       }`}
                     >
                       {sch.code}
                     </span>
-                    {isExp ? (
+                    {hasApplied ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 shadow-2xs">
+                        <CheckCircle2 className="h-3 w-3 text-blue-600" />
+                        Applied
+                      </span>
+                    ) : isExp ? (
                       <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
                         Expired
                       </span>
@@ -246,7 +276,20 @@ export const ScholarshipCatalog: React.FC = () => {
 
                   {/* Scheme Eligibility Verification Status */}
                   <div className="mt-4">
-                    {isExp ? (
+                    {hasApplied ? (
+                      <div className="p-3 rounded-xl bg-blue-50/90 border border-blue-200 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
+                          <div>
+                            <span className="font-bold text-blue-950 block">Application Submitted</span>
+                            <span className="text-[11px] text-blue-700 font-mono">
+                              Ref: {appliedApp?.applicationNumber || 'On Record'}
+                            </span>
+                          </div>
+                        </div>
+                        <Badge status={appliedApp?.status || 'SUBMITTED'} size="sm" />
+                      </div>
+                    ) : isExp ? (
                       <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-slate-400 shrink-0" />
@@ -289,7 +332,15 @@ export const ScholarshipCatalog: React.FC = () => {
                     Check Rules
                   </button>
 
-                  {isExp ? (
+                  {hasApplied ? (
+                    <button
+                      onClick={() => navigate(`/student/applications/${appliedApp?._id}`)}
+                      className="flex-1 py-2 px-2.5 text-xs font-black text-blue-950 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 border border-blue-300 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
+                      <span>Applied • View Status</span>
+                    </button>
+                  ) : isExp ? (
                     <button
                       disabled
                       className="flex-1 py-2 text-xs font-bold text-slate-400 bg-slate-200/90 cursor-not-allowed rounded-xl text-center border border-slate-300"
@@ -299,9 +350,10 @@ export const ScholarshipCatalog: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => navigate(`/student/apply/${sch._id}`)}
-                      className="flex-1 py-2 text-xs font-bold text-white bg-[#0b2341] hover:bg-[#12335c] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      disabled={!isEligible}
+                      className="flex-1 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                     >
-                      Apply Now
+                      <span>Apply Now</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                   )}
@@ -317,6 +369,15 @@ export const ScholarshipCatalog: React.FC = () => {
         <ExplainableEligibilityModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          hasApplied={Boolean(getAppliedApplication(selectedScholarship._id))}
+          appliedApplicationNumber={getAppliedApplication(selectedScholarship._id)?.applicationNumber}
+          onViewApplication={() => {
+            const app = getAppliedApplication(selectedScholarship._id);
+            if (app) {
+              setIsModalOpen(false);
+              navigate(`/student/applications/${app._id}`);
+            }
+          }}
           evaluation={{
             scholarshipTitle: selectedScholarship.title,
             isEligible: selectedScholarship.eligibility?.isEligible ?? true,

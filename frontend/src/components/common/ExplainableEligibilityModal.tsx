@@ -22,6 +22,9 @@ interface ExplainableEligibilityModalProps {
     pendingDocuments: string[];
     summaryMessage: string;
   } | null;
+  hasApplied?: boolean;
+  appliedApplicationNumber?: string;
+  onViewApplication?: () => void;
   onApply?: () => void;
 }
 
@@ -29,6 +32,9 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
   isOpen,
   onClose,
   evaluation,
+  hasApplied,
+  appliedApplicationNumber,
+  onViewApplication,
   onApply,
 }) => {
   if (!evaluation) return null;
@@ -45,12 +51,16 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
         {/* Outcome Header Banner */}
         <div
           className={`rounded-xl p-4 border flex items-start gap-3.5 ${
-            evaluation.isEligible
+            hasApplied
+              ? 'bg-blue-50/80 border-blue-200 text-blue-950'
+              : evaluation.isEligible
               ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
               : 'bg-rose-50/80 border-rose-200 text-rose-950'
           }`}
         >
-          {evaluation.isEligible ? (
+          {hasApplied ? (
+            <CheckCircle2 className="h-6 w-6 text-blue-600 shrink-0 mt-0.5" />
+          ) : evaluation.isEligible ? (
             <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
           ) : (
             <XCircle className="h-6 w-6 text-rose-600 shrink-0 mt-0.5" />
@@ -58,13 +68,21 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
           <div>
             <div className="flex items-center gap-2">
               <h4 className="font-bold text-sm">
-                {evaluation.isEligible ? 'Eligible to Apply' : 'Ineligible Under Current Criteria'}
+                {hasApplied
+                  ? `Already Applied (${appliedApplicationNumber || 'On Record'})`
+                  : evaluation.isEligible
+                  ? 'Eligible to Apply'
+                  : 'Ineligible Under Current Criteria'}
               </h4>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/80 shadow-xs">
                 Match Score: {evaluation.scorePercentage}%
               </span>
             </div>
-            <p className="mt-1 text-xs opacity-90 leading-relaxed">{evaluation.summaryMessage}</p>
+            <p className="mt-1 text-xs opacity-90 leading-relaxed">
+              {hasApplied
+                ? 'You have already submitted an application for this scholarship scheme in this academic cycle. Re-applying is disabled.'
+                : evaluation.summaryMessage}
+            </p>
           </div>
         </div>
 
@@ -124,22 +142,33 @@ export const ExplainableEligibilityModal: React.FC<ExplainableEligibilityModalPr
         <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             Close
           </button>
-          {evaluation.isEligible && onApply && (
+          {hasApplied && onViewApplication ? (
+            <button
+              onClick={() => {
+                onClose();
+                onViewApplication();
+              }}
+              className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-blue-950 bg-blue-100 hover:bg-blue-200 border border-blue-300 rounded-lg shadow-xs transition-all hover:scale-[1.02] cursor-pointer"
+            >
+              <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              <span>Applied • View Application</span>
+            </button>
+          ) : evaluation.isEligible && onApply ? (
             <button
               onClick={() => {
                 onClose();
                 onApply();
               }}
-              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-lg shadow-sm shadow-amber-500/20 transition-all hover:scale-[1.02] cursor-pointer"
             >
               <Sparkles className="h-4 w-4" />
-              Proceed to Application
+              <span>Proceed to Application</span>
             </button>
-          )}
+          ) : null}
         </div>
       </div>
     </Modal>

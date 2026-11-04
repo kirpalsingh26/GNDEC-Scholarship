@@ -31,11 +31,14 @@ export const submitApplication = async (req: AuthRequest, res: Response, next: N
       return res.status(404).json({ success: false, message: 'Student profile not found.' });
     }
 
-    // Check if application already exists for this academic cycle
+    // Check if application already exists for this scholarship
     const existing = await ScholarshipApplication.findOne({
       studentId: profile._id,
       scholarshipId: scholarship._id,
-      academicYear: scholarship.academicYear || '2025-2026',
+      $or: [
+        { academicYear: scholarship.academicYear || '2025-2026' },
+        { status: { $ne: 'REJECTED' } },
+      ],
     });
 
     if (existing) {
